@@ -56,7 +56,7 @@ class Basic(commands.Cog):
             'reason': feedbackmsg
         })
         # Write it inside a JSON
-        with open('data/json/feedback.json', 'w+', newline="\n", encoding='utf=8') as feedjson:
+        with open('data/feedback.json', 'w+', newline="\n", encoding='utf=8') as feedjson:
             json.dump(jsonFile, feedjson, indent=2)
         # Tell the user it's submitted!
         await ctx.send("Thank you for submitting this feedback.")
