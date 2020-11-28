@@ -1,0 +1,178 @@
+import ast
+import json
+import random
+from googletrans import Translator
+
+from discord.ext import commands
+
+langs = {
+        'af': 'afrikaans',
+        'sq': 'albanian',
+        'am': 'amharic',
+        'ar': 'arabic',
+        'hy': 'armenian',
+        'az': 'azerbaijani',
+        'eu': 'basque',
+        'be': 'belarusian',
+        'bn': 'bengali',
+        'bs': 'bosnian',
+        'bg': 'bulgarian',
+        'ca': 'catalan',
+        'ceb': 'cebuano',
+        'ny': 'chichewa',
+        'zh-cn': 'chinese (simplified)',
+        'zh-tw': 'chinese (traditional)',
+        'co': 'corsican',
+        'hr': 'croatian',
+        'cs': 'czech',
+        'da': 'danish',
+        'nl': 'dutch',
+        'en': 'english',
+        'eo': 'esperanto',
+        'et': 'estonian',
+        'tl': 'filipino',
+        'fi': 'finnish',
+        'fr': 'french',
+        'fy': 'frisian',
+        'gl': 'galician',
+        'ka': 'georgian',
+        'de': 'german',
+        'el': 'greek',
+        'gu': 'gujarati',
+        'ht': 'haitian creole',
+        'ha': 'hausa',
+        'haw': 'hawaiian',
+        'iw': 'hebrew',
+        'he': 'hebrew',
+        'hi': 'hindi',
+        'hmn': 'hmong',
+        'hu': 'hungarian',
+        'is': 'icelandic',
+        'ig': 'igbo',
+        'id': 'indonesian',
+        'ga': 'irish',
+        'it': 'italian',
+        'ja': 'japanese',
+        'jw': 'javanese',
+        'kn': 'kannada',
+        'kk': 'kazakh',
+        'km': 'khmer',
+        'ko': 'korean',
+        'ku': 'kurdish (kurmanji)',
+        'ky': 'kyrgyz',
+        'lo': 'lao',
+        'la': 'latin',
+        'lv': 'latvian',
+        'lt': 'lithuanian',
+        'lb': 'luxembourgish',
+        'mk': 'macedonian',
+        'mg': 'malagasy',
+        'ms': 'malay',
+        'ml': 'malayalam',
+        'mt': 'maltese',
+        'mi': 'maori',
+        'mr': 'marathi',
+        'mn': 'mongolian',
+        'my': 'myanmar (burmese)',
+        'ne': 'nepali',
+        'no': 'norwegian',
+        'or': 'odia',
+        'ps': 'pashto',
+        'fa': 'persian',
+        'pl': 'polish',
+        'pt': 'portuguese',
+        'pa': 'punjabi',
+        'ro': 'romanian',
+        'ru': 'russian',
+        'sm': 'samoan',
+        'gd': 'scots gaelic',
+        'sr': 'serbian',
+        'st': 'sesotho',
+        'sn': 'shona',
+        'sd': 'sindhi',
+        'si': 'sinhala',
+        'sk': 'slovak',
+        'sl': 'slovenian',
+        'so': 'somali',
+        'es': 'spanish',
+        'su': 'sundanese',
+        'sw': 'swahili',
+        'sv': 'swedish',
+        'tg': 'tajik',
+        'ta': 'tamil',
+        'te': 'telugu',
+        'th': 'thai',
+        'tr': 'turkish',
+        'uk': 'ukrainian',
+        'ur': 'urdu',
+        'ug': 'uyghur',
+        'uz': 'uzbek',
+        'vi': 'vietnamese',
+        'cy': 'welsh',
+        'xh': 'xhosa',
+        'yi': 'yiddish',
+        'yo': 'yoruba',
+        'zu': 'zulu'}
+
+with open('data/json/feedback.json', encoding='utf-8') as f:
+    try:
+        jsonFile = json.load(f)
+    except ValueError:
+        jsonFile = {'feedback': []}
+
+with open("data/embed_colors.txt") as f:
+    data = f.read()
+    colors = ast.literal_eval(data)
+    color_list = [c for c in colors.values()]
+
+translator = Translator()
+
+
+# New - The Cog class must extend the commands.Cog class
+class Mistakes(commands.Cog):
+
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(
+        name="translatent",
+        description="Google Translate sentences just a bit too much, so that your sentences are now gibberish.",
+        aliases=["googletranslate", "googletrans"],
+        brief='Messes up sentences with Google Translate.'
+    )
+    async def translatent_command(self, ctx):
+        def check(ms):
+            return ms.channel == ctx.message.channel and ms.author == ctx.message.author
+
+        commandmsg = ctx.message.content
+        prefix_used = ctx.prefix
+        alias_used = ctx.invoked_with
+        commandargs = commandmsg[len(prefix_used) + len(alias_used):]
+
+        # Next, we check if the user actually passed some text
+        if commandargs == '':
+            await ctx.send('What would you like to translaten\'t?')
+            msg = await self.bot.wait_for('message', check=check)
+            stringtranslate = msg.content
+        else:
+            stringtranslate = commandargs
+
+        await ctx.send("Translaten't-ing in progress...")
+        for _ in range(45):
+            translatelang = random.choice(list(langs.keys()))
+            try:
+                translatearray = translator.translate(text=stringtranslate, dest=translatelang)
+                stringtranslate = translatearray.text
+            except AttributeError:
+                pass
+
+        try:
+            translatearray = translator.translate(text=stringtranslate, dest='en')
+            stringtranslate = translatearray.text
+        except AttributeError:
+            pass
+        await ctx.send(f'{ctx.author.mention}, \n> {stringtranslate}')
+
+
+def setup(bot):
+    bot.add_cog(Mistakes(bot))

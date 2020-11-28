@@ -1,0 +1,5 @@
+aiohttp
+discord.py
+discord-pretty-help
+parsedatetime
+googletrans  # I know this seems odd (and that's because it is), but this is for the translaten't command.
