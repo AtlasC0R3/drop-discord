@@ -1,1 +1,9 @@
 .idea/
+data/config.json
+data/__pycache__
+data/config.json
+data/json/feedback.json
+data/servers/
+data/token.txt
+data/temp_penalties.json
+data/temp_penalties.json
