@@ -5,10 +5,11 @@ A Discord.py bot that respects privacy, while still retaining usability.
 ~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as private and free as possible, while still retaining usability and flexibility in mind. 
 ## How do I use it?
 1. Make sure Python3 is installed *(minimum recommended version is Python 3.7, though you may be able to get away with 3.6 or even 3.5, but please note that you are on your own with this, I will not help you)* and that you have a functioning pip install. **Python 2 will not work.**
-2. Install the required dependencies. To do so, you may use `pip install -r requirements.txt` *(or pip3, depending on your install)*
-3. Make sure your `config.json` is configured correctly, and that `token.txt` has the correct bot token (if the bot cannot find it, it will ask the user for the token and ask if it should save it). *If you do not know how to get a bot token, you may search it on Google, Bing, DuckDuckGo or whatever your preferred search engine may be.*
-4. Run `main.py`
-5. ~~Profit.~~ You now have self-hosted this bot.
+2. Download the bot's files; you may do so by downloading the [latest release](https://github.com/AtlasC0R3/drop-bot/releases/latest) if you want the stablest release, or you can directly clone the repository if you want a more "canary" release.
+3. Install the required dependencies. To do so, you may use `pip install -r requirements.txt` *(or pip3, depending on your install)*
+4. Make sure your `config.json` is configured correctly, and that `token.txt` has the correct bot token (if the bot cannot find it, it will ask the user for the token and ask if it should save it). *If you do not know how to get a bot token, you may search it on Google, Bing, DuckDuckGo or whatever your preferred search engine may be.*
+5. Run `main.py`
+6. ~~Profit.~~ You now have self-hosted this bot.
 
 ## Frequently Asked Questions ~~even though no one asked any questions~~
 
