@@ -1,8 +1,7 @@
-import ast
+import os
 import io
 import datetime
 import json
-import os
 import time
 import sys
 from datetime import datetime
@@ -31,7 +30,7 @@ except ImportError:
              "or by running\n  pip install -r requirements.txt")
 
 cogs = []
-for cogfile in list(os.listdir('cogs/')):
+for cogfile in os.listdir('cogs/'):
     if cogfile.endswith('.py'):
         cogimport = 'cogs.' + cogfile.split('.')[0]
         cogs.append(cogimport)

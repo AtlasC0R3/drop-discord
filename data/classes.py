@@ -1,14 +1,16 @@
 import json
+import os
 
 
 exampleServerConfig = {
-    "prefix": "+",
+    "prefix": "!",
     "share_error_logs": False,
     "asked_prefix": [],
     "inactivity_func": False,
     "inactivity_channels": [],
     "mute_role": 0,
-    "disabled_commands": []
+    "disabled_commands": [],
+    "no_no_words": []
 }
 
 
@@ -36,7 +38,9 @@ def get_server_config(serverid, param, paramtype):
             return paramtype(server_config.get(param))
     except FileNotFoundError:
         # No config exists for this server.
-        with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as f:
+        if not os.path.exists(f"data/servers/{serverid}/"):
+            os.makedirs(f"data/servers/{serverid}/")
+        with open(f"data/servers/{serverid}/config.json", "w+", encoding="utf-8", newline='\n') as f:
             json.dump(exampleServerConfig, f, indent=2)
             return paramtype(exampleServerConfig.get(param))
 

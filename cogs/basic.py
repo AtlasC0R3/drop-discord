@@ -8,11 +8,17 @@ from datetime import datetime as d
 import discord
 from discord.ext import commands
 
-with open('data/json/feedback.json', encoding='utf-8', newline="\n") as f:
-    try:
-        jsonFile = json.load(f)
-    except ValueError:
-        jsonFile = {'feedback': []}
+
+if not os.path.exists('data/feedback.json'):
+    with open('data/feedback.json', 'w+', encoding='utf-8', newline="\n") as f:
+        jsonFile = {"feedback": []}
+        json.dump(jsonFile, f)
+else:
+    with open('data/feedback.json', encoding='utf-8', newline="\n") as f:
+        try:
+            jsonFile = json.load(f)
+        except ValueError:
+            jsonFile = {"feedback": []}
 
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
@@ -127,7 +133,7 @@ class Basic(commands.Cog):
             )
             await channelsendin.send(embed=embed)
             time.sleep(5)
-        await ctx.send('`--- END OF PINS ---`')
+        await ctx.send('Done storing pins.')
 
     @storepins_command.error
     async def storepins_handler(self, ctx, error):
