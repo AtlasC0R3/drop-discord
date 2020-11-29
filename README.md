@@ -1,5 +1,5 @@
 # Drop
-A Discord.py bot that respects privacy, while still retaining usability.
+A Discord.py bot that is meant to be a simple Discord server utility bot that requires the least amount of configuration possible.
 
 ## What the hell is this? 
 ~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as private and free as possible, while still retaining usability and flexibility in mind. 

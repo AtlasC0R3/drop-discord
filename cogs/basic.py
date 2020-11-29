@@ -33,12 +33,8 @@ class Basic(commands.Cog):
 
     @commands.command(
         name='feedback',
-        description='Sends a special little message to me (the creator of this bot) about how you like/dislike this '
-                    'bot! Really, you can say anything about it, even about how you think it\'s [BLEEP]ing horrible, '
-                    'or to suggest things such as the games it should play or things it should watch every time the '
-                    'bot starts up. Mention anything, really! Oh and about the data that is being sent, '
-                    'all that is shared is your username and the message you send me. Nothing that can really '
-                    'personally or specifically identify you.',
+        description='Send a message about your personal feedback, for example you can suggest new commands, report a '
+                    'bug, or just talk about how the bot is horrible.',
         usage='',
         brief='Send your feedback about this bot'
     )
