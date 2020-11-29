@@ -4,6 +4,10 @@ A Discord.py bot that respects privacy, while still retaining usability.
 ## What the hell is this? 
 ~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as private and free as possible, while still retaining usability and flexibility in mind. 
 ## How do I use it?
+There are two ways: you can self host it (recommended), or use the already hosted version, that I am personally hosting.
+
+*Note: I don't mind if you just try the already hosted version just to see if the bot functions, but please, if you do end up using the bot, please consider self hosting it; the one I'm already hosting has huge latency problems and might not always work or be online.*
+### Self-hosting the bot
 1. Make sure Python3 is installed *(minimum recommended version is Python 3.7, though you may be able to get away with 3.6 or even 3.5, but please note that you are on your own with this, I will not help you)* and that you have a functioning pip install. **Python 2 will not work.**
 2. Download the bot's files; you may do so by downloading the [latest release](https://github.com/AtlasC0R3/drop-bot/releases/latest) if you want the stablest release, or you can directly clone the repository if you want a more "canary" release.
 3. Install the required dependencies. To do so, you may use `pip install -r requirements.txt` *(or pip3, depending on your install)*
@@ -11,10 +15,13 @@ A Discord.py bot that respects privacy, while still retaining usability.
 5. Run `main.py`
 6. ~~Profit.~~ You now have self-hosted this bot.
 
+### Using the already hosted bot
+You may invite the bot that I am hosting through [this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&scope=bot), I will try my best to make sure it is always online (or most of the time, at least) and up to date with the repository.
+
 ## Frequently Asked Questions ~~even though no one asked any questions~~
 
 ### Q: Do I _have_ to self host this bot? Is there no online hosted version?
-I do have a server (which is really just a Raspberry Pi) in which I can host the bot, though please do not heavily depend on it; I'm not even sure if everything works correctly in the way I'm hosting it.
+Well, you can use the online version, but please consider self hosting it unless you *really* can't.
 
 ### Q: How can I contribute?
 You can use a pull request to do so, or open an issue.
