@@ -2,7 +2,7 @@
 A Discord.py bot that is meant to be a simple Discord server utility bot that requires the least amount of configuration possible.
 
 ## What the hell is this? 
-~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as private and free as possible, while still retaining usability and flexibility in mind. 
+~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as free as possible, while still retaining utility in mind. 
 ## How do I use it?
 There are two ways: you can self host it (recommended), or use the already hosted version, that I am personally hosting.
 
