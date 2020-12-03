@@ -7,16 +7,19 @@ A Discord.py bot that is meant to be a simple Discord server utility bot that re
 There are two ways: you can self host it (recommended), or use the already hosted version, that I am personally hosting.
 
 *Note: I don't mind if you just try the already hosted version just to see if the bot functions, but please, if you do end up using the bot, please consider self hosting it; the one I'm already hosting has huge latency problems and might not always work or be online.*
+
+
 ### Self-hosting the bot
 1. Make sure Python3 is installed *(minimum recommended version is Python 3.7, though you may be able to get away with 3.6 or even 3.5, but please note that you are on your own with this, I will not help you)* and that you have a functioning pip install. **Python 2 will not work.**
-2. Download the bot's files; you may do so by downloading the [latest release](https://github.com/AtlasC0R3/drop-bot/releases/latest) if you want the stablest release, or you can directly clone the repository if you want a more "canary" release.
+2. Download the bot's files; you may clone this repository using Git.
 3. Install the required dependencies. To do so, you may use `pip install -r requirements.txt` *(or pip3, depending on your install)*
 4. Make sure your `config.json` is configured correctly, and that `token.txt` has the correct bot token (if the bot cannot find it, it will ask the user for the token and ask if it should save it). *If you do not know how to get a bot token, you may search it on Google, Bing, DuckDuckGo or whatever your preferred search engine may be.*
 5. Run `main.py`
 6. ~~Profit.~~ You now have self-hosted this bot.
 
 ### Using the already hosted bot
-You may invite the bot that I am hosting through [this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&scope=bot), I will try my best to make sure it is always online (or most of the time, at least) and up to date with the repository.
+The self hosted version works, and is updated on every update (or whenever I feel like it), though it may not be available 24/7; some blackouts may occur, it may be slow or your data could *very rarely* vanish.
+If you are willing to look past those issues, [you can invite the bot using this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot). Privacy notice: your data is not shared with anyone except your own server, in no way shall the data from one server be brought over to another. If you wish to delete all data related to a server, please contact me. *A command that deletes all data related to a server is planned.*
 
 ## Frequently Asked Questions ~~even though no one asked any questions~~
 
