@@ -166,7 +166,7 @@ async def inactivity_func():
 @bot.event
 async def on_command_error(ctx, error):
     if not isinstance(error, (commands.CommandNotFound, commands.MissingPermissions, commands.MissingRequiredArgument,
-                              commands.DisabledCommand, commands.CheckFailure)):
+                              commands.DisabledCommand, commands.CheckFailure, commands.MemberNotFound)):
         if get_config_parameter('save_errors', bool):
             dt_string = datetime.now().strftime("%d_%m_%Y %H %M %S")
             if not os.path.exists(f"data/errors/{type(error).__name__}/"):

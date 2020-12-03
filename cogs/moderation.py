@@ -1,4 +1,3 @@
-import ast
 import time
 import json
 import random
@@ -25,6 +24,11 @@ class Moderation(commands.Cog):
     )
     @commands.has_guild_permissions(manage_messages=True)
     async def purge_command(self, ctx, to_delete=5):
+        if to_delete <= 0:
+            await ctx.send("Invalid amount specified: you can't put a number under 1! "
+                           "*Action cancelled.*")
+            return
+
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
@@ -164,6 +168,184 @@ class Moderation(commands.Cog):
             if error.param.name == 'rulekey':
                 await ctx.send(f"[{ctx.message.author.name}], you did not specify a rule name.")
                 return
+
+    @commands.command(
+        name='kick',
+        description='Kicks a specified user. Not sure why you\'d want to use the bot for this, but okay.',
+        usage='<@offender> reason (optional)',
+        brief='Kicks a user'
+    )
+    @commands.has_guild_permissions(manage_messages=True)
+    async def kick_command(self, ctx, user: discord.Member, *, reason=None):
+        if user.id == self.bot.user.id:
+            await ctx.send("Really..? After all my efforts, this is how I get treated?")
+            return
+        if user == ctx.author:
+            await ctx.send("You hate yourself *that* much?")
+            return
+        if user.guild_permissions.manage_messages:
+            await ctx.send("The specified user has the \"Manage Messages\" permission "
+                           "(or higher) inside the guild/server.")
+            return
+        if reason is None:
+            reason = "No reason specified."
+        await user.kick(reason=f'{reason}\n(Kicked by {ctx.author.name})')
+        embed = discord.Embed(
+            title="User kicked",
+            description=f"User: **{user}**\n"
+                        f"Reason: **{reason}**\n"
+                        f"Kicked by: **{ctx.author}**",
+            color=random.choice(color_list)
+        )
+        embed.set_thumbnail(url=user.avatar_url)
+        embed.set_author(
+            name=ctx.message.author.name,
+            icon_url=ctx.message.author.avatar_url,
+            url=f"https://discord.com/users/{ctx.message.author.id}/"
+        )
+        await ctx.send(embed=embed)
+
+    @kick_command.error
+    async def kick_handler(self, ctx, error):
+        if isinstance(error, commands.MemberNotFound):
+            await ctx.send(f'{error} *(Action cancelled.)*')
+            return
+        elif isinstance(error, discord.Forbidden):
+            await ctx.send(f'Seems like I am missing permissions to do so.')
+            return
+        elif isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'user':
+                await ctx.send("You did not specify a user to kick. *Action cancelled.*")
+                return
+            else:
+                await ctx.send(f"Required argument {error.param.name} is missing.")
+
+    @commands.command(
+        name='ban',
+        description='Bans a specified user. Not sure why you wouldn\'t want to do it yourself, but okay.',
+        usage='<@offender> reason (optional)',
+        brief='Bans a user'
+    )
+    @commands.has_guild_permissions(manage_messages=True)
+    async def ban_command(self, ctx, user: discord.Member, *, reason=None):
+        if user.id == self.bot.user.id:
+            await ctx.send("Really..? After all my efforts, this is how I get treated?")
+            return
+        if user == ctx.author:
+            await ctx.send("You hate yourself *that* much?")
+            return
+        if user.guild_permissions.manage_messages:
+            await ctx.send("The specified user has the \"Manage Messages\" permission "
+                           "(or higher) inside the guild/server.")
+            return
+        if reason is None:
+            reason = "No reason specified."
+        await user.ban(reason=f'{reason}\n(Banned by {ctx.author.name})')
+        embed = discord.Embed(
+            title="User banned",
+            description=f"User: **{user}**\n"
+                        f"Reason: **{reason}**\n"
+                        f"Banned by: **{ctx.author}**",
+            color=random.choice(color_list)
+        )
+        embed.set_thumbnail(url=user.avatar_url)
+        embed.set_author(
+            name=ctx.message.author.name,
+            icon_url=ctx.message.author.avatar_url,
+            url=f"https://discord.com/users/{ctx.message.author.id}/"
+        )
+        await ctx.send(embed=embed)
+
+    @ban_command.error
+    async def ban_handler(self, ctx, error):
+        if isinstance(error, commands.MemberNotFound):
+            await ctx.send(f'{error} *(Action cancelled.)*')
+            return
+        elif isinstance(error, discord.Forbidden):
+            await ctx.send(f'Seems like I am missing permissions to do so.')
+            return
+        elif isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'user':
+                await ctx.send("You did not specify a user to ban. *Action cancelled.*")
+                return
+            else:
+                await ctx.send(f"Required argument {error.param.name} is missing.")
+
+    @commands.command(
+        name='unban',
+        description='Unbans a specified user. Again, I don\'t know why you wouldn\' want to do it yourself.',
+        usage='<@offender>',
+        brief='Unbans a user'
+    )
+    @commands.has_guild_permissions(manage_messages=True)
+    async def unban_command(self, ctx, *, user):
+        banlist = await ctx.guild.bans()
+        if user.isdigit():
+            # The user has been specified using an ID.
+            for entry in banlist:
+                if entry.user.id == int(user):
+                    # We have found the correct user
+                    user = entry.user
+        elif '#' in user:
+            # The user also comes with a discriminator.
+            userfull = user.split('#')
+            if len(userfull) != 2:
+                await ctx.send("Whoops, there seems to be more than one discriminator in that user. "
+                               "This is making my task of finding the user you are looking for impossible. "
+                               "*Action cancelled.*")
+                return
+            elif type(userfull) is not list:
+                await ctx.send("Whoops, I seem to have screwed something up (or Python is becoming unreliable), "
+                               "so now I can't find the user you are looking for. I'll take the blame. "
+                               "*Action cancelled.*")
+                return
+            for entry in banlist:
+                if (userfull[0], userfull[1]) == (entry.user.name, entry.user.discriminator):
+                    # We have found the correct user
+                    user = entry.user
+        else:
+            # That must be just the user's name.
+            for entry in banlist:
+                if user == entry.user.name:
+                    # We have found the correct user
+                    user = entry.user
+
+        if user.id == self.bot.user.id:
+            await ctx.send("Hey, I'm not banned, I can still talk here.")
+            return
+        if user == ctx.author:
+            await ctx.send("Yeah, you're not banned.")
+            return
+
+        await ctx.guild.unban(user)
+        embed = discord.Embed(
+            title="User unbanned",
+            description=f"User: **{user}**\n"
+                        f"Unbanned by: **{ctx.author}**",
+            color=random.choice(color_list)
+        )
+        embed.set_thumbnail(url=user.avatar_url)
+        embed.set_author(
+            name=ctx.message.author.name,
+            icon_url=ctx.message.author.avatar_url,
+            url=f"https://discord.com/users/{ctx.message.author.id}/"
+        )
+        await ctx.send(embed=embed)
+
+    @unban_command.error
+    async def unban_handler(self, ctx, error):
+        if isinstance(error, commands.UserNotFound):
+            await ctx.send(f'{error} *(Action cancelled.)*')
+            return
+        elif isinstance(error, discord.Forbidden):
+            await ctx.send(f'Seems like I am missing permissions to do so.')
+            return
+        elif isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'user':
+                await ctx.send("You did not specify a user to unban. *Action cancelled.*")
+                return
+            else:
+                await ctx.send(f"Required argument {error.param.name} is missing.")
 
 
 def setup(bot):
