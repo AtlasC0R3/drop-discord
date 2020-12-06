@@ -1,5 +1,4 @@
 discord.py
 discord-pretty-help
-parsedatetime~=2.6
-googletrans  # for the translaten't command
-requests~=2.24.0
+parsedatetime
+requests
