@@ -7,10 +7,11 @@ import sys
 from datetime import datetime
 import random
 
-from data.classes import bcolors
+from data.classes import TermColors
 from data.classes import get_config_parameter
 from data.classes import get_server_config
 from data.classes import write_server_config
+from data.classes import get_github_config
 
 # External libraries that need to be imported
 try:
@@ -65,15 +66,20 @@ bot = commands.Bot(  # Create a new bot
 
 @bot.event
 async def on_ready():
+    get_github_config()
     if os.name == 'nt':
-        os.system("cls")
-        os.system(f"title {bot.user}")
+        if get_config_parameter('clear_terminal', bool):
+            os.system("cls")
+        if get_config_parameter('change_terminal_name', bool):
+            os.system(f"title {bot.user}")
         print(f"Running on Windows ({os.name})")
     elif os.name == "darwin":
         print(f"Running on macOS ({os.name})")
     elif os.name == 'posix':
-        os.system("clear")
-        os.system(f"printf '\\033]2;{bot.user}\\a'")  # Sets terminal name to the bot's user.
+        if get_config_parameter('clear_terminal', bool):
+            os.system("clear")
+        if get_config_parameter('change_terminal_name', bool):
+            os.system(f"printf '\\033]2;{bot.user}\\a'")  # Sets terminal name to the bot's user.
         print(f"Running on Posix/Linux ({os.name})")
     else:
         # What the hell is this running on!?
@@ -84,7 +90,7 @@ async def on_ready():
             bot.load_extension(cog)
     except discord.ext.commands.errors.ExtensionAlreadyLoaded:
         # Bot tried to load a cog that was already loaded.
-        print(f"{bcolors.WARNING}WARN: Tried to load a cog/extension that was already loaded.{bcolors.ENDC}")
+        print(f"{TermColors.WARNING}WARN: Tried to load a cog/extension that was already loaded.{TermColors.ENDC}")
         return
     activitychanger.start()
     temp_undo.start()
