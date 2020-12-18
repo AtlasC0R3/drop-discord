@@ -19,7 +19,7 @@ There are two ways: you can self host it (recommended), or use the already hoste
 
 ### Using the already hosted bot
 The self hosted version works, and is updated on every update (or whenever I feel like it), though it may not be available 24/7; some blackouts may occur, it may be slow or your data could *very rarely* vanish.
-If you are willing to look past those issues, [you can invite the bot using this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot). Privacy notice: your data is not shared with anyone except your own server, in no way shall the data from one server be brought over to another. If you wish to delete all data related to a server, please contact me. *A command that deletes all data related to a server is planned.*
+If you are willing to look past those issues, [you can invite the bot using this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot). Please read the [privacy notice](https://atlasc0r3.github.io/drop-bot/#privacy-notice) before proceeding.
 
 ## Frequently Asked Questions ~~even though no one asked any questions~~
 
