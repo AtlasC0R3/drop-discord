@@ -46,7 +46,7 @@ The pre-hosted version shall always be the same software as the one available on
 
 What info this bot may collect is:
 - **Configuration data**, you may use the `configinfo` command to view the config data;
-- **Mentions from users in your server**, only the user's ID will be stored and nothing else;
+- **Bot mentions**, if a user mentions the bot with no command, only the user's ID will be stored and nothing else: this is to help the bot know if it should say the prefix or not;
 - **Rule information**, the "rules" that have been set shall be stored, though the ones that shall be removed will be, well, removed entirely;
 - **Warn data**, what will be stored is:
   - the date and time where the warn has occured;
