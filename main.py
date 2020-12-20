@@ -230,30 +230,21 @@ async def temp_undo():
 
 if get_config_parameter('dev_token', bool):
     print("WARN: Developer mode activated, passing through developer token.")
-    try:
-        specified_token = open("data/devtoken.txt", "rt").read()
-    except FileNotFoundError:
-        specified_token = input("Seems like I couldn't find the developer token, please enter it: ")
-        reply = input("Got it. Would you like to save that token for future use cases? (y/n)\n").lower()
-        if reply in ('y', 'yes'):
-            open("data/devtoken.txt", "w+", newline="\n", encoding='utf-8').write(specified_token)
-            print("Alright, token saved. Running bot...\n")
-        elif reply in ('n', 'no'):
-            print("Alright, running bot.\n")
-        else:
-            print("I didn't quite get that... I'll take that as a no.\n")
+    tokenpath = "data/devtoken.txt"
 else:
-    try:
-        specified_token = open("data/token.txt", "rt").read()
-    except FileNotFoundError:
-        specified_token = input("Seems like I couldn't find the token, please enter it: ")
-        reply = input("Got it. Would you like to save that token for future use cases? (y/n)\n").lower()
-        if reply in ('y', 'yes'):
-            open("data/token.txt", "w+", newline="\n", encoding='utf-8').write(specified_token)
-            print("Alright, token saved. Running bot...\n")
-        elif reply in ('n', 'no'):
-            print("Alright, running bot.\n")
-        else:
-            print("I didn't quite get that... I'll take that as a no.\n")
+    tokenpath = "data/token.txt"
+
+try:
+    specified_token = open(tokenpath, "rt").read()
+except FileNotFoundError:
+    specified_token = input("Seems like I couldn't find the token, please enter it: ")
+    reply = input("Got it. Would you like to save that token for future use cases? (y/n)\n").lower()
+    if reply in ('y', 'yes'):
+        open(tokenpath, "w+", newline="\n", encoding='utf-8').write(specified_token)
+        print("Alright, token saved. Running bot...\n")
+    elif reply in ('n', 'no'):
+        print("Alright, running bot.\n")
+    else:
+        print("I didn't quite get that... I'll take that as a no.\n")
 
 bot.run(specified_token, bot=True, reconnect=True)
