@@ -1,14 +1,18 @@
 import json
 import random
+from datetime import datetime
 
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_guild_permissions
 
+import parsedatetime
+
 from data.classes import write_server_config
 from data.classes import get_server_config
 from data.classes import get_entire_server_config
 
+cal = parsedatetime.Calendar()
 
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
@@ -419,6 +423,122 @@ class Configuration(commands.Cog):
         if isinstance(error, commands.errors.MissingPermissions):
             await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
                            f"*({error} Action cancelled)*")
+            return
+
+    @commands.command(
+        name='cleardata',
+        description='Clears out a guild\'s data.\n'
+                    '**VERY DANGEROUS, AS THIS WILL MAKE THE BOT LEAVE AND '
+                    'CLEAR OUT EVERYTHING ASSOCIATED WITH THIS SERVER! USE AT YOUR OWN RISK.**',
+        usage='',
+        brief='Erases the guild\'s entire data (!!)'
+    )
+    @commands.has_guild_permissions(administrator=True)
+    async def cleardata_command(self, ctx):
+        def check(ms):
+            return ms.channel == ctx.message.channel and ms.author == ctx.message.author
+
+        await ctx.send("Woah there! Are you sure you know what you're doing?\n"
+                       "**This will clear out all data associated to this server from the bot's data after 3 days**, "
+                       "then make the bot itself leave! *This will also unmute all currently muted users.* "
+                       "If you decide to invite the bot back, the data deletion will be cancelled and your data should "
+                       "be left intact.\n**Are you sure you want to continue?** *(y/n)*")
+
+        replymsg = await self.bot.wait_for('message', check=check)
+        reply = replymsg.content.lower()
+        if reply in ('y', 'yes', 'confirm'):
+            pass
+        elif reply in ('n', 'no', 'cancel', 'flanksteak'):
+            await ctx.send("Got it. *False alarm, everyone! Continue back to what you were doing. No data has been "
+                           "queued for deletion.*")
+            return
+        else:
+            await ctx.send("Uh, I'll take that as a no. *Action cancelled.*")
+            return
+
+        dt_obj = cal.parseDT(datetimeString='3 days')  # I feel like Todd Howard. It just works, but there's got to be
+        now_dt = datetime.now()                        # a better way of doing this.
+        list_now_dt = str(now_dt).split(":")
+        list_dt_obj = str(dt_obj[0]).split(":")
+
+        str_now_dt = f'{list_now_dt[0]}:{list_now_dt[1]}'
+        str_dt_obj = f'{list_dt_obj[0]}:{list_dt_obj[1]}'
+
+        # The unthinkable will be done.
+        with open("data/data_clear.json", "r+", newline='\n', encoding='utf-8') as tempf:
+            data_clear = json.load(tempf)
+            guild = ctx.guild
+            if str_dt_obj not in data_clear:
+                data_clear[str_dt_obj] = []
+            data_clear[str_dt_obj].append(str(guild.id))
+            clear_index = len(data_clear[str_dt_obj]) - 1
+            if str(guild.id) not in data_clear:
+                data_clear[str(guild.id)] = []
+            data_clear[str(guild.id)] = [str_dt_obj, clear_index]
+            tempf.seek(0)
+            json.dump(data_clear, tempf, indent=2)
+            tempf.truncate()
+
+        # Unmute all current mutes
+        with open("data/unmutes.json", "r", encoding="utf-8", newline="\n") as unmutef:
+            unmutes = json.load(unmutef)
+            unmute_desc = ""
+            if str(guild.id) in unmutes:
+                # Guess what, we have mutes!.. god dammit.
+                diction = {}
+                for userID, data in unmutes[str(guild.id)].items():
+                    user = guild.get_member(int(userID))
+                    unmute_time = data[0]
+                    unmute_index = data[2]
+                    unmute_date_entry = unmutes[unmute_time][unmute_index]
+                    unmute_role_id = unmute_date_entry[1]
+                    unmute_role = discord.utils.get(guild.roles, id=int(unmute_role_id))
+                    await user.remove_roles(unmute_role)
+                    unmute_desc = unmute_desc + f'{user.name} (unmute time would be at {unmute_time})\n'
+                    if diction.get(unmute_time):
+                        # Already exists.
+                        time_thing = diction[unmute_time]
+                        time_thing.append(unmute_index)
+                        diction[unmute_time] = time_thing
+                    else:
+                        # Doesn't exist.
+                        diction[unmute_time] = [unmute_index]
+                unmutes.pop(str(guild.id))
+                for time, indexes in diction.items():
+                    indexes.sort(reverse=True)
+                    for index in indexes:
+                        unmutes[time].pop(index)
+                    if not unmutes[time]:
+                        unmutes.pop(time)
+                with open("data/unmutes.json", "w", encoding="utf-8", newline="\n") as writef:
+                    json.dump(unmutes, writef, indent=2)
+
+        embed = discord.Embed(
+            title="Data deletion queued",
+            description=f"Date until deletion: {str_dt_obj} *(now is {str_now_dt})*\n"
+                        f"Server ID: {guild.id}",
+            color=random.choice(color_list)
+        )
+        if unmute_desc:
+            embed.add_field(
+                name='Unmuted members',
+                value=unmute_desc
+            )
+        embed.set_author(
+            name=ctx.author.name,
+            icon_url=ctx.author.avatar_url,
+            url=f"https://discord.com/users/{ctx.author.id}/"
+        )
+        with open("data/quotes/goodbyes.json", encoding='utf-8', newline="\n") as goodbyes_json:
+            goodbyes = json.load(goodbyes_json)
+        await ctx.send(random.choice(goodbyes).format(ctx), embed=embed)
+        await ctx.guild.leave()
+
+    @cleardata_command.error
+    async def cleardata_handler(self, ctx, error):
+        if isinstance(error, commands.errors.MissingPermissions):
+            await ctx.send(f"[{ctx.author.name}], you are missing the permissions [Administrator] in this guild/server."
+                           )  # gosh darn parenthesis going over 120 characters!!!1!
             return
 
 

@@ -6,6 +6,7 @@ import time
 import sys
 from datetime import datetime
 import random
+import shutil
 
 from data.classes import TermColors
 from data.classes import get_config_parameter
@@ -53,6 +54,7 @@ def get_prefix(client, message):
 intents = discord.Intents.default()
 intents.members = True
 # F**k intents.
+intents.guilds = True
 
 bot = commands.Bot(  # Create a new bot
     command_prefix=get_prefix,  # Set the prefix
@@ -188,44 +190,86 @@ async def on_command_error(ctx, error):
                            file=discord.File(errorio, 'error.txt'))
 
 
-@tasks.loop(minutes=30)
+@bot.event
+async def on_guild_join(guild):
+    with open("data/data_clear.json", "r", encoding="utf-8", newline="\n") as f:
+        data_clear = json.load(f)
+        if str(guild.id) in data_clear:
+            # Data deletion has been queued, but will need to be cancelled.
+            system_channel = guild.system_channel
+            if system_channel:
+                await system_channel.send("Woah there. It seems like this server had their data deletion queued. "
+                                          "Since someone invited me back, this data deletion queue will be cancelled. "
+                                          "If you'd like to queue it back, please run the `cleardata` command again "
+                                          "(and don't invite me back in this server).")
+            else:
+                # No channel has been set for system messages. So, just say no warning, I guess...
+                pass
+            guild_entry = data_clear[str(guild.id)]
+            data_clear[guild_entry[0]].pop(guild_entry[1])
+            data_clear.pop(str(guild.id))
+            if not data_clear[guild_entry[0]]:
+                data_clear.pop(guild_entry[0])
+            with open("data/data_clear.json", "w", encoding="utf-8", newline="\n") as dclear:
+                json.dump(data_clear, dclear, indent=2)
+
+
+@tasks.loop(minutes=1)
 async def temp_undo():
     dt_string = datetime.now().strftime("%Y-%m-%d %H:%M")
     with open("data/unmutes.json", "r", encoding="utf-8", newline="\n") as f:
-        data = json.load(f)
-    if dt_string in data:
+        unmutes = json.load(f)
+    with open("data/data_clear.json", "r", encoding="utf-8", newline="\n") as f:
+        data_clear = json.load(f)
+    if dt_string in unmutes:
         guilds = []
         users = []
-        for x in data.get(dt_string):
-            guild_id = x[2]
+        for toUnmute in unmutes.get(dt_string):
+            guild_id = toUnmute[2]
             guild = bot.get_guild(guild_id)
-            role_id = x[1]
+            role_id = toUnmute[1]
             role = discord.utils.get(guild.roles, id=role_id)
-            user_id = x[0]
+            user_id = toUnmute[0]
             user_member = guild.get_member(user_id)  # holy s*** i need to learn intents.
             await user_member.remove_roles(role)
-            x.pop()
+            toUnmute.pop()
             guilds.append(guild_id)
             users.append(user_id)
-        # stuff done, now we just have to delete residue *correctly*.
-
-        with open("data/unmutes.json", "r+", encoding='utf-8', newline="\n") as tempf:
-            data = json.load(tempf)
-            data.pop(dt_string)
-            for x in users:
+        # Stuff done, remove leftovers
+        with open("data/unmutes.json", "r+", encoding='utf-8', newline="\n") as unmuteFile:
+            unmutes = json.load(unmuteFile)
+            unmutes.pop(dt_string)
+            for toUnmute in users:
                 for y in guilds:
                     try:
-                        data[str(y)].pop(str(x))
+                        unmutes[str(y)].pop(str(toUnmute))
                     except KeyError:
                         pass  # Wrong guild/user combination.
-                    if not data.get(str(y)):
-                        data.pop(str(y))
-
-            tempf.seek(0)
-            json.dump(data, tempf, indent=2)
-            tempf.truncate()
-            # wwwwww... How does all of this work..? It.. does?!
-            # I'm amazed and confused at the same time.
+                    if not unmutes.get(str(y)):
+                        unmutes.pop(str(y))
+            unmuteFile.seek(0)
+            json.dump(unmutes, unmuteFile, indent=2)
+            unmuteFile.truncate()
+    if dt_string in data_clear:
+        guilds = []
+        now_clears = data_clear.get(dt_string)
+        for toClear in now_clears:
+            guild_id = toClear
+            try:
+                shutil.rmtree(f'data/servers/{guild_id}/')
+            except OSError:
+                pass  # Directory already removed (???)
+            guilds.append(guild_id)
+            now_clears = [x for x in now_clears if x != toClear]
+        # Stuff done, remove leftovers 2: electric boogaloo
+        with open("data/data_clear.json", "r+", encoding='utf-8', newline="\n") as data_clear_json:
+            data_clears = json.load(data_clear_json)
+            data_clears.pop(dt_string)
+            for toPop in guilds:
+                data_clears.pop(str(toPop))
+            data_clear_json.seek(0)
+            json.dump(data_clears, data_clear_json, indent=2)
+            data_clear_json.truncate()
 
 
 if get_config_parameter('dev_token', bool):
