@@ -77,68 +77,6 @@ class Basic(commands.Cog):
         return
 
     @commands.command(
-        name='storepins',
-        description='Stores all of the pinned messages in a certain channel.',
-        usage='storepins <#channel to store pins in>',
-        brief='Store all of the pins in a channel',
-        aliases=['savepins', 'pincenter']
-    )
-    async def storepins_command(self, ctx, channel):
-        pins = reversed(await ctx.channel.pins())
-        for pin in pins:
-            replace = {' ': '',
-                       '<': '',
-                       '#': '',
-                       '>': ''}
-            for key, value in replace.items():
-                channel = channel.replace(key, value)
-            if channel.isdigit():
-                channelsendin = ctx.guild.get_channel(int(channel))
-                if channel is None:
-                    await ctx.send("Uh oh, I could not get the channel you meant. Please try again. "
-                                   "If it still fails, please try directly inserting the channel's ID. "
-                                   "*Action cancelled.*")
-                    return
-            else:
-                channelsendin = discord.utils.get(self.bot.get_all_channels(), guild=ctx.guild, name=channel)
-                if channel is None:
-                    await ctx.send("Whoops, I couldn't find the channel you meant. "
-                                   "Please try again by directly mentioning the channel you mean. *Action cancelled.*")
-                    return
-
-            if pin.attachments:
-                embed = discord.Embed(
-                    title=f"Pinned message in #{pin.channel.name}",
-                    description=f"{pin.content}\n{pin.attachments[0].url}",
-                    color=random.choice(color_list)
-                )
-            else:
-                embed = discord.Embed(
-                    title=f"Pinned message in #{pin.channel.name}",
-                    description=f"{pin.content}",
-                    color=random.choice(color_list)
-                )
-            embed.set_author(
-                name=pin.author.name,
-                icon_url=pin.author.avatar_url,
-                url=f"https://discord.com/users/{pin.author.id}/"
-            )
-            embed.add_field(
-                name='Message link',
-                value=f'https://discordapp.com/channels/{pin.guild.id}/{pin.channel.id}/{pin.id}'
-            )
-            await channelsendin.send(embed=embed)
-            time.sleep(5)
-        await ctx.send('Done storing pins.')
-
-    @storepins_command.error
-    async def storepins_handler(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            if error.param.name == 'channel':
-                await ctx.send(f"[{ctx.message.author.name}], you did not specify a channel.")
-                return
-
-    @commands.command(
         name='8ball',
         description='The 8ball command',
         aliases=['eightball'],
