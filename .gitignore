@@ -6,3 +6,6 @@ data/servers/
 data/token.txt
 data/temp_penalties.json
 data/devtoken.txt
+cogs/__pycache__/
+autorun/
+venv/
