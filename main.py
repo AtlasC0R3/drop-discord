@@ -173,7 +173,7 @@ async def inactivity_func():
 async def on_command_error(ctx, error):
     if not isinstance(error, (commands.CommandNotFound, commands.MissingPermissions, commands.MissingRequiredArgument,
                               commands.DisabledCommand, commands.CheckFailure, commands.MemberNotFound)):
-        if get_config_parameter('save_errors', bool):
+        if get_server_config(ctx.guild, 'share_error_logs', bool):
             dt_string = datetime.now().strftime("%d_%m_%Y %H %M %S")
             if not os.path.exists(f"data/errors/{type(error).__name__}/"):
                 os.makedirs(f"data/errors/{type(error).__name__}/")
@@ -191,7 +191,7 @@ async def on_command_error(ctx, error):
 @tasks.loop(minutes=30)
 async def temp_undo():
     dt_string = datetime.now().strftime("%Y-%m-%d %H:%M")
-    with open("data/temp_penalties.json", "r", encoding="utf-8", newline="\n") as f:
+    with open("data/unmutes.json", "r", encoding="utf-8", newline="\n") as f:
         data = json.load(f)
     if dt_string in data:
         guilds = []
@@ -209,7 +209,7 @@ async def temp_undo():
             users.append(user_id)
         # stuff done, now we just have to delete residue *correctly*.
 
-        with open("data/temp_penalties.json", "r+", encoding='utf-8', newline="\n") as tempf:
+        with open("data/unmutes.json", "r+", encoding='utf-8', newline="\n") as tempf:
             data = json.load(tempf)
             data.pop(dt_string)
             for x in users:
