@@ -4,7 +4,7 @@ data/__pycache__
 data/json/feedback.json
 data/servers/
 data/token.txt
-data/temp_penalties.json
+data/unmutes.json
 data/devtoken.txt
 cogs/__pycache__/
 autorun/

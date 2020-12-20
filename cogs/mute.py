@@ -64,7 +64,7 @@ class Mute(commands.Cog):
             await ctx.send("The time cannot be set as now. *Action cancelled.*")
             return
 
-        with open("data/temp_penalties.json", "r+", newline='\n', encoding='utf-8') as tempf:
+        with open("data/unmutes.json", "r+", newline='\n', encoding='utf-8') as tempf:
             penalties = json.load(tempf)
             guild = ctx.guild
             mute_data = ([user.id, role.id, guild.id])
@@ -125,7 +125,7 @@ class Mute(commands.Cog):
     @commands.has_guild_permissions(manage_roles=True)
     async def mutestatus_command(self, ctx, user: discord.Member):
         guild_id = ctx.guild.id
-        with open("data/temp_penalties.json", "r", newline='\n', encoding='utf-8') as tempf:
+        with open("data/unmutes.json", "r", newline='\n', encoding='utf-8') as tempf:
             mutes = json.load(tempf)
             guild_mutes = mutes.get(str(guild_id))
             if guild_mutes is None:
@@ -179,7 +179,7 @@ class Mute(commands.Cog):
     @commands.has_guild_permissions(manage_roles=True)
     async def unmute_command(self, ctx, user: discord.Member):
         guild_id = ctx.guild.id
-        with open("data/temp_penalties.json", "r+", newline='\n', encoding='utf-8') as tempf:
+        with open("data/unmutes.json", "r+", newline='\n', encoding='utf-8') as tempf:
             mutes = json.load(tempf)
             guild_mutes = mutes.get(str(guild_id))
             if guild_mutes is None:
