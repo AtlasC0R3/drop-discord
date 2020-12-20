@@ -173,6 +173,38 @@ class Mistakes(commands.Cog):
             pass
         await ctx.send(f'{ctx.author.mention}, \n> {stringtranslate}')
 
+    @commands.command(
+        name='feedback',
+        description='Send a message about your personal feedback, for example you can suggest new commands, report a '
+                    'bug, or just talk about how the bot is horrible.',
+        usage='',
+        brief='Send your feedback about this bot'
+    )
+    async def feedback_command(self, ctx):
+        def check(ms):
+            return ms.channel == ctx.message.channel and ms.author == ctx.message.author
+
+        # First ask the user for the feedback
+        await ctx.send(
+            content='What would you like to say about this bot?\n'
+                    'For example, you could say "add a command that kicks someone" or '
+                    '"make the bot watch/play/listen to something as its activity".')
+
+        # Wait for a response
+        msg = await self.bot.wait_for('message', check=check)
+        feedbackmsg = msg.content
+
+        # Format the response and the author's name in a JSON
+        jsonFile['feedback'].append({
+            'author': msg.author.name,
+            'reason': feedbackmsg
+        })
+        # Write it inside a JSON
+        with open('data/feedback.json', 'w+', newline="\n", encoding='utf=8') as feedjson:
+            json.dump(jsonFile, feedjson, indent=2)
+        # Tell the user it's submitted!
+        await ctx.send("Thank you for submitting this feedback.")
+
 
 def setup(bot):
     bot.add_cog(Mistakes(bot))
