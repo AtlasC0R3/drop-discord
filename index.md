@@ -5,7 +5,6 @@ A simple Discord server utility bot. Drop is meant to be a server utility bot th
 ### Basic
 - 8ball: Plain old 8ball commands, present on almost every utility bot, and Drop is no exception.
 - embed: Sends an embed, based off user response.
-- feedback: deprecated, please use the Issues section on the GitHub repo.
 - hostinfo: Returns info about the current bot host. No IP addresses of course, I'm not *that* braindead yet.
 - owofy: "Translates" sentences to "owospeak". I'm going to be honyest, this isn't my pwoudest wowk.
 - ping: No, not the M1 Garand's ping unfortunately. It's simply a command to check the bot's latency.
