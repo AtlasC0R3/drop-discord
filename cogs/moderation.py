@@ -377,17 +377,18 @@ class Moderation(commands.Cog):
                                    "Please try again by directly mentioning the channel you mean. *Action cancelled.*")
                     return
 
+            embed = discord.Embed(
+                title=f"Pinned message in #{pin.channel.name}",
+                description=f"{pin.content}",
+                color=random.choice(color_list)
+            )
             if pin.attachments:
-                embed = discord.Embed(
-                    title=f"Pinned message in #{pin.channel.name}",
-                    description=f"{pin.content}\n{pin.attachments[0].url}",
-                    color=random.choice(color_list)
-                )
-            else:
-                embed = discord.Embed(
-                    title=f"Pinned message in #{pin.channel.name}",
-                    description=f"{pin.content}",
-                    color=random.choice(color_list)
+                attachments = ""
+                for attachment in pin.attachments:
+                    attachments = attachments + attachment.url + '\n'
+                embed.add_field(
+                    name='Attachments',
+                    value=attachments
                 )
             embed.set_author(
                 name=pin.author.name,
