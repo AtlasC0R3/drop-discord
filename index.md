@@ -1,5 +1,5 @@
 # Drop
-A simple Discord server utility bot. Drop is meant to be a server utility bot that tries to be as privacy-aware and simple as possible, while also retaining usability. It is also free: not as in priceless, but as in freedom. Alan please add details.
+A simple Discord server utility bot. Drop is meant to be a server utility bot that tries to be as privacy-aware and simple as possible, while also retaining usability. It is also free: not as in priceless, but as in freedom. Alan, please add details.
 
 ## Commands
 ### Basic
