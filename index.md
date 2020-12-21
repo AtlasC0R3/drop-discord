@@ -9,7 +9,6 @@ A simple Discord server utility bot. Drop is meant to be a server utility bot th
 - owofy: "Translates" sentences to "owospeak". I'm going to be honyest, this isn't my pwoudest wowk.
 - ping: No, not the M1 Garand's ping unfortunately. It's simply a command to check the bot's latency.
 - say: Repeats what the user has inputted. *Repeats what the user has inputted.*
-- storepins: ~~I don't know why I never put that in the Moderation category, but oh well.~~ It's simply a command that stores pinned messages from a channel to another inputted channel, for those of you who just can't stop pinning messages.
 ### Configuration
 - anonymouslogs: Toggles whether the bot should automatically upload error logs to the bot host. *Note: may raise privacy concerns among certain users, please read privacy notice down below*
 - banword: Prevents a certain word from being said. Useful for servers that doesn't allow the N word, or something like that.
@@ -25,6 +24,7 @@ A simple Discord server utility bot. Drop is meant to be a server utility bot th
 - set_rule: Sets a rule for your server, so users can then use the `rules` command to make the bot say that specific rule. Doesn't matter if it already exists, too.
 - remove_rule: Removes a rule.
 - rules: Prints a specified rule. Useful to show to people that they are breaking a rule.
+- storepins: It's simply a command that stores pinned messages from a channel to another inputted channel, for those of you who just can't stop pinning messages.
 ### Mute
 - mute: Mutes a user temporarily, so that they can not talk in the server. *Of course, that depends on the role that is defined as the "mute role".*
 - mute_status: Retrieves info about a user's current mute, if there is one.
