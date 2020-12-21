@@ -11,11 +11,11 @@ A simple Discord server utility bot. Drop is meant to be a server utility bot th
 - say: Repeats what the user has inputted. *Repeats what the user has inputted.*
 - storepins: ~~I don't know why I never put that in the Moderation category, but oh well.~~ It's simply a command that stores pinned messages from a channel to another inputted channel, for those of you who just can't stop pinning messages.
 ### Configuration
-- anonymouslogs: Toggles whether or not the bot should automatically upload error logs to the bot host. *Note: may raise privacy concerns among certain users, please read privacy notice down below*
+- anonymouslogs: Toggles whether the bot should automatically upload error logs to the bot host. *Note: may raise privacy concerns among certain users, please read privacy notice down below*
 - banword: Prevents a certain word from being said. Useful for servers that doesn't allow the N word, or something like that.
 - configinfo: Prints all info retained in the configuration file. 
 - toggle_inactivity: Toggles the inactivity function of this bot. If there haven't been a lot of messages in a specific amount of time, the bot will send a random message. *This will only occur if the channel has that feature enabled*
-- inactivitychannel: Toggles whether or not the inactivity function should happen in a specified channel.
+- inactivitychannel: Toggles whether the inactivity function should happen in a specified channel.
 - togglecommand: Toggles a command's usability in a server. In case you don't want warn commands, mute commands, ~~or the owofy command,~~ you can disable those commands.
 ### Moderation
 - ban: Bans a user. *Honestly, why wouldn't you just want to ban the user yourself.*
@@ -30,8 +30,8 @@ A simple Discord server utility bot. Drop is meant to be a server utility bot th
 - mute_status: Retrieves info about a user's current mute, if there is one.
 - unmute: Removes a user's mute.
 ### Warn
-- warn: All *good* utility bots have this command, and again, Drop is no exception. Hands out a warn to someone, useful for someone is breaking the rules.
-- edit_warn: Edits a warn's reason.
+- warn: All *good* utility bots have this command, and again, Drop is no exception. Hands out a warning to someone, useful for someone is breaking the rules.
+- edit_warn: Edits a warning's reason.
 - remove_warn: Removes a user's warn.
 - warns: Returns all of a user's warns, if there are any.
 
@@ -48,13 +48,13 @@ What info this bot may collect is:
 - **Bot mentions**, if a user mentions the bot with no command, only the user's ID will be stored and nothing else: this is to help the bot know if it should say the prefix or not;
 - **Rule information**, the "rules" that have been set shall be stored, though the ones that shall be removed will be, well, removed entirely;
 - **Warn data**, what will be stored is:
-  - the date and time where the warn has occured;
+  - the date and time when the warn has occured;
   - the name and ID of the one who has been warned;
   - the name and ID of the one who has issued a warn;
   - the reason as to why the warn has been issued;
   - the channel where the warn has been issued
 - **Mute data**, what will be stored is:
-  - The time where the user will be unmuted;
+  - The time when the user will be unmuted;
   - The user who has requested the mute;
   - The mute role
 - **Anonymous error logs**, if, and only if, a server manager has opted in to the automatic submission of error logs to the bot host. This is disabled by default.
