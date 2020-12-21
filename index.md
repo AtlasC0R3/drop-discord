@@ -12,7 +12,8 @@ A simple Discord server utility bot. Drop is meant to be a server utility bot th
 ### Configuration
 - anonymouslogs: Toggles whether the bot should automatically upload error logs to the bot host. *Note: may raise privacy concerns among certain users, please read privacy notice down below*
 - banword: Prevents a certain word from being said. Useful for servers that doesn't allow the N word, or something like that.
-- configinfo: Prints all info retained in the configuration file. 
+- configinfo: Prints all info retained in the configuration file.
+- cleardata: Clears out all the guild's data (**!!!**, this includes mutes, too.)
 - toggle_inactivity: Toggles the inactivity function of this bot. If there haven't been a lot of messages in a specific amount of time, the bot will send a random message. *This will only occur if the channel has that feature enabled*
 - inactivitychannel: Toggles whether the inactivity function should happen in a specified channel.
 - togglecommand: Toggles a command's usability in a server. In case you don't want warn commands, mute commands, ~~or the owofy command,~~ you can disable those commands.
@@ -60,4 +61,4 @@ What info this bot may collect is:
 - **Anonymous error logs**, if, and only if, a server manager has opted in to the automatic submission of error logs to the bot host. This is disabled by default.
 
 This notice is subject to change without any warning, so please proceed with that in mind.
-If you wish to delete all data from a specific server, please contact me. I am working on a command to delete all data from a server upon request.
+If you wish to delete all data from a specific server, please use the `cleardata` command.
