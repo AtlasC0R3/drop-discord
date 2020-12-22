@@ -10,6 +10,12 @@ There are two ways: you can self host it (recommended), or use the already hoste
 
 
 ### Self-hosting the bot
+There are two ways of self hosting the bot: the autorun script way, or the manual way.
+
+#### Using the autorun script
+Please move to the [Autorun branch](https://github.com/AtlasC0R3/drop-bot/tree/autorun) of this repository if you want to proceed this way.
+
+#### Manually hosting the bot
 1. Make sure Python3 is installed *(minimum recommended version is Python 3.7, though you may be able to get away with 3.6 or even 3.5, but please note that you are on your own with this, I will not help you)* and that you have a functioning pip install. **Python 2 will not work.**
 2. Download the bot's files; you may clone this repository using Git.
 3. Install the required dependencies. To do so, you may use `pip install -r requirements.txt` *(or pip3, depending on your install)*
