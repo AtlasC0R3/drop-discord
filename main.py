@@ -56,13 +56,13 @@ intents.members = True
 # F**k intents.
 intents.guilds = True
 
-bot = commands.Bot(  # Create a new bot
-    command_prefix=get_prefix,  # Set the prefix
+bot = commands.Bot(                                            # Create a new bot
+    command_prefix=get_prefix,                                 # Set the prefix
     description=get_config_parameter('bot_description', str),  # Set a description for the bot
-    owner_id=get_config_parameter('owner_id', int),  # Your unique User ID
-    case_insensitive=True,  # Make the commands case insensitive
-    intents=intents,  # I think I made intents
-    help_command=PrettyHelp()  # Sets custom help command to discord_pretty_help's
+    owner_id=get_config_parameter('owner_id', int),            # Your unique User ID
+    case_insensitive=True,                                     # Make the commands case insensitive
+    intents=intents,                                           # I think I made intents
+    help_command=PrettyHelp()                                  # Sets custom help command to discord_pretty_help's
 )
 
 
