@@ -6,7 +6,7 @@ A Discord.py bot that is meant to be a simple Discord server utility bot that re
 ## How do I use it?
 There are two ways: you can self host it (recommended), or use the already hosted version, that I am personally hosting.
 
-*Note: I don't mind if you just try the already hosted version just to see if the bot functions, but please, if you do end up using the bot, please consider self hosting it; the one I'm already hosting has huge latency problems and might not always work or be online.*
+*Note: I don't mind if you just try the already hosted version just to see if the bot functions, but please, if you do end up using the bot, please consider self hosting it; the one I'm already hosting might not always work or be online.*
 
 
 ### Self-hosting the bot
@@ -24,7 +24,7 @@ Please move to the [Autorun branch](https://github.com/AtlasC0R3/drop-bot/tree/a
 6. ~~Profit.~~ You now have self-hosted this bot.
 
 ### Using the already hosted bot
-The self hosted version works, and is updated on every update (or whenever I feel like it), though it may not be available 24/7; some blackouts may occur, it may be slow or your data could *very rarely* vanish.
+The self hosted version works, and is updated every day, though it may not be available 24/7; some blackouts may occur, it may be slow or your data could *very rarely* vanish.
 If you are willing to look past those issues, [you can invite the bot using this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot). Please read the [privacy notice](https://atlasc0r3.github.io/drop-bot/#privacy-notice) before proceeding.
 
 ## Frequently Asked Questions ~~even though no one asked any questions~~
