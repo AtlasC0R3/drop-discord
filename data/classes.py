@@ -11,6 +11,7 @@ exampleServerConfig = {
     "inactivity_channels": [],
     "mute_role": 0,
     "disabled_commands": [],
+    "disabled_cogs": [],
     "no_no_words": []
 }
 

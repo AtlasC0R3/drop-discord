@@ -106,7 +106,17 @@ messagecount = {}
 @bot.check
 async def command_check(ctx):
     disabled_commands = get_server_config(ctx.guild.id, 'disabled_commands', list)
-    return str(ctx.command) not in disabled_commands
+    disabled_cogs = get_server_config(ctx.guild.id, 'disabled_cogs', list)
+    cog_disabled = False
+    if ctx.command.cog:
+        cog_disabled = ctx.command.cog.qualified_name in disabled_cogs
+    command_disabled = str(ctx.command) in disabled_commands
+    is_disabled = True
+    if cog_disabled:
+        is_disabled = False
+    elif command_disabled:
+        is_disabled = False
+    return is_disabled  # What a mess.
 
 
 @bot.listen()

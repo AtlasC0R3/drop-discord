@@ -429,6 +429,51 @@ class Configuration(commands.Cog):
             return
 
     @commands.command(
+        name="togglecog",
+        description="Disables/enables commands. This can be used to disable commands you don't want in your server.\n"
+                    "Additionally, this disables the ability to see them in the help command.",
+        aliases=["togglecategory"],
+        brief='Toggles a category'
+    )
+    @has_guild_permissions(manage_guild=True)
+    async def disablecog_command(self, ctx):
+        def check(ms):
+            return ms.channel == ctx.message.channel and ms.author == ctx.message.author
+
+        commandmsg = ctx.message.content
+        prefix_used = ctx.prefix
+        alias_used = ctx.invoked_with
+        commandargs = commandmsg[len(prefix_used) + len(alias_used):]
+        if commandargs == '':
+            await ctx.send('Which category would you like to disable?')
+            msg = await self.bot.wait_for('message', check=check)
+            togglethingy = msg.content
+        else:
+            togglethingy = commandargs.replace(' ', '')
+        disabled_cogs = get_server_config(ctx.guild.id, 'disabled_cogs', list)
+        cmdthingy = self.bot.get_cog(togglethingy)
+        if not cmdthingy:
+            await ctx.send("I could not find that cog. *Action cancelled.*\n"
+                           "*Tip: This command is case sensitive, make sure your category is capitalized correctly.*")
+            return
+
+        if togglethingy in disabled_cogs:
+            new_cogs = [x for x in disabled_cogs if x != togglethingy]
+            write_server_config(ctx.guild.id, 'disabled_cogs', new_cogs)
+            await ctx.send("Success, this cog is now enabled.")
+        else:
+            disabled_cogs.append(togglethingy)
+            write_server_config(ctx.guild.id, 'disabled_cogs', disabled_cogs)
+            await ctx.send("Success, this cog is now disabled.")
+
+    @disablecog_command.error
+    async def disablecmd_handler(self, ctx, error):
+        if isinstance(error, commands.errors.MissingPermissions):
+            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                           f"*({error} Action cancelled)*")
+            return
+
+    @commands.command(
         name='cleardata',
         description='Clears out a guild\'s data.\n'
                     '**VERY DANGEROUS, AS THIS WILL MAKE THE BOT LEAVE AND '
