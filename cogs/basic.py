@@ -26,6 +26,9 @@ with open("data/embed_colors.json") as f:
 
 # New - The Cog class must extend the commands.Cog class
 class Basic(commands.Cog):
+    """
+    Just a regular set of basic commands every Discord bot should have.
+    """
 
     def __init__(self, bot):
         self.bot = bot

@@ -16,6 +16,9 @@ with open("data/embed_colors.json") as f:
 
 
 class Mute(commands.Cog):
+    """
+    All of the commands for muting someone.
+    """
 
     def __init__(self, bot):
         self.bot = bot

@@ -20,6 +20,9 @@ with open("data/embed_colors.json") as f:
 
 
 class Configuration(commands.Cog):
+    """
+    A set of configuration commands, to configure the bot correctly for this server.
+    """
 
     def __init__(self, bot):
         self.bot = bot

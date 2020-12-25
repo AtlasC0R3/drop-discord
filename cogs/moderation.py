@@ -12,6 +12,9 @@ with open("data/embed_colors.json") as f:
 
 
 class Moderation(commands.Cog):
+    """
+    Commands that (hopefully) may help you moderate the server
+    """
 
     def __init__(self, bot):
         self.bot = bot

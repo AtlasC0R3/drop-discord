@@ -14,6 +14,9 @@ with open("data/embed_colors.json") as f:
 
 
 class Warn(commands.Cog):
+    """
+    All of the commands for warning someone.
+    """
     
     def __init__(self, bot):
         self.bot = bot

@@ -130,6 +130,9 @@ translator = Translator()
 
 # New - The Cog class must extend the commands.Cog class
 class Mistakes(commands.Cog):
+    """
+    A bunch of commands that are just mistakes.
+    """
 
     def __init__(self, bot):
         self.bot = bot
