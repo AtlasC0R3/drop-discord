@@ -17,6 +17,7 @@ A simple Discord server utility bot. Drop is meant to be a server utility bot th
 - toggle_inactivity: Toggles the inactivity function of this bot. If there haven't been a lot of messages in a specific amount of time, the bot will send a random message. *This will only occur if the channel has that feature enabled*
 - inactivitychannel: Toggles whether the inactivity function should happen in a specified channel.
 - togglecommand: Toggles a command's usability in a server. In case you don't want warn commands, mute commands, ~~or the owofy command,~~ you can disable those commands.
+- togglecog: Toggles a cog's usability in a server. In case you don't want mute commands, you can disable those commands by disabling the cog itself.
 ### Moderation
 - ban: Bans a user. *Honestly, why wouldn't you just want to ban the user yourself.*
 - kick: Kicks a user. *Again, why wouldn't you want to do it yourself.*
