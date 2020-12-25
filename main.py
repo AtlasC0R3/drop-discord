@@ -183,6 +183,10 @@ async def inactivity_func():
 
 @bot.event
 async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandInvokeError):
+        if isinstance(error.original, discord.Forbidden):
+            await ctx.send("Sorry, I do not have the permissions to do that.")
+            return
     if not isinstance(error, (commands.CommandNotFound, commands.MissingPermissions, commands.MissingRequiredArgument,
                               commands.DisabledCommand, commands.CheckFailure, commands.MemberNotFound)):
         if get_server_config(ctx.guild.id, 'share_error_logs', bool):

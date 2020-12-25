@@ -213,9 +213,6 @@ class Moderation(commands.Cog):
         if isinstance(error, commands.MemberNotFound):
             await ctx.send(f'{error} *(Action cancelled.)*')
             return
-        elif isinstance(error, discord.Forbidden):
-            await ctx.send(f'Seems like I am missing permissions to do so.')
-            return
         elif isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
                 await ctx.send("You did not specify a user to kick. *Action cancelled.*")
@@ -263,9 +260,6 @@ class Moderation(commands.Cog):
     async def ban_handler(self, ctx, error):
         if isinstance(error, commands.MemberNotFound):
             await ctx.send(f'{error} *(Action cancelled.)*')
-            return
-        elif isinstance(error, discord.Forbidden):
-            await ctx.send(f'Seems like I am missing permissions to do so.')
             return
         elif isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
@@ -339,9 +333,6 @@ class Moderation(commands.Cog):
     async def unban_handler(self, ctx, error):
         if isinstance(error, commands.UserNotFound):
             await ctx.send(f'{error} *(Action cancelled.)*')
-            return
-        elif isinstance(error, discord.Forbidden):
-            await ctx.send(f'Seems like I am missing permissions to do so.')
             return
         elif isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':

@@ -282,9 +282,6 @@ class Warn(commands.Cog):
             if error.param.name == 'warn':
                 await ctx.send("You did not specify a warn ID to remove.")
                 return
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send("You specified an invalid ID.")
-            return
         if isinstance(error, commands.MissingPermissions):
             await ctx.send('[{0.author.name}], you do not have the correct permissions to do so. '
                            '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
@@ -363,9 +360,6 @@ class Warn(commands.Cog):
             if error.param.name == 'warn':
                 await ctx.send("You did not specify a warn ID to remove.")
                 return
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send("You specified an invalid ID.")
-            return
         if isinstance(error, commands.MissingPermissions):
             await ctx.send('[{0.author.name}], you do not have the correct permissions to do so. '
                            '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
