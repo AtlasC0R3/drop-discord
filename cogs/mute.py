@@ -67,6 +67,8 @@ class Mute(commands.Cog):
             await ctx.send("The time cannot be set as now. *Action cancelled.*")
             return
 
+        await user.add_roles(role)
+
         with open("data/unmutes.json", "r+", newline='\n', encoding='utf-8') as tempf:
             penalties = json.load(tempf)
             guild = ctx.guild
@@ -101,7 +103,6 @@ class Mute(commands.Cog):
         )
 
         await ctx.send(embed=embed)
-        await user.add_roles(role)
 
     @mute_command.error
     async def mute_handler(self, ctx, error):
