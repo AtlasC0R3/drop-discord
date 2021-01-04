@@ -108,7 +108,9 @@ def get_steam_played_game():
             if not dictkey == "excludedGames":
                 print(f'Value {dictkey} undefined, playing Steam instead.\n'
                       f'Please disable "useSteamRecentlyPlayed" in config.json, '
-                      f'or fill in the correct values in steamApi.')
+                      f'or fill in the correct values in steamApi.\n'
+                      f'If you need help, you can check out '
+                      f'https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration')
                 return 'Steam'
     userid = steamapiconfig.get('userId')
     key = steamapiconfig.get('key')
@@ -121,12 +123,16 @@ def get_steam_played_game():
     if userdata.status_code == 403:
         print("Invalid API key passed, falling back to playing Steam.\n"
               "Please disable \"useSteamRecentlyPlayed\" in config.json, "
-              "or fill in the correct values in steamApi.")
+              "or fill in the correct values in steamApi.\n"
+              "If you need help, you can check out "
+              "https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration")
         return 'Steam'
     elif userdata.status_code == 500:
         print("Invalid user ID passed, falling back to playing Steam.\n"
               "Please disable \"useSteamRecentlyPlayed\" in config.json, "
-              "or fill in the correct values in steamApi.")
+              "or fill in the correct values in steamApi.\n"
+              "If you need help, you can check out "
+              "https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration")
         return 'Steam'
     elif userdata.status_code != 200:
         print(f"Something went wrong with the API callout, falling back to playing Steam.\n"
