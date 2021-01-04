@@ -144,6 +144,6 @@ def get_steam_played_game():
         playedgame = random.choice(userdata).get('name')
         excludedgames = steamapiconfig.get('excludedGames')
         for no in excludedgames:
-            if no in playedgame:
+            if no.lower() in playedgame.lower():
                 return get_steam_played_game()
         return playedgame
