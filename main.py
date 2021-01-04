@@ -13,6 +13,7 @@ from data.classes import get_config_parameter
 from data.classes import get_server_config
 from data.classes import write_server_config
 from data.classes import get_github_config
+from data.classes import get_steam_played_game
 
 # External libraries that need to be imported
 try:
@@ -161,11 +162,15 @@ async def on_message(message):
 
 @tasks.loop(minutes=10, count=None, reconnect=True)
 async def activitychanger():
-    with open("data/activities.json", encoding='utf-8', newline="\n") as f:
-        dictionary = json.load(f)
-    activity = random.choice(dictionary)
-    activitytype = activity[0]
-    activityname = activity[1]
+    if get_config_parameter('useSteamRecentlyPlayed', bool):
+        activitytype = 'playing'
+        activityname = get_steam_played_game()
+    else:
+        with open("data/activities.json", encoding='utf-8', newline="\n") as f:
+            dictionary = json.load(f)
+        activity = random.choice(dictionary)
+        activitytype = activity[0]
+        activityname = activity[1]
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activitytype], name=activityname))
 
 

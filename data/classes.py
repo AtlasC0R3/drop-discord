@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import random
 
 
 exampleServerConfig = {
@@ -98,3 +99,45 @@ def write_server_config(serverid, param, value):
             json.dump(server_config, f, indent=2)
             f.truncate()
             return
+
+
+def get_steam_played_game():
+    steamapiconfig = get_config_parameter('steamApi', dict)
+    for dictkey, value in steamapiconfig.items():
+        if not value:
+            if not dictkey == "excludedGames":
+                print(f'Value {dictkey} undefined, playing Steam instead.\n'
+                      f'Please disable "useSteamRecentlyPlayed" in config.json, '
+                      f'or fill in the correct values in steamApi.')
+                return 'Steam'
+    userid = steamapiconfig.get('userId')
+    key = steamapiconfig.get('key')
+    steamurl = \
+        f'https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1' \
+        f'?key={key}' \
+        f'&steamid={userid}' \
+        f'&count=0'
+    userdata = requests.get(steamurl)
+    if userdata.status_code == 403:
+        print("Invalid API key passed, falling back to playing Steam.\n"
+              "Please disable \"useSteamRecentlyPlayed\" in config.json, "
+              "or fill in the correct values in steamApi.")
+        return 'Steam'
+    elif userdata.status_code == 500:
+        print("Invalid user ID passed, falling back to playing Steam.\n"
+              "Please disable \"useSteamRecentlyPlayed\" in config.json, "
+              "or fill in the correct values in steamApi.")
+        return 'Steam'
+    elif userdata.status_code != 200:
+        print(f"Something went wrong with the API callout, falling back to playing Steam.\n"
+              f"Error code {userdata.status_code}, in case you may need it.")
+        return 'Steam'
+    else:
+        userdata = userdata.json()
+        userdata = userdata.get('response').get('games')
+        playedgame = random.choice(userdata).get('name')
+        excludedgames = steamapiconfig.get('excludedGames')
+        for no in excludedgames:
+            if no in playedgame:
+                return get_steam_played_game()
+        return playedgame
