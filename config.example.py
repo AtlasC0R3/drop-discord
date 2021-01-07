@@ -24,6 +24,15 @@ token = 'InsertNormalTokenHere'
 devToken = 'InsertDevTokenHere'
 # The developer bot token.
 
+useSteamRecentlyPlayed = 0
+# Change this integer if you'd like the bot to pass through Steam's API for activities.
+steamUserId = ""
+# Your Steam User ID, if you have set useSteamRecentlyPlayed to 1 or 2. Leave this empty otherwise.
+steamApiKey = ""
+# Your Steam API key, if you have set useSteamRecentlyPlayed to 1 or 2. Leave this empty otherwise.
+excludedGames = []
+# The games you don't want the bot to set as its activity. You can leave this empty, it won't matter.
+
 customBotDesc = ""
 # Change this string if you'd like to set a custom description for the bot every time it launches.
 # If you'd like to stick to the default description, leave this empty.

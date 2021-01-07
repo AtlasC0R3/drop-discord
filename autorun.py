@@ -69,6 +69,12 @@ def check_config(conf: str):
     if rawTermOutput:
         newconf['clear_terminal'] = False
         newconf['change_terminal_name'] = False
+    if useSteamRecentlyPlayed != 0:
+        newconf['useSteamRecentlyPlayed'] = int(useSteamRecentlyPlayed)
+        steam_api_conf = newconf['steamApi']
+        steam_api_conf['userId'] = steamUserId
+        steam_api_conf['key'] = steamApiKey
+        steam_api_conf['excludedGames'] = excludedGames
     return newconf
 
 
