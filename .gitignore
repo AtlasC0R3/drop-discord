@@ -9,3 +9,4 @@ data/devtoken.txt
 cogs/__pycache__/
 autorun/
 venv/
+config.py
