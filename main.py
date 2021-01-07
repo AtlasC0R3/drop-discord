@@ -123,14 +123,15 @@ async def command_check(ctx):
 
 @bot.listen()
 async def on_message(message):
-    for item in get_server_config(message.guild.id, 'no_no_words', list):
-        if item in message.content.lower():
-            try:
-                await message.delete()
-            except discord.errors.Forbidden:
-                await message.channel.send("Hey, you said something you were not supposed to say! "
-                                           "Unfortunately for me (and probably fortunately for you), "
-                                           "I don't have the permissions to delete your message.")
+    if message.guild:
+        for item in get_server_config(message.guild.id, 'no_no_words', list):
+            if item in message.content.lower():
+                try:
+                    await message.delete()
+                except discord.errors.Forbidden:
+                    await message.channel.send("Hey, you said something you were not supposed to say! "
+                                               "Unfortunately for me (and probably fortunately for you), "
+                                               "I don't have the permissions to delete your message.")
                 # People expect the bot to work without even giving them the perms.
     if message.author.id == bot.user.id:
         return  # To prevent the bot itself from triggering things.
