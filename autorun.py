@@ -105,15 +105,15 @@ print(f"Cloning repository to drop-bot{runs + 1}/")
 drop_clone(f'drop-bot{runs + 1}')
 
 if doPipInstallReqs:
-        reqs = requests.get(reqsTxtUrl).text
-        if not os.path.isfile('requirements.txt') or open('requirements.txt').read() != reqs:
-            print(f'Running {str(pip_cmd)}')
-            open('requirements.txt', 'w').write(reqs)
-            try:
-                subprocess.check_call(pip_cmd, shell=False)
-            except subprocess.CalledProcessError:
-                exit("Uh oh, seems like something didn't go right while trying to install the bot's requirements. "
-                     "Troubleshooting or manual installation required. I'm aborting now.")
+    reqs = requests.get(reqsTxtUrl).text
+    if not os.path.isfile('requirements.txt') or open('requirements.txt').read() != reqs:
+        print(f'Running {str(pip_cmd)}')
+        open('requirements.txt', 'w').write(reqs)
+        try:
+            subprocess.check_call(pip_cmd, shell=False)
+        except subprocess.CalledProcessError:
+            exit("Uh oh, seems like something didn't go right while trying to install the bot's requirements. "
+                 "Troubleshooting or manual installation required. I'm aborting now.")
 
 while True:
     if os.path.exists(f'drop-bot{runs}'):
