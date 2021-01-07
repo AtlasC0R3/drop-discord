@@ -14,6 +14,7 @@ from data.classes import get_server_config
 from data.classes import write_server_config
 from data.classes import get_github_config
 from data.classes import get_steam_played_game
+from data.classes import get_steam_recently_played
 
 # External libraries that need to be imported
 try:
@@ -162,9 +163,17 @@ async def on_message(message):
 
 @tasks.loop(minutes=10, count=None, reconnect=True)
 async def activitychanger():
-    if get_config_parameter('useSteamRecentlyPlayed', bool):
+    if get_config_parameter('useSteamRecentlyPlayed', int) == 1:
         activitytype = 'playing'
         activityname = get_steam_played_game()
+    elif get_config_parameter('useSteamRecentlyPlayed', int) == 2:
+        with open("data/activities.json", encoding='utf-8', newline="\n") as f:
+            activities = json.load(f)
+        for game in get_steam_recently_played():
+            activities.append(['playing', game])
+        activity = random.choice(activities)
+        activitytype = activity[0]
+        activityname = activity[1]
     else:
         with open("data/activities.json", encoding='utf-8', newline="\n") as f:
             dictionary = json.load(f)
