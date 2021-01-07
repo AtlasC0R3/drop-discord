@@ -1,0 +1,4 @@
+discord.py
+discord-pretty-help
+parsedatetime
+requests
