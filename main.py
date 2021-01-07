@@ -107,6 +107,8 @@ messagecount = {}
 
 @bot.check
 async def command_check(ctx):
+    if not ctx.guild:
+        return True
     disabled_commands = get_server_config(ctx.guild.id, 'disabled_commands', list)
     disabled_cogs = get_server_config(ctx.guild.id, 'disabled_cogs', list)
     cog_disabled = False
