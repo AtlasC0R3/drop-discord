@@ -6,6 +6,7 @@ from datetime import datetime as d
 
 import discord
 from discord.ext import commands
+from data.extdata import get_config_parameter, get_steam_played_game, SteamModes, get_discpy_version
 
 
 if not os.path.exists('data/feedback.json'):
@@ -180,12 +181,19 @@ class Basic(commands.Cog):
         else:
             desc = f"Running on *something* ({os.name})"
         desc = desc + f"\nPython {sys.version}"
-        desc = desc + "\nI'm doodoo at programming"
+        desc = desc + f"\nDiscord.py {get_discpy_version()}"
         embed = discord.Embed(
             title="Host info",
             description=desc,
             color=random.choice(color_list)
         )
+        if get_config_parameter('useSteamRecentlyPlayed', int) != 0:
+            mode = get_config_parameter('useSteamRecentlyPlayed', int)
+            embed.add_field(
+                name='Steam integration',
+                value=f"Mode: {mode} ({SteamModes.get(mode)})\n"
+                      f"Random played game: {get_steam_played_game()}"
+            )
         await ctx.send(embed=embed)
 
     @commands.command(
