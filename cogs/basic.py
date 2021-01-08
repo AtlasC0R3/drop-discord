@@ -41,9 +41,10 @@ class Basic(commands.Cog):
     )
     async def ping_command(self, ctx):
         start = d.timestamp(d.now())
-        msg = await ctx.send("Pinging...")
+        msg = await ctx.send(content="Huh?")
 
-        await msg.edit(content=f'Pong!\nOne message round-trip took {(d.timestamp(d.now()) - start) * 1000}ms.')
+        await msg.edit(content=f'Pong!\nIt took me {(d.timestamp(d.now()) - start) * 1000}ms'
+                               f'.')
         return
 
     @commands.command(
