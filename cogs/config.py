@@ -8,9 +8,9 @@ from discord.ext.commands import has_guild_permissions
 
 import parsedatetime
 
-from data.classes import write_server_config
-from data.classes import get_server_config
-from data.classes import get_entire_server_config
+from data.extdata import write_server_config
+from data.extdata import get_server_config
+from data.extdata import get_entire_server_config
 
 cal = parsedatetime.Calendar()
 

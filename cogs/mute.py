@@ -6,7 +6,7 @@ from datetime import datetime
 import parsedatetime
 import re
 
-from data.classes import get_server_config
+from data.extdata import get_server_config
 
 cal = parsedatetime.Calendar()
 

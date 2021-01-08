@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import random
+import discord
 
 
 exampleServerConfig = {
@@ -36,6 +37,16 @@ class TermColors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+
+SteamModes = {0: "disabled",
+              1: "replace",
+              2: "append"}
+
+
+def get_discpy_version():
+    return f'{discord.version_info.major}.{discord.version_info.minor}.{discord.version_info.micro}, ' \
+           f'{discord.version_info.releaselevel} release'
 
 
 def get_config_parameter(param, paramtype):

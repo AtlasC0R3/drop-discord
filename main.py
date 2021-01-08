@@ -8,13 +8,13 @@ from datetime import datetime
 import random
 import shutil
 
-from data.classes import TermColors
-from data.classes import get_config_parameter
-from data.classes import get_server_config
-from data.classes import write_server_config
-from data.classes import get_github_config
-from data.classes import get_steam_played_game
-from data.classes import get_steam_recently_played
+from data.extdata import TermColors
+from data.extdata import get_config_parameter
+from data.extdata import get_server_config
+from data.extdata import write_server_config
+from data.extdata import get_github_config
+from data.extdata import get_steam_played_game
+from data.extdata import get_steam_recently_played
 
 # External libraries that need to be imported
 try:
