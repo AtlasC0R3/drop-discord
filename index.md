@@ -1,5 +1,5 @@
 # Drop
-A simple Discord server utility bot. Drop is meant to be a server utility bot that tries to be as privacy-aware and simple as possible, while also retaining usability. It is also free: not as in priceless, but as in freedom. Alan, please add details.
+A simple Discord server utility bot. Drop is meant to be a server utility bot that tries to be as privacy-aware and simple as possible, while also retaining usability. It is also free: not as in priceless, but as in freedom. Any details yet, Alan?
 
 ## Commands
 ### Basic
@@ -43,6 +43,8 @@ While I do have a pre-hosted version of the bot, it may not be the most reliable
 If you're just looking to try out the bot's functionalities, casually use its commands or test its capabilities, I don't find anything wrong with this usage; if you rely on the bot as your server's "backbone", please consider self hosting it. The pre-hosted version may have latency issues, slowdowns, temporary outages or ~~memory loss~~ config file deletion. (I'm terrible at explaining)
 
 Anyway, if you're willing to look past those issues, [this link is probably what you're looking for](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot).
+
+It *is* updated with the latest update, often times whenever I do a major-ish commit to the GitHub repository, I update the online, pre-hosted bot. *I have also used the Steam API integration on the bot for my own stuff, so that might be noteworthy.. or not.*
 
 ### Privacy notice
 The pre-hosted version shall always be the same software as the one available on the GitHub repository, main branch. Your data belongs to you, and the data that the bot collects about your server shall never be shared with anyone else other than your own server.
