@@ -41,7 +41,7 @@ class Basic(commands.Cog):
     )
     async def ping_command(self, ctx):
         start = d.timestamp(d.now())
-        msg = await ctx.send(content="Huh?")
+        msg = await ctx.reply(content="Huh?")
 
         await msg.edit(content=f'Pong!\nIt took me {(d.timestamp(d.now()) - start) * 1000}ms'
                                f'.')
@@ -76,7 +76,7 @@ class Basic(commands.Cog):
             'Outlook not so good.',
             'Very doubtful.'
         ]
-        await ctx.send(content=f"{random.choice(responses)}")
+        await ctx.reply(content=f"{random.choice(responses)}")
 
     @commands.command(
         name='say',
@@ -93,7 +93,7 @@ class Basic(commands.Cog):
 
         # Next, we check if the user actually passed some text
         if text == '':
-            await ctx.send(content='hey, I can\'t send literally nothing.')
+            await ctx.reply(content='hey, I can\'t send literally nothing.')
             return
         else:
             await ctx.send(text)
@@ -162,7 +162,7 @@ class Basic(commands.Cog):
             await ctx.send(f"Uh oh, the text is over 2000 characters long, which is the maximum number of characters "
                            f"allowed in a message. *(Current length is {len(text)}, action cancelled)*")
             return
-        await ctx.send(text)  # the pain has been done.
+        await ctx.reply(text)  # the pain has been done.
 
     @commands.command(
         name="hostinfo",
@@ -216,7 +216,7 @@ class Basic(commands.Cog):
         # https://cdn.discordapp.com/attachments/661616167378485249/780232830180655155/unknown.png
 
         # Finally make the embed and send it
-        msg = await ctx.send(content='Now generating the embed...')
+        msg = await ctx.reply(content='Now generating the embed...')
         embed = discord.Embed(
             title=title,
             description=desc,

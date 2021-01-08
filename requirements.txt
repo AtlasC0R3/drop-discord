@@ -1,4 +1,4 @@
-discord.py
+discord.py==1.6.0
 discord-pretty-help
 parsedatetime
 requests

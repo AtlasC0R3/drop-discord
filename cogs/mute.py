@@ -32,13 +32,13 @@ class Mute(commands.Cog):
     @commands.has_guild_permissions(manage_roles=True)
     async def mute_command(self, ctx, user: discord.Member, *, timestamp):
         if get_server_config(ctx.guild.id, 'mute_role', int) == 0:
-            await ctx.send("The mute role hasn't been configured, please do so using the `muted_role` command. "
-                           "*Action cancelled.*")
+            await ctx.reply("The mute role hasn't been configured, please do so using the `muted_role` command. "
+                            "*Action cancelled.*")
             return
         role = ctx.guild.get_role(get_server_config(ctx.guild.id, 'mute_role', int))
         if role in user.roles:
-            await ctx.send(f"[{ctx.author.name}], relax. This user has already been "
-                           f"muted for now.")
+            await ctx.reply(f"[{ctx.author.name}], relax. This user has already been "
+                            f"muted for now.")
             return
         else:
             pass
@@ -102,21 +102,22 @@ class Mute(commands.Cog):
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
 
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     @mute_command.error
     async def mute_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server.")
+            await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server."
+                            )
             return
         if isinstance(error, commands.errors.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.send(f'[{ctx.author.name}], you did not specify a valid user to mute. '
-                               f'*({error} Action cancelled)*')
+                await ctx.reply(f'[{ctx.author.name}], you did not specify a valid user to mute. '
+                                f'*({error} Action cancelled)*')
                 return
             if error.param.name == 'timestamp':
-                await ctx.send(f'[{ctx.author.name}], you did not specify the time until the user is unmuted. '
-                               f'*({error} Action cancelled)*')
+                await ctx.reply(f'[{ctx.author.name}], you did not specify the time until the user is unmuted. '
+                                f'*({error} Action cancelled)*')
                 return
             return
 
@@ -133,11 +134,11 @@ class Mute(commands.Cog):
             mutes = json.load(tempf)
             guild_mutes = mutes.get(str(guild_id))
             if guild_mutes is None:
-                await ctx.send("I couldn't find any mutes from this guild. *Action cancelled.*")
+                await ctx.reply("I couldn't find any mutes from this guild. *Action cancelled.*")
                 return
             user_mutes = guild_mutes.get(str(user.id))
             if not user_mutes:
-                await ctx.send(f"Current user ({user}) has no saved mutes.")
+                await ctx.reply(f"Current user ({user}) has no saved mutes.")
                 return
             # user has been muted.
             mute_time = user_mutes[0]
@@ -161,17 +162,18 @@ class Mute(commands.Cog):
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
 
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     @mutestatus_command.error
     async def mutestatus_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server.")
+            await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server."
+                            )
             return
         if isinstance(error, commands.errors.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.send(f'[{ctx.author.name}], you did not specify a user. '
-                               f'*({error} Action cancelled)*')
+                await ctx.reply(f'[{ctx.author.name}], you did not specify a user. '
+                                f'*({error} Action cancelled)*')
                 return
 
     @commands.command(
@@ -187,11 +189,11 @@ class Mute(commands.Cog):
             mutes = json.load(tempf)
             guild_mutes = mutes.get(str(guild_id))
             if guild_mutes is None:
-                await ctx.send("This server has no mutes. *Action cancelled.*")
+                await ctx.reply("This server has no mutes. *Action cancelled.*")
                 return
             user_mutes = guild_mutes.get(str(user.id))
             if not user_mutes:
-                await ctx.send(f"Current user ({user}) isn't muted.")
+                await ctx.reply(f"Current user ({user}) isn't muted.")
                 return
             # user has been muted.
             mute_time = user_mutes[0]
@@ -210,17 +212,18 @@ class Mute(commands.Cog):
             json.dump(mutes, tempf, indent=2)
             tempf.truncate()
 
-        await ctx.send('User has been unmuted.')
+        await ctx.reply('User has been unmuted.')
 
     @unmute_command.error
     async def unmute_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server.")
+            await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server."
+                            )
             return
         if isinstance(error, commands.errors.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.send(f'[{ctx.author.name}], you did not specify a user to unmute. '
-                               f'*({error} Action cancelled)*')
+                await ctx.reply(f'[{ctx.author.name}], you did not specify a user to unmute. '
+                                f'*({error} Action cancelled)*')
                 return
 
 

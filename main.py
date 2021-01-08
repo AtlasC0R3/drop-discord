@@ -202,7 +202,7 @@ async def inactivity_func():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandInvokeError):
         if isinstance(error.original, discord.Forbidden):
-            await ctx.send("Sorry, I do not have the permissions to do that.")
+            await ctx.reply("Sorry, I do not have the permissions to do that.")
             return
     if not isinstance(error, (commands.CommandNotFound, commands.MissingPermissions, commands.MissingRequiredArgument,
                               commands.DisabledCommand, commands.CheckFailure, commands.MemberNotFound)):
@@ -215,10 +215,10 @@ async def on_command_error(ctx, error):
                 f"[{error}] while trying to invoke [{ctx.message.content}]")
         else:
             errorio = io.BytesIO(bytes(str(error), 'utf-8'))
-            await ctx.send(content="Uh oh! I ran into an error.\n"
-                                   "Because this server's configuration doesn't allow me to automatically save errors, "
-                                   "you'll have to do it yourself.",
-                           file=discord.File(errorio, 'error.txt'))
+            await ctx.reply(content="Uh oh! I ran into an error.\n"
+                                    "Because this server's configuration doesn't allow me to automatically save errors,"
+                                    " you'll have to do it yourself.",
+                            file=discord.File(errorio, 'error.txt'))
 
 
 @bot.event

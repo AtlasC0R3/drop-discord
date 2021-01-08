@@ -31,18 +31,18 @@ class Warn(commands.Cog):
     @has_permissions(manage_messages=True)
     async def warn_command(self, ctx, user: discord.Member, *, reason: str):
         if user.id == self.bot.user.id:
-            await ctx.send("Oh, REALLY now, huh? I do my best at maintaining this server and THIS is how you treat me? "
-                           "Screw this..")
+            await ctx.reply("Oh, REALLY now, huh? I do my best at maintaining this server and THIS is how you treat me?"
+                            " Screw this..")
             return
         if user == ctx.author:
-            await ctx.send("Why the heck would you warn yourself? You hate yourself THAT much?")
+            await ctx.reply("Why the heck would you warn yourself? You hate yourself THAT much?")
             return
         if user.bot == 1:
-            await ctx.send("It's useless to warn a bot. Why would you even try.")
+            await ctx.reply("It's useless to warn a bot. Why would you even try.")
             return
         if user.guild_permissions.manage_messages:
-            await ctx.send("The specified user has the \"Manage Messages\" permission "
-                           "(or higher) inside the guild/server.")
+            await ctx.reply("The specified user has the \"Manage Messages\" permission "
+                            "(or higher) inside the guild/server.")
             return
         dt_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         if not os.path.exists("data/servers/" + str(ctx.guild.id) + "/warns/"):
@@ -98,23 +98,23 @@ class Warn(commands.Cog):
             icon_url=ctx.message.author.avatar_url,
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     @warn_command.error
     async def warn_handler(self, ctx, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send(f'[{ctx.author.name}], you do not have the correct permissions to do so. '
-                           f'*(commands.MissingPermissions error, action cancelled)*')
+            await ctx.reply(f'[{ctx.author.name}], you do not have the correct permissions to do so. '
+                            f'*(commands.MissingPermissions error, action cancelled)*')
             return
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.send(f"[{ctx.author.name}], you forgot to specify a user to warn. "
-                               f"*(commands.MissingRequiredArgument error, action cancelled)*")
+                await ctx.reply(f"[{ctx.author.name}], you forgot to specify a user to warn. "
+                                f"*(commands.MissingRequiredArgument error, action cancelled)*")
                 return
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'reason':
-                await ctx.send(f"[{ctx.author.name}], you forgot to specify a reason. "
-                               f"*(commands.MissingRequiredArgument error, action cancelled)*")
+                await ctx.reply(f"[{ctx.author.name}], you forgot to specify a reason. "
+                                f"*(commands.MissingRequiredArgument error, action cancelled)*")
                 return
 
     @commands.command(
@@ -133,7 +133,7 @@ class Warn(commands.Cog):
             # See if the user has been warned
         except FileNotFoundError:
             # User does not have any warns.
-            await ctx.send(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
+            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
             return
 
         # If the script made it this far, then the user has warns.
@@ -180,7 +180,7 @@ class Warn(commands.Cog):
                       f"Date and Time: {warn_datetime}",
                 inline=True
             )
-        await ctx.send(
+        await ctx.reply(
             content=None,
             embed=embed
         )
@@ -189,11 +189,11 @@ class Warn(commands.Cog):
     async def warns_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.send("Please mention someone to verify their warns.")
+                await ctx.reply("Please mention someone to verify their warns.")
                 return
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send('[{0.author.name}], you do not have the correct permissions to do so. '
-                           '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
+            await ctx.reply('[{0.author.name}], you do not have the correct permissions to do so. '
+                            '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
             return
 
     @commands.command(
@@ -211,7 +211,7 @@ class Warn(commands.Cog):
             # See if the user has been warned
         except FileNotFoundError:
             # User does not have any warns.
-            await ctx.send(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
+            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
             return
         warn_amount = warndata.get('warns')
         specified_warn = warndata.get(warn)
@@ -248,7 +248,7 @@ class Warn(commands.Cog):
             # do the whole removing process.
             if warn_amount == 1:   # Check if the user only has one warn.
                 os.remove(f"data/servers/{ctx.guild.id}/warns/{user.id}.json")
-                await ctx.send(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
+                await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
                 return
 
             if warn != warn_amount:   # Check if the warn to remove was not the last warn.
@@ -257,7 +257,7 @@ class Warn(commands.Cog):
                     del warndata[str(x+1)]
                     json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
                                              encoding='utf-8'), indent=2)
-                    await ctx.send(
+                    await ctx.reply(
                         f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
                     return
 
@@ -265,7 +265,7 @@ class Warn(commands.Cog):
             warndata['warns'] = warn_amount - 1
             json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
                                      encoding='utf-8'), indent=2)
-            await ctx.send(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
+            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
             return
         elif reply in ('n', 'no', 'cancel'):
             await ctx.send("Alright, action cancelled.")
@@ -277,14 +277,15 @@ class Warn(commands.Cog):
     async def remove_warn_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.send("Please mention someone to remove their warns.")
+                await ctx.reply("Please mention someone to remove their warns.")
                 return
             if error.param.name == 'warn':
-                await ctx.send("You did not specify a warn ID to remove.")
+                await ctx.reply("You did not specify a warn ID to remove.")
                 return
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send('[{0.author.name}], you do not have the correct permissions to do so. '
-                           '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
+            await ctx.reply('[{0.author.name}], you do not have the correct permissions to do so. '
+                            '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
+            # egh, too lazy to make it not use .format(ctx)
             return
 
     @commands.command(
@@ -302,7 +303,7 @@ class Warn(commands.Cog):
             # See if the user has been warned
         except FileNotFoundError:
             # User does not have any warns.
-            await ctx.send(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
+            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
             return
 
         def check(ms):
@@ -343,7 +344,7 @@ class Warn(commands.Cog):
             specified_warn['reason'] = warn_new_reason
             json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
                                      encoding='utf-8'), indent=2)
-            await ctx.send(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn edited.")
+            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn edited.")
             return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
             await ctx.send("Alright, action cancelled.")
@@ -355,14 +356,14 @@ class Warn(commands.Cog):
     async def edit_warn_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.send("Please mention someone to remove their warns.")
+                await ctx.reply("Please mention someone to remove their warns.")
                 return
             if error.param.name == 'warn':
-                await ctx.send("You did not specify a warn ID to remove.")
+                await ctx.reply("You did not specify a warn ID to remove.")
                 return
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send('[{0.author.name}], you do not have the correct permissions to do so. '
-                           '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
+            await ctx.reply('[{0.author.name}], you do not have the correct permissions to do so. '
+                            '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
             return
 
 

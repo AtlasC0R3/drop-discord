@@ -45,16 +45,16 @@ class Configuration(commands.Cog):
 
         # Next, we check if the user actually passed some text
         if commandargs == '':
-            await ctx.send('What would you like to set the prefix as for this server?')
+            await ctx.reply('What would you like to set the prefix as for this server?')
             msg = await self.bot.wait_for('message', check=check)
             new_prefix = msg.content
         else:
             new_prefix = commandargs.replace(' ', '')
 
         if not len(new_prefix) == 1:
-            await ctx.send("The prefix is longer than one character long. "
-                           "You can only have one character as your prefix.\n"
-                           f"*Requested prefix's length is {len(new_prefix)}*")
+            await ctx.reply("The prefix is longer than one character long. "
+                            "You can only have one character as your prefix.\n"
+                            f"*Requested prefix's length is {len(new_prefix)}*")
             return
 
         # Ask the user for confirmation
@@ -69,7 +69,7 @@ class Configuration(commands.Cog):
                                "*(Action cancelled. Not like it'd change anything if it weren't cancelled...)*")
                 return
             write_server_config(ctx.guild.id, 'prefix', new_prefix)
-            await ctx.send("Successfully changed server prefix.")
+            await ctx.reply("Successfully changed server prefix.")
             write_server_config(ctx.guild.id, 'asked_prefix', [])
             return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
@@ -81,8 +81,8 @@ class Configuration(commands.Cog):
     @setprefix_command.error
     async def setprefix_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
             return
 
     @commands.command(
@@ -95,16 +95,16 @@ class Configuration(commands.Cog):
     async def toggleinactivity_command(self, ctx):
         if get_server_config(ctx.guild.id, 'inactivity_func', bool):
             write_server_config(ctx.guild.id, 'inactivity_func', False)
-            await ctx.send("Success, inactivity function is now turned off.")
+            await ctx.reply("Success, inactivity function is now turned off.")
         else:
             write_server_config(ctx.guild.id, 'inactivity_func', True)
-            await ctx.send("Success, inactivity function is now turned on.")
+            await ctx.reply("Success, inactivity function is now turned on.")
 
     @toggleinactivity_command.error
     async def toggleinactivity_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
             return
 
     @commands.command(
@@ -134,12 +134,12 @@ class Configuration(commands.Cog):
             # it's already in, we have to delete it
             new_nonowords = [x for x in nonowords if x != nonoword]
             write_server_config(ctx.guild.id, 'no_no_words', new_nonowords)
-            await ctx.send("Success, this word has been unbanned.")
+            await ctx.reply("Success, this word has been unbanned.")
         else:
             # it's not in, we have to add it
             nonowords.append(nonoword)
             write_server_config(ctx.guild.id, 'no_no_words', nonowords)
-            await ctx.send("Success, this word has been banned.")
+            await ctx.reply("Success, this word has been banned.")
 
     @commands.command(
         name="inactivitychannel",
@@ -175,14 +175,15 @@ class Configuration(commands.Cog):
         if new_channel.isdigit():
             channel = ctx.guild.get_channel(int(new_channel))
             if channel is None:
-                await ctx.send("Uh oh, I could not get the channel you meant. Please try again. "
-                               "If it still fails, please try directly inserting the channel's ID. *Action cancelled.*")
+                await ctx.reply("Uh oh, I could not get the channel you meant. Please try again. "
+                                "If it still fails, please try directly inserting the channel's ID. *Action cancelled.*"
+                                )  # Freaking character limit, man.
                 return
         else:
             channel = discord.utils.get(self.bot.get_all_channels(), guild=ctx.guild, name=new_channel)
             if channel is None:
-                await ctx.send("Whoops, I couldn't find the channel you meant. "
-                               "Please try again by directly mentioning the channel you mean. *Action cancelled.*")
+                await ctx.reply("Whoops, I couldn't find the channel you meant. "
+                                "Please try again by directly mentioning the channel you mean. *Action cancelled.*")
                 return
 
         # Ask the user for confirmation
@@ -199,13 +200,13 @@ class Configuration(commands.Cog):
             if remove:
                 new_list = [x for x in get_server_config(ctx.guild.id, 'inactivity_channels', list) if x != channel.id]
                 write_server_config(ctx.guild.id, 'inactivity_channels', new_list)
-                await ctx.send(f"Successfully removed <#{channel.id}> from the inactivity channels.")
+                await ctx.reply(f"Successfully removed <#{channel.id}> from the inactivity channels.")
                 return
             else:
                 new_list = get_server_config(ctx.guild.id, 'inactivity_channels', list)
                 new_list.append(channel.id)
                 write_server_config(ctx.guild.id, 'inactivity_channels', new_list)
-                await ctx.send(f"Successfully added <#{channel.id}> to the inactivity channels.")
+                await ctx.reply(f"Successfully added <#{channel.id}> to the inactivity channels.")
                 return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
             await ctx.send("Alright, action cancelled.")
@@ -216,8 +217,8 @@ class Configuration(commands.Cog):
     @inactivitychannel_command.error
     async def inactivitychannel_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
             return
 
     @commands.command(
@@ -255,14 +256,14 @@ class Configuration(commands.Cog):
         if new_role.isdigit():
             role = ctx.guild.get_role(int(new_role))
             if role is None:
-                await ctx.send("Uh oh, I could not get the role you meant. Please try again. "
-                               "If it still fails, please try directly inserting the role's ID. *Action cancelled.*")
+                await ctx.reply("Uh oh, I could not get the role you meant. Please try again. "
+                                "If it still fails, please try directly inserting the role's ID. *Action cancelled.*")
                 return
         else:
             role = discord.utils.get(ctx.guild.roles, name=new_role)
             if role is None:
-                await ctx.send("Whoops, I couldn't find the role you meant. "
-                               "Please try again by directly mentioning the role you mean. *Action cancelled.*")
+                await ctx.reply("Whoops, I couldn't find the role you meant. "
+                                "Please try again by directly mentioning the role you mean. *Action cancelled.*")
                 return
 
         # Checks if role is already the one that's already defined. If not, ask for confirmation
@@ -277,7 +278,7 @@ class Configuration(commands.Cog):
 
         if reply in ('y', 'yes', 'confirm'):
             write_server_config(ctx.guild.id, 'mute_role', role.id)
-            await ctx.send(f"Successfully set {role.name} as the muted role")
+            await ctx.reply(f"Successfully set {role.name} as the muted role")
             return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
             await ctx.send("Alright, action cancelled.")
@@ -288,8 +289,8 @@ class Configuration(commands.Cog):
     @mutedrole_command.error
     async def mutedrole_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
             return
 
     @commands.command(
@@ -318,12 +319,12 @@ class Configuration(commands.Cog):
                 value=value,
                 inline=True
             )
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     @configinfo_command.error
     async def configinfo_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+            await ctx.repy(f"{ctx.author.name}, you don't have the permissions to do that.\n"
                            f"*({error} Action cancelled)*")
             return
 
@@ -338,16 +339,16 @@ class Configuration(commands.Cog):
     async def anonymouslogs_command(self, ctx):
         if get_server_config(ctx.guild.id, 'share_error_logs', bool):
             write_server_config(ctx.guild.id, 'inactivity_func', False)
-            await ctx.send("Success, anonymous error logs will no longer be automatically sent to the bot host.")
+            await ctx.reply("Success, anonymous error logs will no longer be automatically sent to the bot host.")
         else:
             write_server_config(ctx.guild.id, 'share_error_logs', True)
-            await ctx.send("Success, anonymous error logs will now be automatically sent to the bot host.")
+            await ctx.reply("Success, anonymous error logs will now be automatically sent to the bot host.")
 
     @anonymouslogs_command.error  # Ha! An error handler for an error handling command. The irony.
     async def anonymouslogs_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
             return
 
     @commands.command(
@@ -360,16 +361,16 @@ class Configuration(commands.Cog):
     async def toggleinactivity_command(self, ctx):
         if get_server_config(ctx.guild.id, 'inactivity_func', bool):
             write_server_config(ctx.guild.id, 'inactivity_func', False)
-            await ctx.send("Success, inactivity function is now turned off.")
+            await ctx.reply("Success, inactivity function is now turned off.")
         else:
             write_server_config(ctx.guild.id, 'inactivity_func', True)
-            await ctx.send("Success, inactivity function is now turned on.")
+            await ctx.reply("Success, inactivity function is now turned on.")
 
     @toggleinactivity_command.error
     async def toggleinactivity_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
             return
 
     @commands.command(
@@ -397,7 +398,7 @@ class Configuration(commands.Cog):
         disabled_commands = get_server_config(ctx.guild.id, 'disabled_commands', list)
         cmdthingy = self.bot.get_command(togglethingy)
         if not cmdthingy:
-            await ctx.send("I could not find that command. *Action cancelled.*")
+            await ctx.reply("I could not find that command. *Action cancelled.*")
             return
         if togglethingy == 'help':
             await ctx.send("Umm, are you *sure* you want to toggle the help command?")
@@ -415,11 +416,11 @@ class Configuration(commands.Cog):
         if togglethingy in disabled_commands:
             new_commands = [x for x in disabled_commands if x != togglethingy]
             write_server_config(ctx.guild.id, 'disabled_commands', new_commands)
-            await ctx.send("Success, this command is now enabled.")
+            await ctx.reply("Success, this command is now enabled.")
         else:
             disabled_commands.append(togglethingy)
             write_server_config(ctx.guild.id, 'disabled_commands', disabled_commands)
-            await ctx.send("Success, this command is now disabled.")
+            await ctx.reply("Success, this command is now disabled.")
 
     @disablecmd_command.error
     async def disablecmd_handler(self, ctx, error):
@@ -453,24 +454,24 @@ class Configuration(commands.Cog):
         disabled_cogs = get_server_config(ctx.guild.id, 'disabled_cogs', list)
         cmdthingy = self.bot.get_cog(togglethingy)
         if not cmdthingy:
-            await ctx.send("I could not find that cog. *Action cancelled.*\n"
-                           "*Tip: This command is case sensitive, make sure your category is capitalized correctly.*")
+            await ctx.reply("I could not find that cog. *Action cancelled.*\n"
+                            "*Tip: This command is case sensitive, make sure your category is capitalized correctly.*")
             return
 
         if togglethingy in disabled_cogs:
             new_cogs = [x for x in disabled_cogs if x != togglethingy]
             write_server_config(ctx.guild.id, 'disabled_cogs', new_cogs)
-            await ctx.send("Success, this cog is now enabled.")
+            await ctx.reply("Success, this cog is now enabled.")
         else:
             disabled_cogs.append(togglethingy)
             write_server_config(ctx.guild.id, 'disabled_cogs', disabled_cogs)
-            await ctx.send("Success, this cog is now disabled.")
+            await ctx.reply("Success, this cog is now disabled.")
 
     @disablecog_command.error
     async def disablecmd_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
             return
 
     @commands.command(
@@ -579,14 +580,14 @@ class Configuration(commands.Cog):
         )
         with open("data/quotes/goodbyes.json", encoding='utf-8', newline="\n") as goodbyes_json:
             goodbyes = json.load(goodbyes_json)
-        await ctx.send(random.choice(goodbyes).format(ctx), embed=embed)
+        await ctx.reply(random.choice(goodbyes).format(ctx), embed=embed)
         await ctx.guild.leave()
 
     @cleardata_command.error
     async def cleardata_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"[{ctx.author.name}], you are missing the permissions [Administrator] in this guild/server."
-                           )  # gosh darn parenthesis going over 120 characters!!!1!
+            await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Administrator] in this "
+                            "guild/server.")  # gosh darn reply thing going over 120 characters!!!1!
             return
 
 
