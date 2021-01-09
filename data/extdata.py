@@ -67,8 +67,8 @@ def get_server_config(serverid, param, paramtype):
             if config_param is None:
                 config_param = exampleServerConfig.get(param)
                 server_config[param] = config_param
-                json.dump(exampleServerConfig, open(f"data/servers/{serverid}/config.json", "w+", encoding="utf-8",
-                                                    newline='\n'))
+                json.dump(server_config, open(f"data/servers/{serverid}/config.json", "w+", encoding="utf-8",
+                                              newline='\n'))
             return paramtype(config_param)
     except FileNotFoundError:
         # No config exists for this server.
