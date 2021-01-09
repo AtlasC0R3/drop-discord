@@ -76,15 +76,11 @@ async def on_ready():
             os.system("cls")
         if get_config_parameter('change_terminal_name', bool):
             os.system(f"title {bot.user}")
-        print(f"Running on Windows ({os.name})")
-    elif os.name == "darwin":
-        print(f"Running on macOS ({os.name})")
     elif os.name == 'posix':
         if get_config_parameter('clear_terminal', bool):
             os.system("clear")
         if get_config_parameter('change_terminal_name', bool):
             os.system(f"printf '\\033]2;{bot.user}\\a'")  # Sets terminal name to the bot's user.
-        print(f"Running on Posix/Linux ({os.name})")
     else:
         # What the hell is this running on!?
         print(f"Running on an unknown OS ({os.name})")
