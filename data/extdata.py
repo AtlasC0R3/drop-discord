@@ -14,7 +14,8 @@ exampleServerConfig = {
     "mute_role": 0,
     "disabled_commands": [],
     "disabled_cogs": [],
-    "no_no_words": []
+    "no_no_words": [],
+    "tableflip": True
 }
 
 exampleConfig = {}

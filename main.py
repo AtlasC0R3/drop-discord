@@ -167,11 +167,12 @@ async def on_message(message):
             asked = get_server_config(message.guild.id, 'asked_prefix', list)
             asked.append(message.author.id)
             write_server_config(message.guild.id, 'asked_prefix', asked)
-    if '(╯°□°）╯︵ ┻━┻' in message.content:
-        time.sleep(0.75)
-        messages = json.load(open("data/quotes/tableflip.json", "r", encoding="utf-8", newline="\n"))
-        to_send = random.choice(messages)
-        await message.channel.send(to_send.format(message))
+    if '(╯°□°）╯︵ ┻━┻' in message.content and message.guild:
+        if get_server_config(message.guild.id, 'tableflip', bool):
+            time.sleep(0.75)
+            messages = json.load(open("data/quotes/tableflip.json", "r", encoding="utf-8", newline="\n"))
+            to_send = random.choice(messages)
+            await message.channel.send(to_send.format(message))
 
 if verbose:
     print('on_message has been configured')
