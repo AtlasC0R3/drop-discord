@@ -11,5 +11,7 @@
     "userId": "",
     "key": "",
     "excludedGames": []
-  }
+  },
+
+  "verbose": true
 }

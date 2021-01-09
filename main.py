@@ -33,11 +33,18 @@ except ImportError:
              "Please install it using:\n  pip install discord-pretty-help\n"
              "or by running\n  pip install -r requirements.txt")
 
+verbose = get_config_parameter('verbose', bool)
+clear_terminal = get_config_parameter('clear_terminal', bool)
+change_terminal_name = get_config_parameter('change_terminal_name', bool)
+
+
 cogs = []
 for cogfile in os.listdir('cogs/'):
     if cogfile.endswith('.py'):
         cogimport = 'cogs.' + cogfile.split('.')[0]
         cogs.append(cogimport)
+        if verbose:
+            print(f'Found {cogfile} as cog')
 
 
 def get_prefix(client, message):
@@ -70,23 +77,28 @@ bot = commands.Bot(                                            # Create a new bo
 
 @bot.event
 async def on_ready():
-    get_github_config()
-    if os.name == 'nt':
-        if get_config_parameter('clear_terminal', bool):
-            os.system("cls")
-        if get_config_parameter('change_terminal_name', bool):
-            os.system(f"title {bot.user}")
-    elif os.name == 'posix':
-        if get_config_parameter('clear_terminal', bool):
-            os.system("clear")
-        if get_config_parameter('change_terminal_name', bool):
-            os.system(f"printf '\\033]2;{bot.user}\\a'")  # Sets terminal name to the bot's user.
+    if verbose:
+        print('Bot is ready: everything should have loaded successfully.')
     else:
-        # What the hell is this running on!?
-        print(f"Running on an unknown OS ({os.name})")
+        if os.name == 'nt':
+            if clear_terminal:
+                os.system("cls")
+            if change_terminal_name:
+                os.system(f"title {bot.user}")
+        elif os.name == 'posix':
+            if clear_terminal:
+                os.system("clear")
+            if change_terminal_name:
+                os.system(f"printf '\\033]2;{bot.user}\\a'")  # Sets terminal name to the bot's user.
+        else:
+            # What the hell is this running on!?
+            print(f"Running on an unknown OS ({os.name})")
+    get_github_config()
     print(f'My name is {bot.user}.')
     try:
         for cog in cogs:
+            if verbose:
+                print(f'Loading {cog}')
             bot.load_extension(cog)
     except discord.ext.commands.errors.ExtensionAlreadyLoaded:
         # Bot tried to load a cog that was already loaded.
@@ -97,6 +109,8 @@ async def on_ready():
     inactivity_func.start()
     return
 
+if verbose:
+    print('on_ready has been configured')
 
 messagecount = {}
 
@@ -159,6 +173,9 @@ async def on_message(message):
         to_send = random.choice(messages)
         await message.channel.send(to_send.format(message))
 
+if verbose:
+    print('on_message has been configured')
+
 
 @tasks.loop(minutes=10, count=None, reconnect=True)
 async def activitychanger():
@@ -192,6 +209,9 @@ async def inactivity_func():
             channel = bot.get_channel(int(x))
             await channel.send(random.choice(inactivities))
     messagecount = {}
+
+if verbose:
+    print('Task loops has been configured')
 
 
 @bot.event
@@ -303,6 +323,8 @@ if get_config_parameter('dev_token', bool):
     print("WARN: Developer mode activated, passing through developer token.")
     tokenpath = "data/devtoken.txt"
 else:
+    if verbose:
+        print('Using regular token')
     tokenpath = "data/token.txt"
 
 try:
@@ -318,4 +340,6 @@ except FileNotFoundError:
     else:
         print("I didn't quite get that... I'll take that as a no.\n")
 
+if verbose:
+    print('Connecting to Discord...')
 bot.run(specified_token, bot=True, reconnect=True)
