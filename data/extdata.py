@@ -23,10 +23,8 @@ exampleConfig = {}
 
 def get_github_config():
     global exampleConfig
-    print("Downloading default configuration from GitHub (not overwriting)...")
     exampleConfig = json.loads(
         requests.get('https://raw.githubusercontent.com/AtlasC0R3/drop-bot/main/data/config.json').text)
-    print("done")
 
 
 class TermColors:
