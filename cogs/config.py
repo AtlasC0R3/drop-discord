@@ -374,6 +374,28 @@ class Configuration(commands.Cog):
             return
 
     @commands.command(
+        name="toggle_tableflip",
+        description="Toggles the bot's tableflip reaction for this server.",
+        aliases=["toggletableflip", "toggleflip"],
+        brief='Toggles the tableflip reactions'
+    )
+    @has_guild_permissions(manage_guild=True)
+    async def toggleflip_command(self, ctx):
+        if get_server_config(ctx.guild.id, 'tableflip', bool):
+            write_server_config(ctx.guild.id, 'tableflip', False)
+            await ctx.reply("Success, tableflip reactions are now turned off.")
+        else:
+            write_server_config(ctx.guild.id, 'tableflip', True)
+            await ctx.reply("Success, tableflip reactions are now turned on.")
+
+    @toggleflip_command.error
+    async def toggleflip_handler(self, ctx, error):
+        if isinstance(error, commands.errors.MissingPermissions):
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
+            return
+
+    @commands.command(
         name="togglecommand",
         description="Disables/enables commands. This can be used to disable commands you don't want in your server.\n"
                     "Additionally, this disables the ability to see them in the help command.",
