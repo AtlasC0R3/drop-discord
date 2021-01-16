@@ -6,7 +6,6 @@
     ["competing", "Say That Answer!"],
     ["playing", "Quake"],
     ["watching", "Scott the Woz"],
-    ["playing", "Changed"],
     ["listening", "Big Chungus"],
     ["playing", "Half-Life 2"],
     ["playing", "DOOM"],
@@ -19,5 +18,6 @@
     ["watching", "Ahoy"],
     ["watching", "anime"],
     ["playing", "Minecraft"],
-    ["listening", "ASMR sounds"]
+    ["listening", "ASMR sounds"],
+    ["watching", "no faces"]
 ]
