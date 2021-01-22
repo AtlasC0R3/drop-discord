@@ -322,6 +322,13 @@ async def temp_undo():
 
 if get_config_parameter('dev_token', bool):
     print("WARN: Developer mode activated, passing through developer token.")
+    try:
+        print("Trying to load Jishaku")
+        bot.load_extension('jishaku')
+    except discord.ext.commands.errors.ExtensionNotFound:
+        print("Could not load Jishaku: skipping...")
+    else:
+        print("Jishaku loaded: continuing...")
     tokenpath = "data/devtoken.txt"
 else:
     if verbose:
