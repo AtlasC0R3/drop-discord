@@ -155,7 +155,11 @@ while True:
 
     print(f'Running loop, take {runs}')
     sp = subprocess.Popen(bot_cmd, shell=False, cwd=f'drop-bot{runs}/drop-bot/')
-    time.sleep(runtime)
+
+    try:
+        time.sleep(runtime)
+    except KeyboardInterrupt:
+        exit("KeyboardInterrupt, aborting.")
 
     # Due for an update. Do stuff, I guess.
     drop_clone(f'drop-bot{runs + 1}')
