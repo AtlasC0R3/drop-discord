@@ -62,8 +62,9 @@ def get_prefix(client, message):
 
 intents = discord.Intents.default()
 intents.members = True
-# F**k intents.
 intents.guilds = True
+intents.presences = True
+# F**k intents.
 
 bot = commands.Bot(                                            # Create a new bot
     command_prefix=get_prefix,                                 # Set the prefix
@@ -73,6 +74,9 @@ bot = commands.Bot(                                            # Create a new bo
     intents=intents,                                           # I think I made intents
     help_command=PrettyHelp()                                  # Sets custom help command to discord_pretty_help's
 )
+ownerMember = discord.Member
+ownerUser = discord.User
+ownerId = get_config_parameter('owner_id', int)
 
 
 @bot.event
@@ -95,18 +99,22 @@ async def on_ready():
             print(f"Running on an unknown OS ({os.name})")
     get_github_config()
     print(f'My name is {bot.user}.')
-    try:
-        for cog in cogs:
-            if verbose:
-                print(f'Loading {cog}')
-            bot.load_extension(cog)
-    except discord.ext.commands.errors.ExtensionAlreadyLoaded:
-        # Bot tried to load a cog that was already loaded.
-        print(f"{TermColors.WARNING}WARN: Tried to load a cog/extension that was already loaded.{TermColors.ENDC}")
-        return
+
+    if ownerId:
+        owner_refresh.start()
     activitychanger.start()
     temp_undo.start()
     inactivity_func.start()
+
+    for cog in cogs:
+        if verbose:
+            print(f'Loading {cog}')
+        try:
+            bot.load_extension(cog)
+        except discord.ext.commands.errors.ExtensionAlreadyLoaded:
+            # Bot tried to load a cog that was already loaded.
+            print(f"{TermColors.WARNING}WARN: Tried to load a cog/extension that was already loaded "
+                  f"({cog}).{TermColors.ENDC}")
     return
 
 if verbose:
@@ -178,9 +186,35 @@ if verbose:
     print('on_message has been configured')
 
 
+@tasks.loop(minutes=2, count=None, reconnect=True)
+async def owner_refresh():
+    if verbose:
+        print("Refreshing owner member and user objects")
+    global ownerUser
+    ownerUser = bot.get_user(ownerId)
+    for member in bot.get_all_members():
+        if member.id == ownerId:
+            global ownerMember
+            ownerMember = member
+
+
 @tasks.loop(minutes=10, count=None, reconnect=True)
 async def activitychanger():
-    if get_config_parameter('useSteamRecentlyPlayed', int) == 1:
+    if (ownerMember.activity and get_config_parameter('syncActivityWithOwner', bool)) and ownerId:
+        if isinstance(ownerMember.activity, discord.activity.Spotify):
+            activitytype = 'listening'
+            # activityname = f"{ownerMember.activity.title.split('(')[0].split('-')[0]}, " \
+            #               f"by {ownerMember.activity.artist.split(';')[0]}"
+            activityname = ownerMember.activity.artist.split(';')[0]
+            # Uncomment the comment block above if you want it to look like "Listening to Papercut, by Linkin Park"
+            # instead of just the artist name.
+        elif isinstance(ownerMember.activity, discord.activity.Activity) or \
+                isinstance(ownerMember.activity, discord.activity.Game):
+            activitytype = 'playing'
+            activityname = ownerMember.activity.name
+        else:
+            return
+    elif get_config_parameter('useSteamRecentlyPlayed', int) == 1:
         activitytype = 'playing'
         activityname = get_steam_played_game()
     elif get_config_parameter('useSteamRecentlyPlayed', int) == 2:

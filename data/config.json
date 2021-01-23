@@ -12,6 +12,6 @@
     "key": "",
     "excludedGames": []
   },
-
-  "verbose": true
+  "verbose": false,
+  "syncActivityWithOwner": true
 }
