@@ -9,17 +9,6 @@ from discord.ext import commands
 from data.extdata import get_config_parameter, get_steam_played_game, SteamModes, get_discpy_version
 
 
-if not os.path.exists('data/feedback.json'):
-    with open('data/feedback.json', 'w+', encoding='utf-8', newline="\n") as f:
-        jsonFile = {"feedback": []}
-        json.dump(jsonFile, f)
-else:
-    with open('data/feedback.json', encoding='utf-8', newline="\n") as f:
-        try:
-            jsonFile = json.load(f)
-        except ValueError:
-            jsonFile = {"feedback": []}
-
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
     color_list = [c for c in colors.values()]
