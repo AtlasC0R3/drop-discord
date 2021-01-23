@@ -24,6 +24,13 @@ token = 'InsertNormalTokenHere'
 devToken = 'InsertDevTokenHere'
 # The developer bot token.
 
+ownerId = 0
+# The user ID of the bot owner.
+verbose = False
+# Controls whether the bot will use verbose mode.
+syncOwnerActivity = True
+# Controls whether the bot will imitate the owner's activity.
+
 useSteamRecentlyPlayed = 0
 # Change this integer if you'd like the bot to pass through Steam's API for activities.
 steamUserId = ""
