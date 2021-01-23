@@ -30,7 +30,7 @@ except ImportError:
 try:
     from config import *
 except ImportError:
-    exit("Uh, you may want to create a config file for this script?")
+    raise ImportError("Uh, you may want to create a config file for this script?")
 
 pip_cmd = [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
 
