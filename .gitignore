@@ -10,3 +10,4 @@ cogs/__pycache__/
 autorun/
 venv/
 config.py
+cogs/

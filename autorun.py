@@ -10,6 +10,7 @@ import time
 import sys
 import json
 import shutil
+import glob
 
 try:
     import requests
@@ -81,12 +82,25 @@ def check_config(conf: str):
     return newconf
 
 
+def add_cogs():
+    path = 'cogs/'
+    if os.path.exists(path):
+        print("Cogs folder detected, placing cogs in the bot's directory")
+        cogfiles = [f for f in glob.glob(path + "**/*/*.py", recursive=True)]
+        for cog in cogfiles:
+            shutil.move(cog, path)
+        shutil.copytree(path, f'.temp/cogs/')
+        # Yup, ripped straight from the original bot's code!
+
+
 prevDropJson = None
 if doSubdirectoryCleanup:
     previousDropDirs = []
     for directory in [directory.path for directory in os.scandir(os.getcwd()) if directory.is_dir()]:
         if str(directory.split('/')[-1]).startswith('drop-bot'):
             previousDropDirs.append(directory)
+        elif str(directory.split('/')[-1]) == 'cogs' or '.git':  # oh my god finally, git can stop going crazy!
+            pass
         else:
             shutil.rmtree(directory)
     previousDropDirs.reverse()
@@ -112,6 +126,7 @@ if doSubdirectoryCleanup:
 
 print(f"Cloning repository to drop-bot{runs + 1}/")
 drop_clone(f'drop-bot{runs + 1}')
+add_cogs()
 
 if doPipInstallReqs:
     reqs = requests.get(reqsTxtUrl).text
@@ -163,6 +178,7 @@ while True:
 
     # Due for an update. Do stuff, I guess.
     drop_clone(f'drop-bot{runs + 1}')
+    add_cogs()
     newJson = json.load(open(f'drop-bot{runs + 1}/drop-bot/data/config.json'))
     json.dump(check_config(f'drop-bot{runs}/drop-bot/data/config.json'),
               open(f'drop-bot{runs + 1}/drop-bot/data/config.json', 'w'))
