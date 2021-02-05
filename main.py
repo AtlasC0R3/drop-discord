@@ -257,7 +257,9 @@ async def on_command_error(ctx, error):
             return
     if not isinstance(error, (commands.CommandNotFound, commands.MissingPermissions, commands.MissingRequiredArgument,
                               commands.DisabledCommand, commands.CheckFailure, commands.MemberNotFound)):
-        if get_server_config(ctx.guild.id, 'share_error_logs', bool):
+        if ctx.author.id == bot.owner_id:
+            await ctx.reply(str(error))
+        elif get_server_config(ctx.guild.id, 'share_error_logs', bool):
             dt_string = datetime.now().strftime("%d_%m_%Y %H %M %S")
             if not os.path.exists(f"data/errors/{type(error).__name__}/"):
                 os.makedirs(f"data/errors/{type(error).__name__}/")
