@@ -4,7 +4,7 @@ import random
 
 import discord
 from discord.ext import commands
-from data.extdata import get_config_parameter, get_steam_recently_played, get_steam_played_game
+from data.extdata import get_config_parameter, get_steam_recently_played
 
 
 class Owner(commands.Cog):
