@@ -4,7 +4,6 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 import parsedatetime
-import re
 
 from data.extdata import get_server_config
 
@@ -43,13 +42,7 @@ class Mute(commands.Cog):
         else:
             pass
 
-        regex = re.compile("\\s?(\\w+)([\\d]+\\s?\\w+)")
-        try:
-            new_string = str(" ".join(regex.match(timestamp).groups())) + "m"
-        except AttributeError:
-            new_string = timestamp
-
-        dt_obj = cal.parseDT(datetimeString=new_string)
+        dt_obj = cal.parseDT(datetimeString=timestamp)
         now_dt = datetime.now()
         list_dt_obj = str(dt_obj[0]).split(":")
         list_now_dt = str(now_dt).split(":")
