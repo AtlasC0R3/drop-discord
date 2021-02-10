@@ -119,6 +119,8 @@ if doSubdirectoryCleanup:
                         shutil.move(f'{directory}/drop-bot/data/data_clear.json', '.temp/data/data_clear.json')
                     if os.path.isfile(f'{directory}/drop-bot/data/unmutes.json'):
                         shutil.move(f'{directory}/drop-bot/data/unmutes.json', '.temp/data/unmutes.json')
+                    if os.path.isdir(f'{directory}/drop-bot/data/todo/'):
+                        shutil.move(f'{directory}/drop-bot/data/todo/', '.temp/data/')
                 shutil.rmtree(directory)
                 break
             else:
