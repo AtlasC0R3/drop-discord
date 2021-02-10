@@ -58,21 +58,19 @@ class Warn(commands.Cog):
                     warnfile:
                 warndata = ({
                     'offender_name': user.name,
-                    'warns': 1,
-                    1: ({
-                        'warner': ctx.author.id,
-                        'warner_name': ctx.author.name,
-                        'reason': reason,
-                        'channel': str(ctx.channel.id),
-                        'datetime': dt_string
-                        })
+                    'warns': [
+                        {
+                            'warner': ctx.author.id,
+                            'warner_name': ctx.author.name,
+                            'reason': reason,
+                            'channel': str(ctx.channel.id),
+                            'datetime': dt_string
+                        }
+                    ]
                 })
                 json.dump(warndata, warnfile, indent=2)
         else:
             # If the script made it this far, then the user has been warned
-            warn_amount = warndata.get("warns")
-            new_warn_amount = int(warn_amount)+1
-            warndata["warns"] = new_warn_amount
             warndata["offender_name"] = user.name
             new_warn = ({
                 'warner': ctx.author.id,
@@ -81,9 +79,9 @@ class Warn(commands.Cog):
                 'channel': str(ctx.channel.id),
                 'datetime': dt_string
             })
-            warndata[new_warn_amount] = new_warn
-            json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", newline="\n", encoding='utf-8'
-                                     ), indent=2)
+            warndata["warns"].append(new_warn)
+            json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", "w+", newline="\n",
+                                     encoding='utf-8'), indent=2)
         discreason = reason.replace('**', '\\*\\*')
         embed = discord.Embed(
             title="User warned",
@@ -137,7 +135,8 @@ class Warn(commands.Cog):
             return
 
         # If the script made it this far, then the user has warns.
-        warn_amount = warndata.get("warns")
+        warns = warndata.get("warns")
+        warn_amount = len(warns)
         if warn_amount == 1:
             warns_word = "warn"
         else:
@@ -156,24 +155,20 @@ class Warn(commands.Cog):
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
 
-        for x in range(1, warn_amount+1):
-            with open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", newline="\n", encoding='utf-8') as warnfile:
-                warndata = json.load(warnfile)
-
-            warn_dict = warndata.get(str(x))
-            warner_id = warn_dict.get('warner')
+        for index, warn in enumerate(warns):
+            warner_id = warn.get('warner')
             warner_user = self.bot.get_user(id=warner_id)
             if warner_user is None:
-                warner_name = warn_dict.get('warner_name')
+                warner_name = warn.get('warner_name')
             else:
                 warner_name = self.bot.get_user(id=warner_id)
                 
-            warn_reason = warn_dict.get('reason')
-            warn_channel = warn_dict.get('channel')
-            warn_datetime = warn_dict.get('datetime')
+            warn_reason = warn.get('reason')
+            warn_channel = warn.get('channel')
+            warn_datetime = warn.get('datetime')
             
             embed.add_field(
-                name=f"Warn {x}",
+                name=f"Warn {index + 1}",
                 value=f"Warner: {warner_name} (<@{warner_id}>)\n"
                       f"Reason: {warn_reason}\n"
                       f"Channel: <#{warn_channel}>\n"
@@ -213,8 +208,12 @@ class Warn(commands.Cog):
             # User does not have any warns.
             await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
             return
-        warn_amount = warndata.get('warns')
-        specified_warn = warndata.get(warn)
+        warns = warndata.get('warns')
+        warnindex = int(warn) - 1
+        if warnindex < 0:
+            await ctx.reply("Wrong warn ID, please try again.")
+            return
+        specified_warn = warns[warnindex]
         warn_warner = specified_warn.get('warner')
         warn_reason = specified_warn.get('reason')
         warn_channel = specified_warn.get('channel')
@@ -246,23 +245,8 @@ class Warn(commands.Cog):
         reply = msg.content.lower()   # Set the title
         if reply in ('y', 'yes', 'confirm'):
             # do the whole removing process.
-            if warn_amount == 1:   # Check if the user only has one warn.
-                os.remove(f"data/servers/{ctx.guild.id}/warns/{user.id}.json")
-                await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
-                return
-
-            if warn != warn_amount:   # Check if the warn to remove was not the last warn.
-                for x in range(int(warn), int(warn_amount)):
-                    warndata[str(x)] = warndata[str(x+1)]
-                    del warndata[str(x+1)]
-                    json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
-                                             encoding='utf-8'), indent=2)
-                    await ctx.reply(
-                        f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
-                    return
-
-            del warndata[str(warn)]
-            warndata['warns'] = warn_amount - 1
+            warns = [x for x in warns if x != warns[warnindex]]
+            warndata["warns"] = warns
             json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
                                      encoding='utf-8'), indent=2)
             await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
@@ -315,7 +299,12 @@ class Warn(commands.Cog):
         msg = await self.bot.wait_for('message', check=check)
         warn_new_reason = msg.content.lower()   # Set the title
 
-        specified_warn = warndata.get(warn)
+        warns = warndata.get("warns")
+        warnindex = int(warn) - 1
+        if warnindex < 0:
+            await ctx.reply("Wrong warn ID, please try again.")
+            return
+        specified_warn = warns[warnindex]
         warn_warner = specified_warn.get('warner')
         warn_channel = specified_warn.get('channel')
         warn_datetime = specified_warn.get('datetime')
