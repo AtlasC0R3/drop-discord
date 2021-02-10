@@ -176,7 +176,7 @@ while True:
     try:
         time.sleep(runtime)
     except KeyboardInterrupt:
-        exit("KeyboardInterrupt, aborting.")
+        exit("\nKeyboardInterrupt, aborting.")
 
     # Due for an update. Do stuff, I guess.
     drop_clone(f'drop-bot{runs + 1}')
