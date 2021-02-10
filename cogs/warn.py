@@ -82,7 +82,7 @@ class Warn(commands.Cog):
             warndata["warns"].append(new_warn)
             json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", "w+", newline="\n",
                                      encoding='utf-8'), indent=2)
-        discreason = reason.replace('**', '\\*\\*')
+        discreason = reason.replace('*', '\\*')
         embed = discord.Embed(
             title="User warned",
             description=f"User: **{user}**\n"
