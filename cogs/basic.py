@@ -1,12 +1,9 @@
 import json
-import os
 import random
-import sys
 from datetime import datetime as d
 
 import discord
 from discord.ext import commands
-from data.extdata import get_config_parameter, get_steam_played_game, SteamModes, get_discpy_version
 
 
 with open("data/embed_colors.json") as f:
@@ -153,37 +150,6 @@ class Basic(commands.Cog):
                            f"allowed in a message. *(Current length is {len(text)}, action cancelled)*")
             return
         await ctx.reply(text)  # the pain has been done.
-
-    @commands.command(
-        name="hostinfo",
-        description="Retrieves info from current bot host.",
-        aliases=["host_info"],
-        brief='Gets info from the host'
-    )
-    async def hostinfo_command(self, ctx):
-        if os.name == 'nt':
-            desc = f"Running on Windows ({os.name})"
-        elif os.name == "darwin":
-            desc = f"Running on macOS ({os.name})"
-        elif os.name == 'posix':
-            desc = f"Running on Posix/Linux ({os.name})"
-        else:
-            desc = f"Running on *something* ({os.name})"
-        desc = desc + f"\nPython {sys.version}"
-        desc = desc + f"\nDiscord.py {get_discpy_version()}"
-        embed = discord.Embed(
-            title="Host info",
-            description=desc,
-            color=random.choice(color_list)
-        )
-        if get_config_parameter('useSteamRecentlyPlayed', int) != 0:
-            mode = get_config_parameter('useSteamRecentlyPlayed', int)
-            embed.add_field(
-                name='Steam integration',
-                value=f"Mode: {mode} ({SteamModes.get(mode)})\n"
-                      f"Random played game: {get_steam_played_game()}"
-            )
-        await ctx.send(embed=embed)
 
     @commands.command(
         name='embed',

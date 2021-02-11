@@ -1,10 +1,13 @@
 import json
 import ast
+import os
 import random
+import sys
 
 import discord
 from discord.ext import commands
-from data.extdata import get_config_parameter, get_steam_recently_played
+from data.extdata import get_config_parameter, get_steam_recently_played, SteamModes, \
+    get_discpy_version, get_steam_played_game
 
 
 class Owner(commands.Cog):
@@ -77,6 +80,38 @@ class Owner(commands.Cog):
         await self.bot.change_presence(
             activity=discord.Activity(type=discord.ActivityType[activitytype], name=activityname))
         await ctx.reply(content=f'{activitytype.title()} {activityname}')
+
+    @commands.command(
+        name="hostinfo",
+        description="Retrieves info from current bot host.",
+        aliases=["host_info"],
+        brief='Gets info from the host'
+    )
+    @commands.is_owner()
+    async def hostinfo_command(self, ctx):
+        if os.name == 'nt':
+            desc = f"Running on Windows ({os.name})"
+        elif os.name == "darwin":
+            desc = f"Running on macOS ({os.name})"
+        elif os.name == 'posix':
+            desc = f"Running on Posix/Linux ({os.name})"
+        else:
+            desc = f"Running on *something* ({os.name})"
+        desc = desc + f"\nPython {sys.version}"
+        desc = desc + f"\nDiscord.py {get_discpy_version()}"
+        embed = discord.Embed(
+            title="Host info",
+            description=desc,
+            color=3426654
+        )
+        if get_config_parameter('useSteamRecentlyPlayed', int) != 0:
+            mode = get_config_parameter('useSteamRecentlyPlayed', int)
+            embed.add_field(
+                name='Steam integration',
+                value=f"Mode: {mode} ({SteamModes.get(mode)})\n"
+                      f"Random played game: {get_steam_played_game()}"
+            )
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
