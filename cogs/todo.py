@@ -7,7 +7,6 @@ from datetime import datetime
 from discord.ext import commands
 import discord
 
-
 # These color constants are taken from discord.js library
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
@@ -69,7 +68,9 @@ class Todo(commands.Cog):
 
             def check(ms):
                 return ms.channel == ctx.message.channel and ms.author == ctx.message.author
+
             remove = ['del', 'remove', 'rm']
+            guildaction = ['guild', 'server']
             if action == 'add':
                 if not desc:
                     await ctx.reply("I'd like to add stuff to your to-do list, but you gotta tell me *what* to add!")
@@ -138,11 +139,6 @@ class Todo(commands.Cog):
                 desc = desc.split(' ')
                 index = int(desc[0]) - 1
                 desc = ' '.join(desc[1:])
-                try:
-                    toedit = tododata[index]
-                except IndexError:
-                    await ctx.reply("That item does not exist.")
-                    return
                 new_todo = {
                     'desc': desc,
                     'time': datetime.now().strftime('%d/%m/%Y %H:%M:%S')
@@ -176,6 +172,73 @@ class Todo(commands.Cog):
                     todofile.close()
                 await ctx.reply("Successfully edited.")
                 return
+            elif action in guildaction:
+                if not ctx.author.guild_permissions.manage_messages:
+                    await ctx.send("You don't have the permissions to do that!")
+                    return
+                with open(f"data/servers/{ctx.guild.id}/todo.json", newline="\n", encoding='utf-8') as todofile:
+                    tododata = json.load(todofile)
+                if not desc:
+                    # check guild todos
+                    embed = discord.Embed(
+                        title="Guild to-do list",
+                        color=random.choice(color_list)
+                    )
+                    embed.set_author(
+                        name=ctx.message.author.name,
+                        icon_url=ctx.message.author.avatar_url,
+                        url=f"https://discord.com/users/{ctx.message.author.id}/"
+                    )
+                    for idx, todo in enumerate(tododata):
+                        desc = todo['desc']
+                        time = todo['time']
+                        author = ctx.guild.get_member(todo['author'])
+                        if not author:
+                            tododata.pop(idx)
+                            with open(f"data/servers/{ctx.guild.id}/todo.json", 'w+', newline="\n", encoding='utf-8') \
+                                    as todofile:
+                                json.dump(tododata, todofile)
+                                break
+                        else:
+                            author = author.name
+                        embed.add_field(
+                            name=f'Item {idx + 1}',
+                            value=f'{desc}\n'
+                                  f'*{time}, authored by {author}*',
+                            inline=True
+                        )
+                    await ctx.reply(embed=embed)
+                    return
+                if desc.isdigit():
+                    desc = int(desc) - 1
+                    try:
+                        toremove = tododata[desc]
+                    except IndexError:
+                        await ctx.reply("That item does not exist.")
+                        return
+                    if toremove.get('author') != ctx.author.id:
+                        await ctx.reply("You don't appear to be the author of that note, which unfortunately means you "
+                                        "cannot remove that note.")
+                        return
+                    tododata = [x for x in tododata if x != toremove]
+                    with open(f"data/servers/{ctx.guild.id}/todo.json", 'w+', newline="\n", encoding='utf-8') as \
+                            todofile:
+                        json.dump(tododata, todofile)
+                        todofile.close()
+                    await ctx.reply("Successfully removed.")
+                    return
+                else:
+                    new_todo = {
+                        'desc': desc,
+                        'time': datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                        'author': ctx.author.id
+                    }
+                    tododata.append(new_todo)
+                    with open(f"data/servers/{ctx.guild.id}/todo.json", 'w+', newline="\n", encoding='utf-8') as \
+                            todofile:
+                        json.dump(tododata, todofile)
+                        todofile.close()
+                    await ctx.reply("Successfully added.")
         return
 
     @todo_command.error
