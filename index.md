@@ -1,6 +1,7 @@
 # Drop
 A simple Discord server utility bot. Drop is meant to be a server utility bot that tries to be as privacy-aware and simple as possible, while also retaining usability. It is also free: not as in priceless, but as in freedom. Any details yet, Alan?
 
+<!--
 ## Commands
 ### Basic
 - 8ball: Plain old 8ball commands, present on almost every utility bot, and Drop is no exception.
@@ -36,6 +37,8 @@ A simple Discord server utility bot. Drop is meant to be a server utility bot th
 - edit_warn: Edits a warning's reason.
 - remove_warn: Removes a user's warn.
 - warns: Returns all of a user's warns, if there are any.
+i pretty much never update this
+-->
 
 
 ## Pre-hosted version
@@ -67,3 +70,6 @@ What info this bot may collect is:
 
 This notice is subject to change without any warning, so please proceed with that in mind.
 If you wish to delete all data from a specific server, please use the `cleardata` command.
+
+## Open-source dependencies
+Please look at [the credits section in the repo's README](https://github.com/AtlasC0R3/drop-bot#credits) for a list of dependencies, or check out the `license` command.
