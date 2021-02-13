@@ -3,6 +3,7 @@ import os
 import requests
 import random
 import discord
+import tswift
 
 
 exampleServerConfig = {
@@ -208,3 +209,27 @@ def get_steam_recently_played():
                 if no.lower() in game.lower():
                     playedgames = [x for x in playedgames if x != game]
         return playedgames
+
+
+def get_lyrics(artist, song):
+    song = tswift.Song(title=song, artist=artist)
+    return song
+
+
+def get_artist(artist):
+    artistitem = tswift.Artist(artist)
+    try:
+        randsongs = random.sample(artistitem.songs, 5)
+    except ValueError:
+        # Not a valid artist. God freaking dammit.
+        return None
+    randlyrics = []
+    artistname = ""
+    for song in randsongs:
+        lyric = get_lyrics(artist, song.title).load().lyrics.split('\n')
+        randlyrics.append([song.title, lyric[:5]])
+        artistname = artistitem.songs[0].artist
+    if not artistname:
+        artistname = artist
+    to_return = [artistname, randlyrics]
+    return to_return

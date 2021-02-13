@@ -4,6 +4,8 @@ from datetime import datetime as d
 
 import discord
 from discord.ext import commands
+from data.extdata import get_artist, get_lyrics
+from tswift import TswiftError
 
 
 with open("data/embed_colors.json") as f:
@@ -195,6 +197,94 @@ class Basic(commands.Cog):
             embed=embed,
             content=None
         )
+
+    @commands.command(
+        name='lyrics',
+        description='Uses MetroLyrics (or the Python library "tswift") to get lyrics.\n'
+                    'Can be used in a multitude of ways: to find random songs by an artist, to find lyrics for a song '
+                    'by an artist or to find lyrics using what the user is currently playing on Spotify.\n',
+        aliases=['lyric', 'getsong', 'getartist'],
+        brief='Gets lyrics',
+        usage='[In The End - Linkin Park|Already Over / Red|Imagine Dragons]'
+    )
+    async def lyrics_command(self, ctx, *, args=None):
+        separator = [' / ', ' - ', ' \\ ']
+        if args:
+            for item in separator:
+                if item in args:
+                    args = args.split(item)
+                    break
+        else:
+            # check if user playing something on spotefiye
+            # discord when will you add support for tidal /s
+            activities = ctx.author.activities
+            for activity in activities:
+                if isinstance(activity, discord.activity.Spotify):
+                    args = [activity.title, activity.artist.split(';')[0]]
+                    break
+
+        if type(args) is list:
+            song = args[0]
+            artist = args[-1]
+            msg = await ctx.send(f'Searching for "{song}" by {artist}')
+            lyrics = get_lyrics(artist, song)
+            try:
+                if len(lyrics.lyrics) >= 2048:
+                    lyricstr = ''.join(list(lyrics.lyrics)[:2045]) + '...'
+                else:
+                    lyricstr = lyrics.lyrics
+            except TswiftError:
+                lyricstr = 'No lyrics available'
+            embed = discord.Embed(
+                title=f'*{lyrics.title}* by *{lyrics.artist}*',
+                description=lyricstr,
+                color=random.choice(color_list)
+            )
+            embed.set_author(
+                name=ctx.message.author.name,
+                icon_url=ctx.message.author.avatar_url,
+                url=f"https://discord.com/users/{ctx.message.author.id}/"
+            )
+            embed.set_footer(
+                text='obtained using MetroLyrics'
+            )
+            await ctx.reply(embed=embed)
+            await msg.delete()
+        elif type(args) is str:
+            # get artist
+            msg = await ctx.send(f'Searching for songs by {args}')
+            artist = get_artist(args)
+            if not artist:
+                await ctx.reply('Could not find that artist. Sorry.')
+                return
+            embed = discord.Embed(
+                title=f'Random songs by *{artist[0]}*',
+                color=random.choice(color_list)
+            )
+            embed.set_author(
+                name=ctx.message.author.name,
+                icon_url=ctx.message.author.avatar_url,
+                url=f"https://discord.com/users/{ctx.message.author.id}/"
+            )
+            embed.set_footer(
+                text='obtained using MetroLyrics'
+            )
+            for song in artist[1]:
+                songname = song[0]
+                lyrics = '\n'.join(song[1]).removesuffix('\n')
+                if not lyrics:
+                    lyrics = 'No lyrics available. *Sorry, I guess...*'
+                else:
+                    lyrics = lyrics + '\n...'
+                embed.add_field(
+                    name=f'*{songname}*',
+                    value=lyrics,
+                    inline=False
+                )
+            await ctx.reply(embed=embed)
+            await msg.delete()
+        else:
+            await ctx.reply("Insert either an artist's name or a song, otherwise I can't work with literally nothing!")
 
 
 def setup(bot):

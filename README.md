@@ -59,6 +59,8 @@ Dependencies, people who have helped...
 
 **[parsedatetime](https://github.com/bear/parsedatetime)** by [bear](https://github.com/bear)
 
+**[tswift](https://github.com/brenns10/tswift)** by [brenns10](https://github.com/brenns10)
+
 **[requests](https://github.com/psf/requests)** by the [Python Software Foundation](https://github.com/psf)
 
 ***
