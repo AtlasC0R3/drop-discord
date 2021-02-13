@@ -9,6 +9,17 @@ from datetime import datetime
 import random
 import shutil
 
+if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confusing to work with.
+    # What is this place?!
+    print("Uh, the program is running under Windows' System32 directory, which can cause problems.\n"
+          "One of these problems being the fact that it will not be able to access its configuration files,\n"
+          "and the fact that it may also create redundant files in the System32 directory.\nThis problem can be caused "
+          "in many ways: you may have tried running this bot using the 'Quick access' page.\n"
+          "Anyhow, I'm aborting now.\n\n")  # two newlines. yes.
+    os.system('pause')
+    exit(1)
+
+# External libraries that need to be imported
 from data.extdata import TermColors
 from data.extdata import get_config_parameter
 from data.extdata import get_server_config
@@ -17,7 +28,6 @@ from data.extdata import get_github_config
 from data.extdata import get_steam_played_game
 from data.extdata import get_steam_recently_played
 
-# External libraries that need to be imported
 try:
     import discord
 except ImportError:
