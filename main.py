@@ -259,7 +259,10 @@ async def on_command_error(ctx, error):
     if not isinstance(error, (commands.CommandNotFound, commands.MissingPermissions, commands.MissingRequiredArgument,
                               commands.DisabledCommand, commands.CheckFailure, commands.MemberNotFound)):
         if ctx.author.id == bot.owner_id:
-            await ctx.reply(str(error))
+            try:
+                await ctx.reply(str(error))
+            except discord.errors.HTTPException:
+                pass  # probably unkinown message, who knows.
         elif get_server_config(ctx.guild.id, 'share_error_logs', bool):
             dt_string = datetime.now().strftime("%d_%m_%Y %H %M %S")
             if not os.path.exists(f"data/errors/{type(error).__name__}/"):
