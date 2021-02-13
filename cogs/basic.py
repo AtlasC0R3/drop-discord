@@ -286,6 +286,41 @@ class Basic(commands.Cog):
         else:
             await ctx.reply("Insert either an artist's name or a song, otherwise I can't work with literally nothing!")
 
+    @commands.command(
+        name='license',
+        description="This is a command that will return this bot's license, along with other dependencies' open-source "
+                    "licenses.",
+        brief='Returns open-source licenses'
+    )
+    async def license_command(self, ctx):
+        embed = discord.Embed(
+            title='Drop',
+            description="This software is licensed using the Apache 2.0 license "
+                        "(https://github.com/AtlasC0R3/drop-bot/blob/main/LICENSE) "
+                        "as free and open-source software.",
+            color=0x29b6f6
+        )
+        # embed.add_field(
+        #     name='Changes made to this software',
+        #     value='i uhhhhh i changed the way mutes were done',
+        #     inline=False
+        # )
+        # You could uncomment this to list the changes made to this software, if you have made any.
+        # And of course, if you want to use this method of doing so.
+        embed.add_field(
+            name='Open-source dependencies used',
+            value="Discord.py, licensed under MIT License (https://github.com/Rapptz/discord.py/blob/master/LICENSE)\n"
+                  "discord-pretty-help, licensed under MIT License "
+                  "(https://github.com/stroupbslayen/discord-pretty-help/blob/master/LICENSE)\n"
+                  "parsedatetime, licensed under Apache 2.0 license, no changes made "  # hopefully no changes made >:(
+                  "(https://github.com/bear/parsedatetime/blob/master/LICENSE.txt)\n"
+                  "tswift, licensed under BSD 3-Clause license "
+                  "(https://github.com/brenns10/tswift/blob/master/LICENSE.md)\n"
+                  "requests, licensed under Apache 2.0 license, no changes made "
+                  "(https://github.com/psf/requests/blob/master/LICENSE)"
+        )  # And of course, you should probably list any other open-source dependencies you used.
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Basic(bot))
