@@ -48,32 +48,28 @@ Simply create a \*.py file in the `cogs` directory, make it look like an actual 
 Basically just some commands I had made for the bot that turned out to be extremely experimental, or simply mistakes.
 
 ### Q: Can I make the bot say suggestive things? 
-_why would you do that?_ I mean, you can edit the code to make it say different things and then self host the bot.. but please don't make a pull request just for this. ~~*I should really reconsider my life decisions too..*~~ 
+_Okay, why?_ 
 
-## Special thanks
-People that made this project possible
+## Credits
+Dependencies, people who have helped...
+
+**[Discord.py](https://github.com/Rapptz/discord.py)** by [Rapptz](https://github.com/Rapptz/)
+
+**[discord-pretty-help](https://github.com/stroupbslayen/discord-pretty-help)** by [StroupBSlayen](https://github.com/stroupbslayen)
+
+**[parsedatetime](https://github.com/bear/parsedatetime)** by [bear](https://github.com/bear)
+
+**[requests](https://github.com/psf/requests)** by the [Python Software Foundation](https://github.com/psf)
+
+***
 
 **[EvieePy on GitHub Gist](https://gist.github.com/EvieePy)**, has provided a ton of very helpful examples that I used throughout this project
 
-**[Python Discord](https://pythondiscord.com/)**, they're really cool.. okay maybe they don't have a vending machine, but they're still pretty amazing.
-
-**[Discord](https://discord.com)** for existing *(and possibly preventing me from going into depression)*
+**[Discord](https://discord.com)** for existing
 
 **Countless other Discord bots** that I took inspiration from
 
-**[Rapptz on GitHub](https://github.com/Rapptz/)** for making Discord.py
-
 **You** for checking this out, you're amazing
 
-### Thanks
-Just some people that I wanted to thank anyway, even though they haven't *directly* helped this project
-
-**[Lightcord](https://lightcord.github.io/)** for making a cool Discord client
-
-**[Cordless (by Bios-Marcel)](https://github.com/Bios-Marcel/cordless/)** for making yet another cool Discord client that I found makes it easy to have multiple alt accounts for bot testing and stuff
-
-**[VSCodium](https://vscodium.com/)** for being a cool "edit" of VSCode, that actually doesn't have tracking/telemetry and that I ended up using for quite a long time using this project
-
-**[JetBrains' PyCharm](https://www.jetbrains.com/pycharm/)** for making an advanced Python IDE.. okay I know I just mentioned VSCodium for being great (and that's because it is), but seriously PyCharm is very useful
-
 **The Bus community**, I guess?
+<!--- Don't ask. It's better if you don't. -->
