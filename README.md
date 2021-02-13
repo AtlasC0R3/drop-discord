@@ -4,7 +4,7 @@ A Discord.py bot that is meant to be a simple Discord server utility bot that re
 ## What the hell is this? 
 ~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as free as possible, while still retaining utility in mind. 
 ## How do I use it?
-There are two ways: you can self host it (recommended), or use the already hosted version, that I am personally hosting.
+There are two ways: you can self-host it (recommended), or use the already hosted version, that I am personally hosting.
 
 *Note: I don't mind if you just try the already hosted version just to see if the bot functions, but please, if you do end up using the bot, please consider self hosting it; the one I'm already hosting might not always work or be online.*
 
@@ -24,7 +24,7 @@ Please move to the [Autorun branch](https://github.com/AtlasC0R3/drop-bot/tree/a
 6. ~~Profit.~~ You now have self-hosted this bot.
 
 ### Using the already hosted bot
-The self hosted version works, and is updated every day, though it may not be available 24/7; some blackouts may occur, it may be slow or your data could *very rarely* vanish.
+The self hosted version works, and is updated every day, though it may not be available 24/7; some blackouts may occur, it may be slow, or your data could *very rarely* vanish.
 If you are willing to look past those issues, [you can invite the bot using this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot). Please read the [privacy notice](https://atlasc0r3.github.io/drop-bot/#privacy-notice) before proceeding.
 
 ## Frequently Asked Questions ~~even though no one asked any questions~~
@@ -39,10 +39,10 @@ You can use a pull request to do so, or open an issue.
 You may open an issue describing what you would like to suggest or report. Please be descriptive though, or else I can't really help if I only have 10-15 words just vaguely talking about something. 
 
 ### Q: Is this just someone's meme garbage?
-No and surprisingly yes.
+No, and surprisingly yes.
 
 ### Q: How can I add cogs/extensions?
-Simply create a \*.py file in the `cogs` directory, make it look like an actual Discord.py cog, and the bot *should* load it on startup!
+Simply create a \*.py file in the `cogs` directory, make it look like an actual Discord.py cog, and the bot *should* load it on start-up!
 
 ### Q: What is `cogs/mistakes.py.bak`?
 Basically just some commands I had made for the bot that turned out to be extremely experimental, or simply mistakes.
