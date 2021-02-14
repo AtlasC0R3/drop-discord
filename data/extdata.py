@@ -63,8 +63,8 @@ def get_config_parameter(param, paramtype):
 
 def get_server_config(serverid, param, paramtype):
     try:
-        with open(f"data/servers/{serverid}/config.json", "r", encoding="utf-8", newline="\n") as f:
-            server_config = json.load(f)
+        with open(f"data/servers/{serverid}/config.json", "r", encoding="utf-8", newline="\n") as file:
+            server_config = json.load(file)
             config_param = server_config.get(param)
             if config_param is None:
                 config_param = exampleServerConfig.get(param)
@@ -76,40 +76,40 @@ def get_server_config(serverid, param, paramtype):
         # No config exists for this server.
         if not os.path.exists(f"data/servers/{serverid}/"):
             os.makedirs(f"data/servers/{serverid}/")
-        with open(f"data/servers/{serverid}/config.json", "w+", encoding="utf-8", newline='\n') as f:
-            json.dump(exampleServerConfig, f, indent=2)
+        with open(f"data/servers/{serverid}/config.json", "w+", encoding="utf-8", newline='\n') as file:
+            json.dump(exampleServerConfig, file, indent=2)
             return paramtype(exampleServerConfig.get(param))
 
 
 def get_entire_server_config(serverid):
     try:
-        with open(f"data/servers/{serverid}/config.json", "r", encoding="utf-8", newline="\n") as f:
-            server_config = json.load(f)
+        with open(f"data/servers/{serverid}/config.json", "r", encoding="utf-8", newline="\n") as file:
+            server_config = json.load(file)
             return server_config
     except FileNotFoundError:
         # No config exists for this server.
-        with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as f:
-            json.dump(exampleServerConfig, f, indent=2)
+        with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as file:
+            json.dump(exampleServerConfig, file, indent=2)
             return exampleServerConfig
 
 
 def write_server_config(serverid, param, value):
     try:
-        with open(f"data/servers/{serverid}/config.json", "r+", encoding="utf-8", newline="\n") as f:
-            server_config = json.load(f)
+        with open(f"data/servers/{serverid}/config.json", "r+", encoding="utf-8", newline="\n") as file:
+            server_config = json.load(file)
             server_config[param] = value
-            f.seek(0)
-            json.dump(server_config, f, indent=2)
-            f.truncate()
+            file.seek(0)
+            json.dump(server_config, file, indent=2)
+            file.truncate()
             return
     except FileNotFoundError:
         # No config exists for this server.
-        with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as f:
+        with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as file:
             server_config = exampleServerConfig
             server_config[param] = value
-            f.seek(0)
-            json.dump(server_config, f, indent=2)
-            f.truncate()
+            file.seek(0)
+            json.dump(server_config, file, indent=2)
+            file.truncate()
             return
 
 
