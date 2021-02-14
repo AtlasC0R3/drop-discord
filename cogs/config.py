@@ -1,9 +1,10 @@
 import json
 import random
 from datetime import datetime
+import shutil
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands import has_guild_permissions
 
 import parsedatetime
@@ -26,6 +27,7 @@ class Configuration(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.data_clearer.start()
 
     @commands.command(
         name="setprefix",
@@ -611,6 +613,33 @@ class Configuration(commands.Cog):
             await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Administrator] in this "
                             "guild/server.")  # gosh darn reply thing going over 120 characters!!!1!
             return
+
+    @tasks.loop(minutes=1)
+    async def data_clearer(self):
+        dt_string = datetime.now().strftime("%Y-%m-%d %H:%M")
+        with open("data/data_clear.json", "r", encoding="utf-8", newline="\n") as file:
+            data_clear = json.load(file)
+
+        if dt_string in data_clear:
+            guilds = []
+            now_clears = data_clear.get(dt_string)
+            for toClear in now_clears:
+                guild_id = toClear
+                try:
+                    shutil.rmtree(f'data/servers/{guild_id}/')
+                except OSError:
+                    pass  # Directory already removed (???)
+                guilds.append(guild_id)
+                now_clears = [x for x in now_clears if x != toClear]
+            # Stuff done, remove leftovers 2: electric boogaloo
+            with open("data/data_clear.json", "r+", encoding='utf-8', newline="\n") as data_clear_json:
+                data_clears = json.load(data_clear_json)
+                data_clears.pop(dt_string)
+                for toPop in guilds:
+                    data_clears.pop(str(toPop))
+                data_clear_json.seek(0)
+                json.dump(data_clears, data_clear_json, indent=2)
+                data_clear_json.truncate()
 
 
 def setup(bot):

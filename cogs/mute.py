@@ -1,7 +1,7 @@
 import json
 import random
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from datetime import datetime
 import parsedatetime
 
@@ -21,6 +21,7 @@ class Mute(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.unmute_task.start()
 
     @commands.command(
         name='mute',
@@ -218,6 +219,41 @@ class Mute(commands.Cog):
                 await ctx.reply(f'[{ctx.author.name}], you did not specify a user to unmute. '
                                 f'*({error} Action cancelled)*')
                 return
+
+    @tasks.loop(minutes=1)
+    async def unmute_task(self):
+        dt_string = datetime.now().strftime("%Y-%m-%d %H:%M")
+        with open("data/unmutes.json", "r", encoding="utf-8", newline="\n") as file:
+            unmutes = json.load(file)
+        if dt_string in unmutes:
+            guilds = []
+            users = []
+            for toUnmute in unmutes.get(dt_string):
+                guild_id = toUnmute[2]
+                guild = self.bot.get_guild(guild_id)
+                role_id = toUnmute[1]
+                role = discord.utils.get(guild.roles, id=role_id)
+                user_id = toUnmute[0]
+                user_member = guild.get_member(user_id)  # holy s*** i need to learn intents.
+                await user_member.remove_roles(role)
+                toUnmute.pop()
+                guilds.append(guild_id)
+                users.append(user_id)
+            # Stuff done, remove leftovers
+            with open("data/unmutes.json", "r+", encoding='utf-8', newline="\n") as unmuteFile:
+                unmutes = json.load(unmuteFile)
+                unmutes.pop(dt_string)
+                for toUnmute in users:
+                    for y in guilds:
+                        try:
+                            unmutes[str(y)].pop(str(toUnmute))
+                        except KeyError:
+                            pass  # Wrong guild/user combination.
+                        if not unmutes.get(str(y)):
+                            unmutes.pop(str(y))
+                unmuteFile.seek(0)
+                json.dump(unmutes, unmuteFile, indent=2)
+                unmuteFile.truncate()
 
 
 def setup(bot):

@@ -7,7 +7,6 @@ import time
 import sys
 from datetime import datetime
 import random
-import shutil
 
 if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confusing to work with.
     # What is this place?!
@@ -114,7 +113,6 @@ async def on_ready():
     if ownerId:
         owner_refresh.start()
     activitychanger.start()
-    temp_undo.start()
     inactivity_func.start()
 
     for cog in cogs:
@@ -310,64 +308,6 @@ async def on_guild_join(guild):
                 data_clear.pop(guild_entry[0])
             with open("data/data_clear.json", "w", encoding="utf-8", newline="\n") as dclear:
                 json.dump(data_clear, dclear, indent=2)
-
-
-@tasks.loop(minutes=1)
-async def temp_undo():
-    dt_string = datetime.now().strftime("%Y-%m-%d %H:%M")
-    with open("data/unmutes.json", "r", encoding="utf-8", newline="\n") as f:
-        unmutes = json.load(f)
-    with open("data/data_clear.json", "r", encoding="utf-8", newline="\n") as f:
-        data_clear = json.load(f)
-    if dt_string in unmutes:
-        guilds = []
-        users = []
-        for toUnmute in unmutes.get(dt_string):
-            guild_id = toUnmute[2]
-            guild = bot.get_guild(guild_id)
-            role_id = toUnmute[1]
-            role = discord.utils.get(guild.roles, id=role_id)
-            user_id = toUnmute[0]
-            user_member = guild.get_member(user_id)  # holy s*** i need to learn intents.
-            await user_member.remove_roles(role)
-            toUnmute.pop()
-            guilds.append(guild_id)
-            users.append(user_id)
-        # Stuff done, remove leftovers
-        with open("data/unmutes.json", "r+", encoding='utf-8', newline="\n") as unmuteFile:
-            unmutes = json.load(unmuteFile)
-            unmutes.pop(dt_string)
-            for toUnmute in users:
-                for y in guilds:
-                    try:
-                        unmutes[str(y)].pop(str(toUnmute))
-                    except KeyError:
-                        pass  # Wrong guild/user combination.
-                    if not unmutes.get(str(y)):
-                        unmutes.pop(str(y))
-            unmuteFile.seek(0)
-            json.dump(unmutes, unmuteFile, indent=2)
-            unmuteFile.truncate()
-    if dt_string in data_clear:
-        guilds = []
-        now_clears = data_clear.get(dt_string)
-        for toClear in now_clears:
-            guild_id = toClear
-            try:
-                shutil.rmtree(f'data/servers/{guild_id}/')
-            except OSError:
-                pass  # Directory already removed (???)
-            guilds.append(guild_id)
-            now_clears = [x for x in now_clears if x != toClear]
-        # Stuff done, remove leftovers 2: electric boogaloo
-        with open("data/data_clear.json", "r+", encoding='utf-8', newline="\n") as data_clear_json:
-            data_clears = json.load(data_clear_json)
-            data_clears.pop(dt_string)
-            for toPop in guilds:
-                data_clears.pop(str(toPop))
-            data_clear_json.seek(0)
-            json.dump(data_clears, data_clear_json, indent=2)
-            data_clear_json.truncate()
 
 
 if get_config_parameter('dev_token', bool):
