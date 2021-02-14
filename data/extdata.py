@@ -21,6 +21,9 @@ exampleServerConfig = {
 
 exampleConfig = {}
 
+with open("data/config.json", "r", encoding="utf-8", newline="\n") as f:
+    bot_config = json.load(f)
+
 
 def get_github_config():
     global exampleConfig
@@ -50,14 +53,12 @@ def get_discpy_version():
 
 
 def get_config_parameter(param, paramtype):
-    with open("data/config.json", "r", encoding="utf-8", newline="\n") as f:
-        bot_config = json.load(f)
-        config_param = bot_config.get(param)
-        if config_param is None:
-            config_param = exampleConfig.get(param)
-            bot_config[param] = config_param
-            json.dump(bot_config, open(f"data/config.json", "w+", encoding="utf-8", newline='\n'), indent=2)
-        return paramtype(config_param)
+    config_param = bot_config.get(param)
+    if config_param is None:
+        config_param = exampleConfig.get(param)
+        bot_config[param] = config_param
+        json.dump(bot_config, open(f"data/config.json", "w+", encoding="utf-8", newline='\n'), indent=2)
+    return paramtype(config_param)
 
 
 def get_server_config(serverid, param, paramtype):
