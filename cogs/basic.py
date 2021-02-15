@@ -222,6 +222,12 @@ class Basic(commands.Cog):
                 if isinstance(activity, discord.activity.Spotify):
                     args = [activity.title, activity.artist.split(';')[0]]
                     break
+                elif isinstance(activity, discord.activity.Activity):
+                    # Maybe the user is using PreMiD?
+                    if activity.application_id == 463151177836658699:  # YouTube Music
+                        args = [activity.details, activity.state.split(' - ')[0]]
+                        # curse how yt music is so inconsistent
+                        break
 
         if type(args) is list:
             song = args[0]
