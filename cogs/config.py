@@ -12,6 +12,7 @@ import parsedatetime
 from data.extdata import write_server_config
 from data.extdata import get_server_config
 from data.extdata import get_entire_server_config
+from data.extdata import get_language_str, get_all_languages
 
 cal = parsedatetime.Calendar()
 
@@ -47,44 +48,39 @@ class Configuration(commands.Cog):
 
         # Next, we check if the user actually passed some text
         if commandargs == '':
-            await ctx.reply('What would you like to set the prefix as for this server?')
+            await ctx.reply(get_language_str(ctx.guild.id, 21))
             msg = await self.bot.wait_for('message', check=check)
             new_prefix = msg.content
         else:
             new_prefix = commandargs.replace(' ', '')
 
         if not len(new_prefix) == 1:
-            await ctx.reply("The prefix is longer than one character long. "
-                            "You can only have one character as your prefix.\n"
-                            f"*Requested prefix's length is {len(new_prefix)}*")
+            await ctx.reply(get_language_str(ctx.guild.id, 22).format(len(new_prefix)))
             return
 
         # Ask the user for confirmation
-        await ctx.send(f"Are you sure you want to set `{new_prefix}` as your new server prefix?\n"
-                       f"Example: `{new_prefix}help`")
+        await ctx.send(get_language_str(ctx.guild.id, 23).format(new_prefix))
         replymsg = await self.bot.wait_for('message', check=check)
         reply = replymsg.content.lower()
 
         if reply in ('y', 'yes', 'confirm'):
             if get_server_config(ctx.guild.id, 'prefix', str) == new_prefix:
-                await ctx.send("Hey wait a second, that's the same prefix as the current saved one! "
-                               "*(Action cancelled. Not like it'd change anything if it weren't cancelled...)*")
+                await ctx.send(get_language_str(ctx.guild.id, 24))
                 return
             write_server_config(ctx.guild.id, 'prefix', new_prefix)
-            await ctx.reply("Successfully changed server prefix.")
+            await ctx.reply(get_language_str(ctx.guild.id, 25))
             write_server_config(ctx.guild.id, 'asked_prefix', [])
             return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-            await ctx.send("Alright, action cancelled.")
+            await ctx.send(get_language_str(ctx.guild.id, 26))
             return
         else:
-            await ctx.send("I have no idea what that means. *Action cancelled.*")
+            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @setprefix_command.error
     async def setprefix_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                            f"*({error} Action cancelled)*")
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -97,21 +93,20 @@ class Configuration(commands.Cog):
     async def toggleinactivity_command(self, ctx):
         if get_server_config(ctx.guild.id, 'inactivity_func', bool):
             write_server_config(ctx.guild.id, 'inactivity_func', False)
-            await ctx.reply("Success, inactivity function is now turned off.")
+            await ctx.reply(get_language_str(ctx.guild.id, 29))
         else:
             write_server_config(ctx.guild.id, 'inactivity_func', True)
-            await ctx.reply("Success, inactivity function is now turned on.")
+            await ctx.reply(get_language_str(ctx.guild.id, 30))
 
     @toggleinactivity_command.error
     async def toggleinactivity_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                            f"*({error} Action cancelled)*")
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
         name="banword",
-        description="If the bot hears this word, it will automatically delete it (and send a warn if told to do so)",
+        description="If the bot hears this word, it will automatically delete it",
         aliases=["nonoword"],
         brief="Ban a certain word"
     )
@@ -125,7 +120,7 @@ class Configuration(commands.Cog):
         alias_used = ctx.invoked_with
         commandargs = commandmsg[len(prefix_used) + len(alias_used):]
         if commandargs == '':
-            await ctx.send('Which word would you like to ban?')
+            await ctx.send(get_language_str(ctx.guild.id, 31))
             msg = await self.bot.wait_for('message', check=check)
             nonoword = msg.content
         else:
@@ -136,12 +131,12 @@ class Configuration(commands.Cog):
             # it's already in, we have to delete it
             new_nonowords = [x for x in nonowords if x != nonoword]
             write_server_config(ctx.guild.id, 'no_no_words', new_nonowords)
-            await ctx.reply("Success, this word has been unbanned.")
+            await ctx.reply(get_language_str(ctx.guild.id, 32))
         else:
             # it's not in, we have to add it
             nonowords.append(nonoword)
             write_server_config(ctx.guild.id, 'no_no_words', nonowords)
-            await ctx.reply("Success, this word has been banned.")
+            await ctx.reply(get_language_str(ctx.guild.id, 33))
 
     @commands.command(
         name="inactivitychannel",
@@ -161,7 +156,7 @@ class Configuration(commands.Cog):
 
         # Next, we check if the user actually passed some text
         if commandargs == '':
-            await ctx.send('What channel would you like to toggle?')
+            await ctx.send(get_language_str(ctx.guild.id, 34))
             msg = await self.bot.wait_for('message', check=check)
             new_channel = msg.content
         else:
@@ -177,23 +172,20 @@ class Configuration(commands.Cog):
         if new_channel.isdigit():
             channel = ctx.guild.get_channel(int(new_channel))
             if channel is None:
-                await ctx.reply("Uh oh, I could not get the channel you meant. Please try again. "
-                                "If it still fails, please try directly inserting the channel's ID. *Action cancelled.*"
-                                )  # Freaking character limit, man.
+                await ctx.reply(get_language_str(ctx.guild.id, 35))
                 return
         else:
             channel = discord.utils.get(self.bot.get_all_channels(), guild=ctx.guild, name=new_channel)
             if channel is None:
-                await ctx.reply("Whoops, I couldn't find the channel you meant. "
-                                "Please try again by directly mentioning the channel you mean. *Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 36))
                 return
 
         # Ask the user for confirmation
         if channel.id in get_server_config(ctx.guild.id, 'inactivity_channels', list):
-            await ctx.send(f"Are you sure you want to remove <#{channel.id}> from the inactivity channels?")
+            await ctx.send(get_language_str(ctx.guild.id, 37).format(channel.id))
             remove = True
         else:
-            await ctx.send(f"Are you sure you want to add <#{channel.id}> to the inactivity channels?")
+            await ctx.send(get_language_str(ctx.guild.id, 38).format(channel.id))
             remove = False
         replymsg = await self.bot.wait_for('message', check=check)
         reply = replymsg.content.lower()
@@ -202,25 +194,24 @@ class Configuration(commands.Cog):
             if remove:
                 new_list = [x for x in get_server_config(ctx.guild.id, 'inactivity_channels', list) if x != channel.id]
                 write_server_config(ctx.guild.id, 'inactivity_channels', new_list)
-                await ctx.reply(f"Successfully removed <#{channel.id}> from the inactivity channels.")
+                await ctx.reply(get_language_str(ctx.guild.id, 39).format(channel.id))
                 return
             else:
                 new_list = get_server_config(ctx.guild.id, 'inactivity_channels', list)
                 new_list.append(channel.id)
                 write_server_config(ctx.guild.id, 'inactivity_channels', new_list)
-                await ctx.reply(f"Successfully added <#{channel.id}> to the inactivity channels.")
+                await ctx.reply(get_language_str(ctx.guild.id, 40).format(channel.id))
                 return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-            await ctx.send("Alright, action cancelled.")
+            await ctx.send(get_language_str(ctx.guild.id, 26))
             return
         else:
-            await ctx.send("I have no idea what that means. *Action cancelled.*")
+            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @inactivitychannel_command.error
     async def inactivitychannel_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                            f"*({error} Action cancelled)*")
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -241,7 +232,7 @@ class Configuration(commands.Cog):
 
         # Next, we check if the user actually passed some text
         if commandargs == '':
-            await ctx.send('Which role would you like to set the mute role as?')
+            await ctx.send(get_language_str(ctx.guild.id, 41))
             msg = await self.bot.wait_for('message', check=check)
             new_role = msg.content
         else:
@@ -258,41 +249,37 @@ class Configuration(commands.Cog):
         if new_role.isdigit():
             role = ctx.guild.get_role(int(new_role))
             if role is None:
-                await ctx.reply("Uh oh, I could not get the role you meant. Please try again. "
-                                "If it still fails, please try directly inserting the role's ID. *Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 42))
                 return
         else:
             role = discord.utils.get(ctx.guild.roles, name=new_role)
             if role is None:
-                await ctx.reply("Whoops, I couldn't find the role you meant. "
-                                "Please try again by directly mentioning the role you mean. *Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 43))
                 return
 
         # Checks if role is already the one that's already defined. If not, ask for confirmation
         if role.id == get_server_config(ctx.guild.id, 'mute_role', int):
-            await ctx.send("Hey wait a second, that's the role that has already been defined as the mute role! "
-                           "*Action cancelled. I mean, it wouldn't change anything if it weren't cancelled...*")
+            await ctx.send(get_language_str(ctx.guild.id, 44))
             return
         else:
-            await ctx.send(f"Are you sure you want to set {role.name} as the mute role?")
+            await ctx.send(get_language_str(ctx.guild.id, 45).format(role.name))
         replymsg = await self.bot.wait_for('message', check=check)
         reply = replymsg.content.lower()
 
         if reply in ('y', 'yes', 'confirm'):
             write_server_config(ctx.guild.id, 'mute_role', role.id)
-            await ctx.reply(f"Successfully set {role.name} as the muted role")
+            await ctx.reply(get_language_str(ctx.guild.id, 46).format(role.name))
             return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-            await ctx.send("Alright, action cancelled.")
+            await ctx.send(get_language_str(ctx.guild.id, 26))
             return
         else:
-            await ctx.send("I have no idea what that means. *Action cancelled.*")
+            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @mutedrole_command.error
     async def mutedrole_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                            f"*({error} Action cancelled)*")
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -341,16 +328,15 @@ class Configuration(commands.Cog):
     async def anonymouslogs_command(self, ctx):
         if get_server_config(ctx.guild.id, 'share_error_logs', bool):
             write_server_config(ctx.guild.id, 'inactivity_func', False)
-            await ctx.reply("Success, anonymous error logs will no longer be automatically sent to the bot host.")
+            await ctx.reply(get_language_str(ctx.guild.id, 47))
         else:
             write_server_config(ctx.guild.id, 'share_error_logs', True)
-            await ctx.reply("Success, anonymous error logs will now be automatically sent to the bot host.")
+            await ctx.reply(get_language_str(ctx.guild.id, 48))
 
     @anonymouslogs_command.error  # Ha! An error handler for an error handling command. The irony.
     async def anonymouslogs_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                            f"*({error} Action cancelled)*")
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -363,16 +349,15 @@ class Configuration(commands.Cog):
     async def toggleinactivity_command(self, ctx):
         if get_server_config(ctx.guild.id, 'inactivity_func', bool):
             write_server_config(ctx.guild.id, 'inactivity_func', False)
-            await ctx.reply("Success, inactivity function is now turned off.")
+            await ctx.reply(get_language_str(ctx.guild.id, 49))
         else:
             write_server_config(ctx.guild.id, 'inactivity_func', True)
-            await ctx.reply("Success, inactivity function is now turned on.")
+            await ctx.reply(get_language_str(ctx.guild.id, 50))
 
     @toggleinactivity_command.error
     async def toggleinactivity_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                            f"*({error} Action cancelled)*")
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -385,16 +370,15 @@ class Configuration(commands.Cog):
     async def toggleflip_command(self, ctx):
         if get_server_config(ctx.guild.id, 'tableflip', bool):
             write_server_config(ctx.guild.id, 'tableflip', False)
-            await ctx.reply("Success, tableflip reactions are now turned off.")
+            await ctx.reply(get_language_str(ctx.guild.id, 51))
         else:
             write_server_config(ctx.guild.id, 'tableflip', True)
-            await ctx.reply("Success, tableflip reactions are now turned on.")
+            await ctx.reply(get_language_str(ctx.guild.id, 52))
 
     @toggleflip_command.error
     async def toggleflip_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                            f"*({error} Action cancelled)*")
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -414,7 +398,7 @@ class Configuration(commands.Cog):
         alias_used = ctx.invoked_with
         commandargs = commandmsg[len(prefix_used) + len(alias_used):]
         if commandargs == '':
-            await ctx.send('Which command would you like to disable?')
+            await ctx.send(get_language_str(ctx.guild.id, 53))
             msg = await self.bot.wait_for('message', check=check)
             togglethingy = msg.content.lower()
         else:
@@ -422,35 +406,34 @@ class Configuration(commands.Cog):
         disabled_commands = get_server_config(ctx.guild.id, 'disabled_commands', list)
         cmdthingy = self.bot.get_command(togglethingy)
         if not cmdthingy:
-            await ctx.reply("I could not find that command. *Action cancelled.*")
+            await ctx.reply(get_language_str(ctx.guild.id, 54))
             return
         if togglethingy == 'help':
-            await ctx.send("Umm, are you *sure* you want to toggle the help command?")
+            await ctx.send(get_language_str(ctx.guild.id, 55))
             replymsg = await self.bot.wait_for('message', check=check)
             reply = replymsg.content.lower()
 
             if reply in ('y', 'yes', 'confirm'):
                 pass
             elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-                await ctx.send("Alright, action cancelled.")
+                await ctx.send(get_language_str(ctx.guild.id, 26))
                 return
             else:
-                await ctx.send("I have no idea what that means. *Action cancelled.*")
+                await ctx.send(get_language_str(ctx.guild.id, 27))
                 return
         if togglethingy in disabled_commands:
             new_commands = [x for x in disabled_commands if x != togglethingy]
             write_server_config(ctx.guild.id, 'disabled_commands', new_commands)
-            await ctx.reply("Success, this command is now enabled.")
+            await ctx.reply(get_language_str(ctx.guild.id, 56))
         else:
             disabled_commands.append(togglethingy)
             write_server_config(ctx.guild.id, 'disabled_commands', disabled_commands)
-            await ctx.reply("Success, this command is now disabled.")
+            await ctx.reply(get_language_str(ctx.guild.id, 57))
 
     @disablecmd_command.error
     async def disablecmd_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.send(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.send(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -470,7 +453,7 @@ class Configuration(commands.Cog):
         alias_used = ctx.invoked_with
         commandargs = commandmsg[len(prefix_used) + len(alias_used):]
         if commandargs == '':
-            await ctx.send('Which category would you like to disable?')
+            await ctx.send(get_language_str(ctx.guild.id, 58))
             msg = await self.bot.wait_for('message', check=check)
             togglethingy = msg.content
         else:
@@ -478,24 +461,22 @@ class Configuration(commands.Cog):
         disabled_cogs = get_server_config(ctx.guild.id, 'disabled_cogs', list)
         cmdthingy = self.bot.get_cog(togglethingy)
         if not cmdthingy:
-            await ctx.reply("I could not find that cog. *Action cancelled.*\n"
-                            "*Tip: This command is case sensitive, make sure your category is capitalized correctly.*")
+            await ctx.reply(get_language_str(ctx.guild.id, 59))
             return
 
         if togglethingy in disabled_cogs:
             new_cogs = [x for x in disabled_cogs if x != togglethingy]
             write_server_config(ctx.guild.id, 'disabled_cogs', new_cogs)
-            await ctx.reply("Success, this cog is now enabled.")
+            await ctx.reply(get_language_str(ctx.guild.id, 60))
         else:
             disabled_cogs.append(togglethingy)
             write_server_config(ctx.guild.id, 'disabled_cogs', disabled_cogs)
-            await ctx.reply("Success, this cog is now disabled.")
+            await ctx.reply(get_language_str(ctx.guild.id, 61))
 
     @disablecog_command.error
     async def disablecmd_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                            f"*({error} Action cancelled)*")
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -516,6 +497,7 @@ class Configuration(commands.Cog):
                        "then make the bot itself leave! *This will also unmute all currently muted users.* "
                        "If you decide to invite the bot back, the data deletion will be cancelled and your data should "
                        "be left intact.\n**Are you sure you want to continue?** *(y/n)*")
+        # I'd really prefer not to translate this.
 
         replymsg = await self.bot.wait_for('message', check=check)
         reply = replymsg.content.lower()
@@ -610,9 +592,36 @@ class Configuration(commands.Cog):
     @cleardata_command.error
     async def cleardata_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Administrator] in this "
-                            "guild/server.")  # gosh darn reply thing going over 120 characters!!!1!
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
+
+    @commands.command(
+        name="changelang",
+        description="Changes the guild's bot language, if it exists.\n"
+                    "'default' is English.",
+        aliases=["language", "changelanguage"],
+        brief="Change the language of this bot"
+    )
+    @has_guild_permissions(manage_guild=True)
+    async def banword_command(self, ctx, *, commandargs=None):
+        # NOTICE: DO NOT TRANSLATE THIS COMMAND!
+        def check(ms):
+            return ms.channel == ctx.message.channel and ms.author == ctx.message.author
+        if not commandargs:
+            await ctx.send("What would you like to change the language to?")
+            msg = await self.bot.wait_for('message', check=check)
+            commandargs = msg.content
+        else:
+            commandargs = commandargs.replace(' ', '')
+        commandargs = commandargs.lower()
+
+        if commandargs in get_all_languages():
+            # language exists
+            write_server_config(ctx.guild.id, 'language', commandargs)
+            await ctx.reply(get_language_str(commandargs, 4).format(get_server_config(ctx.guild.id, 'prefix', str)))
+        else:
+            # me no habla whatever the hell kind of language they want to tell me
+            await ctx.reply("Could not find that language, no changes made.")
 
     @tasks.loop(minutes=1)
     async def data_clearer(self):
