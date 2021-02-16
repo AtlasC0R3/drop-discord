@@ -13,5 +13,5 @@
     "excludedGames": []
   },
   "verbose": false,
-  "syncActivityWithOwner": true
+  "syncActivityWithOwner": false
 }
