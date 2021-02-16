@@ -1,6 +1,6 @@
 {
   "clear_terminal": false,
-  "change_terminal_name": true,
+  "change_terminal_name": false,
 
   "dev_token": false,
   "owner_id": 0,
