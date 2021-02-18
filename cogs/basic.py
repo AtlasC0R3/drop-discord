@@ -249,7 +249,7 @@ class Basic(commands.Cog):
             )
             for song in artist[1]:
                 songname = song[0]
-                lyrics = '\n'.join(song[1]).removesuffix('\n')
+                lyrics = '\n'.join(song[1])
                 if not lyrics:
                     lyrics = get_language_str(ctx.guild.id, 17)
                 else:
