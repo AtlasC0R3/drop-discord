@@ -16,7 +16,8 @@ exampleServerConfig = {
     "disabled_commands": [],
     "disabled_cogs": [],
     "no_no_words": [],
-    "tableflip": True
+    "tableflip": True,
+    "language": "default"
 }
 
 exampleConfig = {}
@@ -24,11 +25,40 @@ exampleConfig = {}
 with open("data/config.json", "r", encoding="utf-8", newline="\n") as f:
     bot_config = json.load(f)
 
+langs = {}
+for lang in os.listdir('lang/'):
+    if lang.endswith('.json'):
+        langname = lang.split('.')[0].lower()  # i need to stop doing these ass long code lines
+        langs[langname] = json.load(open('lang/' + lang))
+
 
 def get_github_config():
     global exampleConfig
     exampleConfig = json.loads(
         requests.get('https://raw.githubusercontent.com/AtlasC0R3/drop-bot/main/data/config.json').text)
+
+
+def get_default_language(idx: int):
+    return langs['default'][idx]
+
+
+def get_all_languages():
+    return langs.keys()
+
+
+def get_language_str(language: str or int, idx: int):
+    if type(language) is int:
+        language = get_server_config(language, 'language', str)
+    try:
+        to_return = langs[language][idx]
+        if not to_return:
+            to_return = get_default_language(idx)
+            # Sometimes people are lazy and might not want to translate a string.
+            # or that i updated the bot and that the string couldn't be obtained
+            # wait in that case it'd return indexerror, i'm dumb. like really dumb. like supremely dumb, holy wow.
+    except KeyError or IndexError:
+        return get_default_language(idx)
+    return to_return
 
 
 class TermColors:

@@ -26,6 +26,7 @@ from data.extdata import write_server_config
 from data.extdata import get_github_config
 from data.extdata import get_steam_played_game
 from data.extdata import get_steam_recently_played
+from data.extdata import get_language_str
 
 try:
     import discord
@@ -158,9 +159,8 @@ async def on_message(message):
                 try:
                     await message.delete()
                 except discord.errors.Forbidden:
-                    await message.channel.send("Hey, you said something you were not supposed to say! "
-                                               "Unfortunately for me (and probably fortunately for you), "
-                                               "I don't have the permissions to delete your message.")
+                    await message.channel.send(get_language_str(get_server_config(message.guild.id, 'language', str), 5)
+                                               )  # NO PYCHARM, NO
                 # People expect the bot to work without even giving them the perms.
     if message.author.id == bot.user.id:
         return  # To prevent the bot itself from triggering things.
@@ -175,20 +175,23 @@ async def on_message(message):
     bot_mention = f'<@!{bot.user.id}>'
     if message.content == bot_mention:
         if message.author.id in get_server_config(message.guild.id, 'asked_prefix', list):
-            with open("data/quotes/salutes.json", encoding='utf-8', newline="\n") as f:
-                data = json.load(f)
-            await message.channel.send(random.choice(data).format(message))
+            lang = get_server_config(message.guild.id, 'language', str)
+            to_send = get_language_str(lang, 0)
+            await message.channel.send(random.choice(to_send).format(message))
             return
         else:
-            await message.channel.send(f"My prefix here is `{get_server_config(message.guild.id, 'prefix', str)}`.")
+            lang = get_server_config(message.guild.id, 'language', str)
+            to_send = get_language_str(lang, 4)
+            await message.channel.send(to_send.format(get_server_config(message.guild.id, 'prefix', str)))
             asked = get_server_config(message.guild.id, 'asked_prefix', list)
             asked.append(message.author.id)
             write_server_config(message.guild.id, 'asked_prefix', asked)
     if '(╯°□°）╯︵ ┻━┻' in message.content and message.guild:
         if get_server_config(message.guild.id, 'tableflip', bool):
             time.sleep(0.75)
-            messages = json.load(open("data/quotes/tableflip.json", "r", encoding="utf-8", newline="\n"))
-            to_send = random.choice(messages)
+            lang = get_server_config(message.guild.id, 'language', str)
+            to_send = get_language_str(lang, 2)
+            to_send = random.choice(to_send)
             await message.channel.send(to_send.format(message))
 
 if verbose:
@@ -262,7 +265,7 @@ if verbose:
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandInvokeError):
         if isinstance(error.original, discord.Forbidden):
-            await ctx.reply("Sorry, I do not have the permissions to do that.")
+            await ctx.reply(get_language_str(get_server_config(ctx.guild.id, 'language', str), 6))
             return
     if not isinstance(error, (commands.CommandNotFound, commands.MissingPermissions, commands.MissingRequiredArgument,
                               commands.DisabledCommand, commands.CheckFailure, commands.MemberNotFound)):
@@ -280,9 +283,7 @@ async def on_command_error(ctx, error):
                 f"[{error}] while trying to invoke [{ctx.message.content}]")
         else:
             errorio = io.BytesIO(bytes(str(error), 'utf-8'))
-            await ctx.reply(content="Uh oh! I ran into an error.\n"
-                                    "Because this server's configuration doesn't allow me to automatically save errors,"
-                                    " you'll have to do it yourself.",
+            await ctx.reply(content=get_language_str(get_server_config(ctx.guild.id, 'language', str), 8),
                             file=discord.File(errorio, 'error.txt'))
 
 

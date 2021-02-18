@@ -5,6 +5,7 @@ import os
 
 import discord
 from discord.ext import commands
+from data.extdata import get_language_str
 
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
@@ -28,27 +29,26 @@ class Moderation(commands.Cog):
     @commands.has_guild_permissions(manage_messages=True)
     async def purge_command(self, ctx, to_delete=5):
         if to_delete <= 0:
-            await ctx.reply("Invalid amount specified: you can't put a number under 1! "
-                            "*Action cancelled.*")
+            await ctx.reply(get_language_str(ctx.guild.id, 62))
             return
 
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        await ctx.send(f"[{ctx.author.name}], are you sure you want to delete [{to_delete}] messages?")
+        await ctx.send(get_language_str(ctx.guild.id, 63).format(ctx.author.name, str(to_delete)))
         msg = await self.bot.wait_for('message', check=check)
         reply = msg.content.lower()  # Set the confirmation
         if reply in ('y', 'yes', 'confirm'):
             await ctx.channel.purge(limit=to_delete + 3)
-            temp_message = await ctx.reply(f"[{ctx.author.name}], deleted [{to_delete}] messages.")
+            temp_message = await ctx.send(get_language_str(ctx.guild.id, 64).format(ctx.author.name, str(to_delete)))
             time.sleep(5)
             await temp_message.delete()
             return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):  # idk why i decided to put flanksteak there
-            await ctx.send("Alright, action cancelled.")
+            await ctx.send(26)
             return
         else:
-            await ctx.send("I have no idea what you want me to do. Action cancelled.")
+            await ctx.send(27)
             return
 
     @commands.command(
@@ -63,14 +63,14 @@ class Moderation(commands.Cog):
         try:
             open(rulefile, 'r', newline="\n", encoding="utf-8")
         except FileNotFoundError:
-            await ctx.reply("I have found no rules for this server.")
+            await ctx.reply(get_language_str(ctx.guild.id, 65))
             return
 
         rules = json.load(open(rulefile, "r", encoding="utf-8", newline="\n"))
 
         rule_desc = rules.get(rule.lower())
         if rule_desc is None:
-            await ctx.reply(f"[{ctx.message.author.name}], you specified an invalid rule.")
+            await ctx.reply(get_language_str(ctx.guild.id, 66).format(ctx.message.author.name))
             return
 
         embed = discord.Embed(
@@ -93,7 +93,7 @@ class Moderation(commands.Cog):
     async def rules_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'rule':
-                await ctx.reply(f"[{ctx.message.author.name}], you did not specify a rule.")
+                await ctx.reply(get_language_str(ctx.guild.id, 67).format(ctx.message.author.name))
                 return
 
     @commands.command(
@@ -117,20 +117,21 @@ class Moderation(commands.Cog):
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        await ctx.send("What shall be the rule description?")
+        await ctx.send(get_language_str(ctx.guild.id, 68))
         replymsg = await self.bot.wait_for('message', check=check)
         rulevalue = replymsg.content
         ruledata[rulekey.lower()] = rulevalue
 
         json.dump(ruledata, open(rulefile, 'w+', newline='\n', encoding="utf-8"), indent=2)
 
-        await ctx.reply("Success, rule has been added.")
+        await ctx.reply(get_language_str(ctx.guild.id, 69))
+        # hghghgh funny number please help its 9:40 pm im fucking tired
 
     @addrule_command.error
     async def addrule_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'rulekey':
-                await ctx.reply(f"[{ctx.message.author.name}], you did not specify a rule name.")
+                await ctx.reply(get_language_str(ctx.guild.id, 67).format(ctx.message.author.name))
                 return
 
     @commands.command(
@@ -143,7 +144,7 @@ class Moderation(commands.Cog):
     async def poprule_command(self, ctx, rulekey):
         rulefile = 'data/servers/' + str(ctx.guild.id) + '/rules.json'
         if not os.path.exists(rulefile):
-            await ctx.reply("There are no rules for this server.")
+            await ctx.reply(get_language_str(ctx.guild.id, 70))
             return
 
         with open(rulefile, 'r+', newline="\n", encoding="utf-8") as rulefileobject:
@@ -151,7 +152,7 @@ class Moderation(commands.Cog):
             try:
                 ruledata.pop(rulekey.lower())
             except KeyError:
-                await ctx.reply("The specified rule does not exist.")
+                await ctx.reply(get_language_str(ctx.guild.id, 71))
                 rulepopped = False
             else:
                 rulepopped = True
@@ -163,13 +164,13 @@ class Moderation(commands.Cog):
                 rulefileobject.close()
 
         if rulepopped:
-            await ctx.reply("Success, rule has been deleted.")
+            await ctx.reply(get_language_str(ctx.guild.id, 72))
 
     @poprule_command.error
     async def poprule_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'rulekey':
-                await ctx.reply(f"[{ctx.message.author.name}], you did not specify a rule name.")
+                await ctx.reply(get_language_str(ctx.guild.id, 67).format(ctx.message.author.name))
                 return
 
     @commands.command(
@@ -181,15 +182,14 @@ class Moderation(commands.Cog):
     @commands.has_guild_permissions(manage_messages=True)
     async def kick_command(self, ctx, user: discord.Member, *, reason=None):
         if user.id == self.bot.user.id:
-            await ctx.reply("Really..? After all my efforts, this is how I get treated?")
+            await ctx.reply(get_language_str(ctx.guild.id, 73))
             # totally not inspired by carlbot
             return
         if user == ctx.author:
-            await ctx.reply("You hate yourself *that* much?")
+            await ctx.reply(get_language_str(ctx.guild.id, 74))
             return
         if user.guild_permissions.manage_messages:
-            await ctx.reply("The specified user has the \"Manage Messages\" permission "
-                            "(or higher) inside the guild/server.")
+            await ctx.reply(get_language_str(ctx.guild.id, 75))
             return
         if reason is None:
             reason = "No reason specified."
@@ -216,10 +216,8 @@ class Moderation(commands.Cog):
             return
         elif isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply("You did not specify a user to kick. *Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 76))
                 return
-            else:
-                await ctx.reply(f"Required argument {error.param.name} is missing.")
 
     @commands.command(
         name='ban',
@@ -230,15 +228,14 @@ class Moderation(commands.Cog):
     @commands.has_guild_permissions(manage_messages=True)
     async def ban_command(self, ctx, user: discord.Member, *, reason=None):
         if user.id == self.bot.user.id:
-            await ctx.reply("Really..? After all my efforts, this is how I get treated?")
+            await ctx.reply(get_language_str(ctx.guild.id, 73))
             # again totally not inspired by carlbot
             return
         if user == ctx.author:
-            await ctx.reply("You hate yourself *that* much?")
+            await ctx.reply(get_language_str(ctx.guild.id, 74))
             return
         if user.guild_permissions.manage_messages:
-            await ctx.reply("The specified user has the \"Manage Messages\" permission "
-                            "(or higher) inside the guild/server.")
+            await ctx.reply(get_language_str(ctx.guild.id, 75))
             return
         if reason is None:
             reason = "No reason specified."
@@ -265,10 +262,8 @@ class Moderation(commands.Cog):
             return
         elif isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply("You did not specify a user to ban. *Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 77))
                 return
-            else:
-                await ctx.reply(f"Required argument {error.param.name} is missing.")
 
     @commands.command(
         name='unban',
@@ -289,14 +284,10 @@ class Moderation(commands.Cog):
             # The user also comes with a discriminator.
             userfull = user.split('#')
             if len(userfull) != 2:
-                await ctx.reply("Whoops, there seems to be more than one discriminator in that user. "
-                                "This is making my task of finding the user you are looking for impossible. "
-                                "*Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 78))
                 return
             elif type(userfull) is not list:
-                await ctx.reply("Whoops, I seem to have screwed something up (or Python is becoming unreliable), "
-                                "so now I can't find the user you are looking for. I'll take the blame. "
-                                "*Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 79))
                 return
             for entry in banlist:
                 if (userfull[0], userfull[1]) == (entry.user.name, entry.user.discriminator):
@@ -310,10 +301,10 @@ class Moderation(commands.Cog):
                     user = entry.user
 
         if user.id == self.bot.user.id:
-            await ctx.reply("Hey, I'm not banned, I can still talk here.")
+            await ctx.reply(get_language_str(ctx.guild.id, 80))
             return
         if user == ctx.author:
-            await ctx.reply("Yeah, you're not banned.")
+            await ctx.reply(get_language_str(ctx.guild.id, 81))
             return
 
         await ctx.guild.unban(user)
@@ -333,15 +324,10 @@ class Moderation(commands.Cog):
 
     @unban_command.error
     async def unban_handler(self, ctx, error):
-        if isinstance(error, commands.UserNotFound):
-            await ctx.reply(f'{error} *(Action cancelled.)*')
-            return
-        elif isinstance(error, commands.MissingRequiredArgument):
+        if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply("You did not specify a user to unban. *Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 82))
                 return
-            else:
-                await ctx.reply(f"Required argument {error.param.name} is missing.")
 
     @commands.command(
         name='storepins',
@@ -362,15 +348,12 @@ class Moderation(commands.Cog):
             if channel.isdigit():
                 channelsendin = ctx.guild.get_channel(int(channel))
                 if channel is None:
-                    await ctx.reply("Uh oh, I could not get the channel you meant. Please try again. "
-                                    "If it still fails, please try directly inserting the channel's ID. "
-                                    "*Action cancelled.*")
+                    await ctx.reply(get_language_str(ctx.guild.id, 83))
                     return
             else:
                 channelsendin = discord.utils.get(self.bot.get_all_channels(), guild=ctx.guild, name=channel)
                 if channel is None:
-                    await ctx.reply("Whoops, I couldn't find the channel you meant. "
-                                    "Please try again by directly mentioning the channel you mean. *Action cancelled.*")
+                    await ctx.reply(get_language_str(ctx.guild.id, 36))
                     return
 
             embed = discord.Embed(
@@ -403,7 +386,7 @@ class Moderation(commands.Cog):
     async def storepins_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'channel':
-                await ctx.reply(f"[{ctx.message.author.name}], you did not specify a channel.")
+                await ctx.reply(get_language_str(ctx.guild.id, 84).format(ctx.message.author.name))
                 return
 
 

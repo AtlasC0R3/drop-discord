@@ -5,6 +5,7 @@ import random
 from datetime import datetime
 
 from discord.ext import commands
+from data.extdata import get_language_str
 import discord
 
 # These color constants are taken from discord.js library
@@ -42,7 +43,7 @@ class Todo(commands.Cog):
         if not action:
             # User just wanted to check their current to-do stuff.
             if not tododata:
-                await ctx.reply("You don't have anything. So, why not kick back and relax?")
+                await ctx.reply(get_language_str(ctx.guild.id, 97))
                 return
             embed = discord.Embed(
                 title="To-do list",
@@ -73,7 +74,7 @@ class Todo(commands.Cog):
             guildaction = ['guild', 'server']
             if action == 'add':
                 if not desc:
-                    await ctx.reply("I'd like to add stuff to your to-do list, but you gotta tell me *what* to add!")
+                    await ctx.reply(get_language_str(ctx.guild.id, 98))
                     return
                 new_todo = {
                     'desc': desc,
@@ -83,17 +84,15 @@ class Todo(commands.Cog):
                 with open(f"data/todo/{ctx.author.id}.json", 'w+', newline="\n", encoding='utf-8') as todofile:
                     json.dump(tododata, todofile)
                     todofile.close()
-                await ctx.reply("Successfully added.")
+                await ctx.reply(get_language_str(ctx.guild.id, 99))
                 return
             elif action in remove:
                 # this works, i'm already broken mentally.
                 if not desc:
-                    await ctx.reply("I'd like to remove stuff from your to-do list, but you gotta tell me *what* to "
-                                    "remove!")
+                    await ctx.reply(get_language_str(ctx.guild.id, 100))
                     return
                 elif not desc.isdigit():
-                    await ctx.reply("You need to specify the **number** of the item in the list"
-                                    " that you wish to remove!")
+                    await ctx.reply(get_language_str(ctx.guild.id, 101))
                     return
                     # hello your computer has virus
                 desc = int(desc) - 1
@@ -101,7 +100,7 @@ class Todo(commands.Cog):
                 try:
                     toremove = tododata[desc]
                 except IndexError:
-                    await ctx.reply("That item does not exist.")
+                    await ctx.reply(get_language_str(ctx.guild.id, 102))
                     return
                 embed = discord.Embed(
                     title=f"Item {desc + 1}",
@@ -114,27 +113,27 @@ class Todo(commands.Cog):
                     icon_url=ctx.message.author.avatar_url,
                     url=f"https://discord.com/users/{ctx.message.author.id}/"
                 )
-                await ctx.send("Are you sure you want to remove this?", embed=embed)
+                await ctx.send(get_language_str(ctx.guild.id, 103), embed=embed)
 
                 replymsg = await self.bot.wait_for('message', check=check)
                 reply = replymsg.content.lower()
                 if reply in ('y', 'yes', 'confirm'):
                     pass
                 elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-                    await ctx.send("Alright, action cancelled.")
+                    await ctx.send(get_language_str(ctx.guild.id, 26))
                     return
                 else:
-                    await ctx.send("I have no idea what that means. *Action cancelled.*")
+                    await ctx.send(get_language_str(ctx.guild.id, 27))
                     return
                 tododata = [x for x in tododata if x != toremove]
                 with open(f"data/todo/{ctx.author.id}.json", 'w+', newline="\n", encoding='utf-8') as todofile:
                     json.dump(tododata, todofile)
                     todofile.close()
-                await ctx.reply("Successfully removed.")
+                await ctx.reply(get_language_str(ctx.guild.id, 104))
                 return
             elif action == 'edit':
                 if not desc:
-                    await ctx.reply("I'd like to edit stuff, but you gotta tell me *what* to modify!")
+                    await ctx.reply(get_language_str(ctx.guild.id, 105))
                     return
                 desc = desc.split(' ')
                 index = int(desc[0]) - 1
@@ -154,27 +153,27 @@ class Todo(commands.Cog):
                     icon_url=ctx.message.author.avatar_url,
                     url=f"https://discord.com/users/{ctx.message.author.id}/"
                 )
-                await ctx.send("Are you sure you want to edit this?", embed=embed)
+                await ctx.send(get_language_str(ctx.guild.id, 106), embed=embed)
 
                 replymsg = await self.bot.wait_for('message', check=check)
                 reply = replymsg.content.lower()
                 if reply in ('y', 'yes', 'confirm'):
                     pass
                 elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-                    await ctx.send("Alright, action cancelled.")
+                    await ctx.send(get_language_str(ctx.guild.id, 26))
                     return
                 else:
-                    await ctx.send("I have no idea what that means. *Action cancelled.*")
+                    await ctx.send(get_language_str(ctx.guild.id, 27))
                     return
                 with open(f"data/todo/{ctx.author.id}.json", 'w+', newline="\n", encoding='utf-8') as todofile:
                     tododata[index] = new_todo
                     json.dump(tododata, todofile)
                     todofile.close()
-                await ctx.reply("Successfully edited.")
+                await ctx.reply(get_language_str(ctx.guild.id, 107))
                 return
             elif action in guildaction:
                 if not ctx.author.guild_permissions.manage_messages:
-                    await ctx.send("You don't have the permissions to do that!")
+                    await ctx.send(get_language_str(ctx.guild.id, 108))
                     return
                 with open(f"data/servers/{ctx.guild.id}/todo.json", newline="\n", encoding='utf-8') as todofile:
                     tododata = json.load(todofile)
@@ -214,18 +213,17 @@ class Todo(commands.Cog):
                     try:
                         toremove = tododata[desc]
                     except IndexError:
-                        await ctx.reply("That item does not exist.")
+                        await ctx.reply(get_language_str(ctx.guild.id, 102))
                         return
                     if toremove.get('author') != ctx.author.id:
-                        await ctx.reply("You don't appear to be the author of that note, which unfortunately means you "
-                                        "cannot remove that note.")
+                        await ctx.reply(get_language_str(ctx.guild.id, 109))
                         return
                     tododata = [x for x in tododata if x != toremove]
                     with open(f"data/servers/{ctx.guild.id}/todo.json", 'w+', newline="\n", encoding='utf-8') as \
                             todofile:
                         json.dump(tododata, todofile)
                         todofile.close()
-                    await ctx.reply("Successfully removed.")
+                    await ctx.reply(get_language_str(ctx.guild.id, 104))
                     return
                 else:
                     new_todo = {
@@ -238,12 +236,8 @@ class Todo(commands.Cog):
                             todofile:
                         json.dump(tododata, todofile)
                         todofile.close()
-                    await ctx.reply("Successfully added.")
+                    await ctx.reply(get_language_str(ctx.guild.id, 99))
         return
-
-    @todo_command.error
-    async def todo_handler(self, ctx, error):
-        await ctx.send(error)
 
 
 def setup(bot):

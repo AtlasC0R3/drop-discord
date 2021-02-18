@@ -4,7 +4,7 @@ from datetime import datetime as d
 
 import discord
 from discord.ext import commands
-from data.extdata import get_artist, get_lyrics
+from data.extdata import get_artist, get_lyrics, get_language_str
 from tswift import TswiftError
 
 
@@ -29,12 +29,11 @@ class Basic(commands.Cog):
         brief='Check the bot\'s latency'
     )
     async def ping_command(self, ctx):
+        huh = get_language_str(ctx.guild.id, 8)
+        pong = get_language_str(ctx.guild.id, 9)
         start = d.timestamp(d.now())
-        msg = await ctx.reply(content="Huh?")
-
-        await msg.edit(content=f'Pong!\nIt took me {(d.timestamp(d.now()) - start) * 1000}ms'
-                               f'.')
-        return
+        msg = await ctx.reply(content=huh)
+        await msg.edit(content=pong.format((d.timestamp(d.now()) - start) * 1000))
 
     @commands.command(
         name='8ball',
@@ -43,29 +42,8 @@ class Basic(commands.Cog):
         brief='It\'s an 8ball, what more do you want?'
     )
     async def _8ball_command(self, ctx):
-        responses = [
-            'It is certain.',
-            'It is decidedly so.',
-            'Without a doubt',
-            'Yes - definitely.',
-            'You may rely on it.',
-            'As I see it, yes.',
-            'Most likely.',
-            'Outlook good.',
-            'Yes.',
-            'Signs point to yes.',
-            'Reply hazy, try again.',
-            'Ask again later.',
-            'Better not tell you now.',
-            'Cannot predict now.',
-            'Concentrate and ask again.',
-            "Don't count on it.",
-            'My reply is no.',
-            'My sources say no.',
-            'Outlook not so good.',
-            'Very doubtful.'
-        ]
-        await ctx.reply(content=f"{random.choice(responses)}")
+        responses = get_language_str(ctx.guild.id, 10)
+        await ctx.reply(random.choice(responses))
 
     @commands.command(
         name='say',
@@ -74,18 +52,14 @@ class Basic(commands.Cog):
         usage='<text>',
         brief='Repeats what the user said'
     )
-    async def say_command(self, ctx):
-        msg = ctx.message.content
-        prefix_used = ctx.prefix
-        alias_used = ctx.invoked_with
-        text = msg[len(prefix_used) + len(alias_used):]
+    async def say_command(self, ctx, *, repeat=None):
 
         # Next, we check if the user actually passed some text
-        if text == '':
-            await ctx.reply(content='hey, I can\'t send literally nothing.')
+        if not repeat:
+            await ctx.reply(get_language_str(ctx.guild.id, 11))
             return
         else:
-            await ctx.send(text)
+            await ctx.send(repeat)
 
     @commands.command(
         name='owofy',
@@ -107,7 +81,7 @@ class Basic(commands.Cog):
         # Next, we check if the user actually passed some text
         if text == '':
             # User didn't specify the text, which means we'll have to ask for it.
-            await ctx.send('What text would you like to owofy?')
+            await ctx.send(get_language_str(ctx.guild.id, 12))
             msg = await self.bot.wait_for('message', check=check)
             text = msg.content
             pass
@@ -148,8 +122,7 @@ class Basic(commands.Cog):
             text = text.replace('!', random.choice(why_do_you_do_this), 1)
 
         if not len(text) < 2000:
-            await ctx.send(f"Uh oh, the text is over 2000 characters long, which is the maximum number of characters "
-                           f"allowed in a message. *(Current length is {len(text)}, action cancelled)*")
+            await ctx.send(get_language_str(ctx.guild.id, 13).format(len(text)))
             return
         await ctx.reply(text)  # the pain has been done.
 
@@ -162,19 +135,18 @@ class Basic(commands.Cog):
     async def embed_command(self, ctx):
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
-        await ctx.send(content='What would you like the title to be?')
+        await ctx.send(get_language_str(ctx.guild.id, 14))
 
         # Wait for a response and get the title
         msg = await self.bot.wait_for('message', check=check)
         if len(msg.content) < 257:  # Checks if title's length is bigger than 256.
             title = msg.content
         else:
-            await ctx.send(f"Uh oh, the title's length is higher than 256! Maximum length allowed is 256. "
-                           f"*(Requested title's length is {len(msg.content)}, action cancelled.)*")
+            await ctx.send(get_language_str(ctx.guild.id, 15).format(len(msg.content)))
             return
 
         # Next, ask for the content
-        await ctx.send(content='What would you like the Description to be?')
+        await ctx.send(get_language_str(ctx.guild.id, 16))
         msg = await self.bot.wait_for('message', check=check)
         desc = msg.content
         # For some reason bot embed descriptions have no limits.
@@ -240,9 +212,9 @@ class Basic(commands.Cog):
                 else:
                     lyricstr = lyrics.lyrics
             except TswiftError:
-                lyricstr = 'No lyrics available'
+                lyricstr = get_language_str(ctx.guild.id, 17)
             embed = discord.Embed(
-                title=f'*{lyrics.title}* by *{lyrics.artist}*',
+                title=get_language_str(ctx.guild.id, 20).format(lyrics.title, lyrics.artist),
                 description=lyricstr,
                 color=random.choice(color_list)
             )
@@ -261,7 +233,7 @@ class Basic(commands.Cog):
             msg = await ctx.send(f'Searching for songs by {args}')
             artist = get_artist(args)
             if not artist:
-                await ctx.reply('Could not find that artist. Sorry.')
+                await ctx.reply(get_language_str(ctx.guild.id, 18))
                 return
             embed = discord.Embed(
                 title=f'Random songs by *{artist[0]}*',
@@ -279,7 +251,7 @@ class Basic(commands.Cog):
                 songname = song[0]
                 lyrics = '\n'.join(song[1]).removesuffix('\n')
                 if not lyrics:
-                    lyrics = 'No lyrics available. *Sorry, I guess...*'
+                    lyrics = get_language_str(ctx.guild.id, 17)
                 else:
                     lyrics = lyrics + '\n...'
                 embed.add_field(
@@ -290,7 +262,7 @@ class Basic(commands.Cog):
             await ctx.reply(embed=embed)
             await msg.delete()
         else:
-            await ctx.reply("Insert either an artist's name or a song, otherwise I can't work with literally nothing!")
+            await ctx.reply(get_language_str(ctx.guild.id, 19))
 
     @commands.command(
         name='license',
@@ -326,6 +298,7 @@ class Basic(commands.Cog):
                   "(https://github.com/psf/requests/blob/master/LICENSE)"
         )  # And of course, you should probably list any other open-source dependencies you used.
         await ctx.send(embed=embed)
+        # I'd rather not translate this command.
 
 
 def setup(bot):

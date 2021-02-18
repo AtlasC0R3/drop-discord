@@ -5,7 +5,7 @@ from discord.ext import commands, tasks
 from datetime import datetime
 import parsedatetime
 
-from data.extdata import get_server_config
+from data.extdata import get_server_config, get_language_str
 
 cal = parsedatetime.Calendar()
 
@@ -32,13 +32,11 @@ class Mute(commands.Cog):
     @commands.has_guild_permissions(manage_roles=True)
     async def mute_command(self, ctx, user: discord.Member, *, timestamp):
         if get_server_config(ctx.guild.id, 'mute_role', int) == 0:
-            await ctx.reply("The mute role hasn't been configured, please do so using the `muted_role` command. "
-                            "*Action cancelled.*")
+            await ctx.reply(get_language_str(ctx.guild.id, 85))
             return
         role = ctx.guild.get_role(get_server_config(ctx.guild.id, 'mute_role', int))
         if role in user.roles:
-            await ctx.reply(f"[{ctx.author.name}], relax. This user has already been "
-                            f"muted for now.")
+            await ctx.reply(get_language_str(ctx.guild.id, 86).format(ctx.author.name))
             return
         else:
             pass
@@ -52,13 +50,13 @@ class Mute(commands.Cog):
         str_dt_obj = f'{list_dt_obj[0]}:{list_dt_obj[1]}'
 
         if dt_obj[1] == 0:
-            await ctx.send("Whoops, the time you inputted could not be parsed. *Action cancelled.*")
+            await ctx.send(get_language_str(ctx.guild.id, 87))
             return
         elif dt_obj[0] <= now_dt:
-            await ctx.send("You can't set the time as the past, that just isn't logical. *Action cancelled.*")
+            await ctx.send(get_language_str(ctx.guild.id, 88))
             return
         elif dt_obj[0] == now_dt or str_dt_obj == str_now_dt:
-            await ctx.send("The time cannot be set as now. *Action cancelled.*")
+            await ctx.send(get_language_str(ctx.guild.id, 89))
             return
 
         await user.add_roles(role)
@@ -101,17 +99,14 @@ class Mute(commands.Cog):
     @mute_command.error
     async def mute_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server."
-                            )
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
         if isinstance(error, commands.errors.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply(f'[{ctx.author.name}], you did not specify a valid user to mute. '
-                                f'*({error} Action cancelled)*')
+                await ctx.reply(get_language_str(ctx.guild.id, 90).format(ctx.author.name, str(error)))
                 return
             if error.param.name == 'timestamp':
-                await ctx.reply(f'[{ctx.author.name}], you did not specify the time until the user is unmuted. '
-                                f'*({error} Action cancelled)*')
+                await ctx.reply(get_language_str(ctx.guild.id, 91).format(ctx.author.name, str(error)))
                 return
             return
 
@@ -128,11 +123,11 @@ class Mute(commands.Cog):
             mutes = json.load(tempf)
             guild_mutes = mutes.get(str(guild_id))
             if guild_mutes is None:
-                await ctx.reply("I couldn't find any mutes from this guild. *Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 92))
                 return
             user_mutes = guild_mutes.get(str(user.id))
             if not user_mutes:
-                await ctx.reply(f"Current user ({user}) has no saved mutes.")
+                await ctx.reply(get_language_str(ctx.guild.id, 93).format(user))
                 return
             # user has been muted.
             mute_time = user_mutes[0]
@@ -161,8 +156,7 @@ class Mute(commands.Cog):
     @mutestatus_command.error
     async def mutestatus_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server."
-                            )
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
         if isinstance(error, commands.errors.MissingRequiredArgument):
             if error.param.name == 'user':
@@ -183,11 +177,11 @@ class Mute(commands.Cog):
             mutes = json.load(tempf)
             guild_mutes = mutes.get(str(guild_id))
             if guild_mutes is None:
-                await ctx.reply("This server has no mutes. *Action cancelled.*")
+                await ctx.reply(get_language_str(ctx.guild.id, 94))
                 return
             user_mutes = guild_mutes.get(str(user.id))
             if not user_mutes:
-                await ctx.reply(f"Current user ({user}) isn't muted.")
+                await ctx.reply(get_language_str(ctx.guild.id, 93).format(user))
                 return
             # user has been muted.
             mute_time = user_mutes[0]
@@ -206,18 +200,16 @@ class Mute(commands.Cog):
             json.dump(mutes, tempf, indent=2)
             tempf.truncate()
 
-        await ctx.reply('User has been unmuted.')
+        await ctx.reply(get_language_str(ctx.guild.id, 95))
 
     @unmute_command.error
     async def unmute_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.reply(f"[{ctx.author.name}], you are missing the permissions [Manage Roles] in this guild/server."
-                            )
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
         if isinstance(error, commands.errors.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply(f'[{ctx.author.name}], you did not specify a user to unmute. '
-                                f'*({error} Action cancelled)*')
+                await ctx.reply(get_language_str(ctx.guild.id, 96).format(ctx.author.name, error))
                 return
 
     @tasks.loop(minutes=1)

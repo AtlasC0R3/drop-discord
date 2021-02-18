@@ -6,6 +6,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions
+from data.extdata import get_language_str
 
 # These color constants are taken from discord.js library
 with open("data/embed_colors.json") as f:
@@ -31,18 +32,16 @@ class Warn(commands.Cog):
     @has_permissions(manage_messages=True)
     async def warn_command(self, ctx, user: discord.Member, *, reason: str):
         if user.id == self.bot.user.id:
-            await ctx.reply("Oh, REALLY now, huh? I do my best at maintaining this server and THIS is how you treat me?"
-                            " Screw this..")
+            await ctx.reply(get_language_str(ctx.guild.id, 73))
             return
         if user == ctx.author:
-            await ctx.reply("Why the heck would you warn yourself? You hate yourself THAT much?")
+            await ctx.reply(get_language_str(ctx.guild.id, 74))
             return
         if user.bot == 1:
-            await ctx.reply("It's useless to warn a bot. Why would you even try.")
+            await ctx.reply(get_language_str(ctx.guild.id, 110))
             return
         if user.guild_permissions.manage_messages:
-            await ctx.reply("The specified user has the \"Manage Messages\" permission "
-                            "(or higher) inside the guild/server.")
+            await ctx.reply(get_language_str(ctx.guild.id, 75))
             return
         dt_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         if not os.path.exists("data/servers/" + str(ctx.guild.id) + "/warns/"):
@@ -106,13 +105,11 @@ class Warn(commands.Cog):
             return
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply(f"[{ctx.author.name}], you forgot to specify a user to warn. "
-                                f"*(commands.MissingRequiredArgument error, action cancelled)*")
+                await ctx.reply(get_language_str(ctx.guild.id, 111).format(ctx.author.name))
                 return
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'reason':
-                await ctx.reply(f"[{ctx.author.name}], you forgot to specify a reason. "
-                                f"*(commands.MissingRequiredArgument error, action cancelled)*")
+                await ctx.reply(get_language_str(ctx.guild.id, 112).format(ctx.author.name))
                 return
 
     @commands.command(
@@ -179,16 +176,16 @@ class Warn(commands.Cog):
             content=None,
             embed=embed
         )
+        # too lazy to translate this command, freaking hell
 
     @warns_command.error
     async def warns_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply("Please mention someone to verify their warns.")
+                await ctx.reply(get_language_str(ctx.guild.id, 113))
                 return
         if isinstance(error, commands.MissingPermissions):
-            await ctx.reply('[{0.author.name}], you do not have the correct permissions to do so. '
-                            '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -206,12 +203,12 @@ class Warn(commands.Cog):
             # See if the user has been warned
         except FileNotFoundError:
             # User does not have any warns.
-            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
+            await ctx.reply(get_language_str(ctx.guild.id, 114))
             return
         warns = warndata.get('warns')
         warnindex = int(warn) - 1
         if warnindex < 0:
-            await ctx.reply("Wrong warn ID, please try again.")
+            await ctx.reply(get_language_str(ctx.guild.id, 115))
             return
         specified_warn = warns[warnindex]
         warn_warner = specified_warn.get('warner')
@@ -239,7 +236,7 @@ class Warn(commands.Cog):
             # As well as by the user who used the command.
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        await ctx.send(content='Are you sure you want to remove this warn? (Reply with y or n)',
+        await ctx.send(content=get_language_str(ctx.guild.id, get_language_str(ctx.guild.id, 116)) + ' (y or n)',
                        embed=confirmation_embed)
         msg = await self.bot.wait_for('message', check=check)
         reply = msg.content.lower()   # Set the title
@@ -249,27 +246,25 @@ class Warn(commands.Cog):
             warndata["warns"] = warns
             json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
                                      encoding='utf-8'), indent=2)
-            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn removed.")
+            await ctx.reply(get_language_str(ctx.guild.id, 117))
             return
         elif reply in ('n', 'no', 'cancel'):
-            await ctx.send("Alright, action cancelled.")
+            await ctx.send(get_language_str(ctx.guild.id, 26))
             return
         else:
-            await ctx.send("I have no idea what you want me to do. Action cancelled.")
+            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @remove_warn_command.error
     async def remove_warn_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply("Please mention someone to remove their warns.")
+                await ctx.reply(get_language_str(ctx.guild.id, 118))
                 return
             if error.param.name == 'warn':
-                await ctx.reply("You did not specify a warn ID to remove.")
+                await ctx.reply(get_language_str(ctx.guild.id, 115))
                 return
         if isinstance(error, commands.MissingPermissions):
-            await ctx.reply('[{0.author.name}], you do not have the correct permissions to do so. '
-                            '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
-            # egh, too lazy to make it not use .format(ctx)
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
     @commands.command(
@@ -287,7 +282,7 @@ class Warn(commands.Cog):
             # See if the user has been warned
         except FileNotFoundError:
             # User does not have any warns.
-            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
+            await ctx.reply(get_language_str(ctx.guild.id, 114))
             return
 
         def check(ms):
@@ -295,14 +290,14 @@ class Warn(commands.Cog):
             # As well as by the user who used the command.
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        await ctx.send(content='What would you like to change the warn\'s reason to?')
+        await ctx.send(content=get_language_str(ctx.guild.id, 119))
         msg = await self.bot.wait_for('message', check=check)
         warn_new_reason = msg.content.lower()   # Set the title
 
         warns = warndata.get("warns")
         warnindex = int(warn) - 1
         if warnindex < 0:
-            await ctx.reply("Wrong warn ID, please try again.")
+            await ctx.reply(get_language_str(ctx.guild.id, 115))
             return
         specified_warn = warns[warnindex]
         warn_warner = specified_warn.get('warner')
@@ -324,7 +319,7 @@ class Warn(commands.Cog):
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
 
-        await ctx.send(content='Are you sure you want to edit this warn like this? (Reply with y/yes or n/no)',
+        await ctx.send(content=get_language_str(ctx.guild.id, get_language_str(ctx.guild.id, 120)) + ' (y/n)',
                        embed=confirmation_embed)
 
         msg = await self.bot.wait_for('message', check=check)
@@ -333,26 +328,25 @@ class Warn(commands.Cog):
             specified_warn['reason'] = warn_new_reason
             json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
                                      encoding='utf-8'), indent=2)
-            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] has gotten their warn edited.")
+            await ctx.reply(get_language_str(ctx.guild.id, 121))
             return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-            await ctx.send("Alright, action cancelled.")
+            await ctx.send(get_language_str(ctx.guild.id, 26))
             return
         else:
-            await ctx.send("I have no idea what you want me to do. Action cancelled.")
+            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @edit_warn_command.error
     async def edit_warn_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply("Please mention someone to remove their warns.")
+                await ctx.reply(get_language_str(ctx.guild.id, 118))
                 return
             if error.param.name == 'warn':
-                await ctx.reply("You did not specify a warn ID to remove.")
+                await ctx.reply(get_language_str(ctx.guild.id, 115))
                 return
         if isinstance(error, commands.MissingPermissions):
-            await ctx.reply('[{0.author.name}], you do not have the correct permissions to do so. '
-                            '*(commands.MissingPermissions error, action cancelled)*'.format(ctx))
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
 
 
