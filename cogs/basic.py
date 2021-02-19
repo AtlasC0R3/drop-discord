@@ -323,7 +323,9 @@ class Basic(commands.Cog):
                   "tswift, licensed under BSD 3-Clause license "
                   "(https://github.com/brenns10/tswift/blob/master/LICENSE.md)\n"
                   "requests, licensed under Apache 2.0 license, no changes made "
-                  "(https://github.com/psf/requests/blob/master/LICENSE)"
+                  "(https://github.com/psf/requests/blob/master/LICENSE)\n"
+                  "LyricsGenius, licensed under MIT License "
+                  "(https://github.com/johnwmillr/LyricsGenius/blob/master/LICENSE.txt)"
         )  # And of course, you should probably list any other open-source dependencies you used.
         await ctx.send(embed=embed)
         # I'd rather not translate this command.

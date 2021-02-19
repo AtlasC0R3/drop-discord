@@ -63,6 +63,8 @@ Dependencies, people who have helped...
 
 **[requests](https://github.com/psf/requests)** by the [Python Software Foundation](https://github.com/psf)
 
+**[LyricsGenius](https://github.com/johnwmillr/LyricsGenius)** by [johnwmillr](https://github.com/johnwmillr)
+
 ***
 
 **[EvieePy on GitHub Gist](https://gist.github.com/EvieePy)**, has provided a ton of very helpful examples that I used throughout this project
