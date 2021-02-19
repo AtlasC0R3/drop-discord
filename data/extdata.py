@@ -272,7 +272,7 @@ def get_lyrics(artist, title):
 def get_artist(artist):
     if genius:
         try:
-            songs = genius.search_artist(artist, sort='popularity').songs
+            songs = genius.search_artist(artist, max_songs=5, sort='popularity').songs
         except requests.exceptions.HTTPError:
             songs = None
             print("FIXME: Genius API token probably not working")
