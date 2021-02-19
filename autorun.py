@@ -78,6 +78,7 @@ def check_config(conf: str):
         steam_api_conf['excludedGames'] = excludedGames
     newconf['owner_id'] = ownerId
     newconf['verbose'] = verbose
+    newconf['geniusApi'] = geniusApiKey
     newconf['syncActivityWithOwner'] = syncOwnerActivity
     return newconf
 
