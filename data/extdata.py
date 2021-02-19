@@ -4,6 +4,7 @@ import requests
 import random
 import discord
 import tswift
+import lyricsgenius
 
 
 exampleServerConfig = {
@@ -89,6 +90,14 @@ def get_config_parameter(param, paramtype):
         bot_config[param] = config_param
         json.dump(bot_config, open(f"data/config.json", "w+", encoding="utf-8", newline='\n'), indent=2)
     return paramtype(config_param)
+
+
+try:
+    genius = lyricsgenius.Genius(get_config_parameter('geniusApi', str), verbose=False, remove_section_headers=True,
+                                 skip_non_songs=True, excluded_terms=["(Remix)", "(Live)"])
+except TypeError:
+    # Invalid token
+    genius = None
 
 
 def get_server_config(serverid, param, paramtype):
@@ -242,12 +251,38 @@ def get_steam_recently_played():
         return playedgames
 
 
-def get_lyrics(artist, song):
-    song = tswift.Song(title=song, artist=artist)
+def get_lyrics(artist, title):
+    if genius:
+        try:
+            song = genius.search_song(title=title, artist=artist)
+            # Fun fact: that's how I discovered that GHOST by Camellia (the song every beat saber player hates the most)
+            # has lyrics, and that they lead to youtu.be/DkrzV5GIQXQ! how the actual fuck did i get here
+            # I am now in shock and terrified. If anyone's into ARGs and reading this, well here you go.
+            # It appears to be in Japanese though. Anyway, enough 3 minutes wasted.
+        except requests.exceptions.HTTPError:
+            song = None
+            print("FIXME: Genius API token probably not working")
+        if song:
+            return song
+    # no genius, woopsies
+    song = tswift.Song(title=title, artist=artist)
     return song
 
 
 def get_artist(artist):
+    if genius:
+        try:
+            songs = genius.search_artist(artist, sort='popularity').songs
+        except requests.exceptions.HTTPError:
+            songs = None
+            print("FIXME: Genius API token probably not working")
+        if songs:
+            lyrics = []
+            for song in songs:
+                lyric = song.lyrics.split('\n')
+                lyrics.append([song.title, lyric[:5], song.url])
+            artistname = songs[0].artist
+            return ['Genius', [artistname, lyrics]]
     artistitem = tswift.Artist(artist)
     try:
         randsongs = random.sample(artistitem.songs, 5)
@@ -258,9 +293,9 @@ def get_artist(artist):
     artistname = ""
     for song in randsongs:
         lyric = get_lyrics(artist, song.title).load().lyrics.split('\n')
-        randlyrics.append([song.title, lyric[:5]])
+        randlyrics.append([song.title, lyric[:5], None])
         artistname = artistitem.songs[0].artist
     if not artistname:
         artistname = artist
     to_return = [artistname, randlyrics]
-    return to_return
+    return ['MetroLyrics', to_return]

@@ -3,3 +3,4 @@ discord-pretty-help
 parsedatetime
 requests
 tswift
+lyricsgenius

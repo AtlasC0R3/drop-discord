@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 from data.extdata import get_artist, get_lyrics, get_language_str
 from tswift import TswiftError
+import lyricsgenius
 
 
 with open("data/embed_colors.json") as f:
@@ -172,7 +173,7 @@ class Basic(commands.Cog):
 
     @commands.command(
         name='lyrics',
-        description='Uses MetroLyrics (or the Python library "tswift") to get lyrics.\n'
+        description='Uses either MetroLyrics (or the Python library "tswift") or Genius to get lyrics.\n'
                     'Can be used in a multitude of ways: to find random songs by an artist, to find lyrics for a song '
                     'by an artist or to find lyrics using what the user is currently playing on Spotify.\n',
         aliases=['lyric', 'getsong', 'getartist'],
@@ -206,6 +207,15 @@ class Basic(commands.Cog):
             artist = args[-1]
             msg = await ctx.send(f'Searching for "{song}" by {artist}')
             lyrics = get_lyrics(artist, song)
+            if type(lyrics) is lyricsgenius.genius.Song:
+                # that is Genius.
+                obtained_from = 'Genius'
+                thumbnail = lyrics.song_art_image_url
+                url = lyrics.url
+            else:
+                obtained_from = 'MetroLyrics'
+                thumbnail = None
+                url = None
             try:
                 if len(lyrics.lyrics) >= 2048:
                     lyricstr = ''.join(list(lyrics.lyrics)[:2045]) + '...'
@@ -213,30 +223,44 @@ class Basic(commands.Cog):
                     lyricstr = lyrics.lyrics
             except TswiftError:
                 lyricstr = get_language_str(ctx.guild.id, 17)
+                obtained_from = 'common sense'
             embed = discord.Embed(
                 title=get_language_str(ctx.guild.id, 20).format(lyrics.title, lyrics.artist),
                 description=lyricstr,
-                color=random.choice(color_list)
+                color=random.choice(color_list),
+                url=url
             )
+            if thumbnail:
+                embed.set_thumbnail(url=thumbnail)
             embed.set_author(
                 name=ctx.message.author.name,
                 icon_url=ctx.message.author.avatar_url,
                 url=f"https://discord.com/users/{ctx.message.author.id}/"
             )
             embed.set_footer(
-                text='obtained using MetroLyrics'
+                text=f'obtained using {obtained_from}'
             )
             await ctx.reply(embed=embed)
             await msg.delete()
         elif type(args) is str:
             # get artist
             msg = await ctx.send(f'Searching for songs by {args}')
-            artist = get_artist(args)
+            obtained = get_artist(args)
+            artist = obtained[1]
+            service = obtained[0]
             if not artist:
                 await ctx.reply(get_language_str(ctx.guild.id, 18))
                 return
+            if service == 'Genius':
+                artistname = artist[0]
+                title = f'Popular songs by *{artistname}*'
+            elif service == 'MetroLyrics':
+                title = f'Random songs by *{artist[0]}*'
+                artist = obtained[1]
+            else:
+                title = 'Some songs.'
             embed = discord.Embed(
-                title=f'Random songs by *{artist[0]}*',
+                title=title,
                 color=random.choice(color_list)
             )
             embed.set_author(
@@ -245,15 +269,19 @@ class Basic(commands.Cog):
                 url=f"https://discord.com/users/{ctx.message.author.id}/"
             )
             embed.set_footer(
-                text='obtained using MetroLyrics'
+                text=f'obtained using {service}'
             )
             for song in artist[1]:
                 songname = song[0]
                 lyrics = '\n'.join(song[1])
+                url = song[2]
                 if not lyrics:
                     lyrics = get_language_str(ctx.guild.id, 17)
                 else:
-                    lyrics = lyrics + '\n...'
+                    if url:
+                        lyrics = lyrics + f'\n<{url}>'
+                    else:
+                        lyrics = lyrics + '\n...'
                 embed.add_field(
                     name=f'*{songname}*',
                     value=lyrics,
