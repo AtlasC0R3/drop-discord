@@ -57,7 +57,7 @@ def get_language_str(language: str or int, idx: int):
             # Sometimes people are lazy and might not want to translate a string.
             # or that i updated the bot and that the string couldn't be obtained
             # wait in that case it'd return indexerror, i'm dumb. like really dumb. like supremely dumb, holy wow.
-    except KeyError or IndexError:
+    except (IndexError, KeyError):
         return get_default_language(idx)
     return to_return
 
