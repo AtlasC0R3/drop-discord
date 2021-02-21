@@ -7,6 +7,7 @@ from discord.ext import commands
 from data.extdata import get_artist, get_lyrics, get_language_str
 from tswift import TswiftError
 import lyricsgenius
+import duckduckpy
 
 
 with open("data/embed_colors.json") as f:
@@ -329,6 +330,85 @@ class Basic(commands.Cog):
         )  # And of course, you should probably list any other open-source dependencies you used.
         await ctx.send(embed=embed)
         # I'd rather not translate this command.
+
+    @commands.command(
+        name='search',
+        description="This uses DuckDuckGo (or duckduckpy) to search whatever on the Internet. "
+                    "It will return whatever it finds.",
+        brief='Does a DuckDuckGo search'
+    )
+    async def search_command(self, ctx, *, to_search):
+        response = duckduckpy.query(to_search, user_agent=u'duckduckpy 0.2', no_redirect=False, no_html=True,
+                                    skip_disambig=True, container='dict')
+        if response['infobox']:
+            infobox = response['infobox']['content']
+            image = None
+            if response['image']:
+                if response['image'].startswith('/'):
+                    image = 'https://duckduckgo.com' + response['image']
+                else:
+                    image = response['image']
+            embed = discord.Embed(
+                title=response['heading'],
+                description=response.get('abstract_text'),
+                url=response['abstract_url'],
+                color=random.choice(color_list)
+            )
+            if image:
+                embed.set_thumbnail(
+                    url=image
+                )
+            embed.set_author(
+                name=ctx.message.author.name,
+                icon_url=ctx.message.author.avatar_url,
+                url=f"https://discord.com/users/{ctx.message.author.id}/"
+            )
+            embed.set_footer(
+                text=response['abstract_source']
+            )
+            for info in infobox:
+                if info['data_type'] == 'string':
+                    if len(info['value']) >= 256:
+                        value = ''.join(list(info['value'])[:253]) + '...'
+                    else:
+                        value = info['value']
+                    embed.add_field(
+                        name=info['label'],
+                        value=value,
+                        inline=False
+                    )
+            await ctx.reply(embed=embed)
+        elif response['related_topics']:
+            description = response.get('abstract_text')
+            if description:
+                description = description + f"*({response['abstract_source']})*"
+            embed = discord.Embed(
+                title=response['heading'],
+                description=description,
+                url=response.get('abstract_url'),
+                color=random.choice(color_list)
+            )
+            for topic in response['related_topics']:
+                if topic.get('topics'):
+                    pass  # not really what we're looking for
+                else:
+                    name = topic.get('text')
+                    if len(name) >= 256:
+                        name = ''.join(list(name)[:253]) + '...'
+                    if ' - ' in name:
+                        things = name.split(' - ')
+                        name = things[0]
+                        description = ' - '.join(things[1:]) + '\n' + f"({topic.get('first_url')})"
+                    else:
+                        description = topic.get('first_url')
+                    embed.add_field(
+                        name=name,
+                        value=description,
+                        inline=False
+                    )
+            await ctx.reply(embed=embed)
+        else:
+            await ctx.reply(get_language_str(ctx.guild.id, 122))
 
 
 def setup(bot):

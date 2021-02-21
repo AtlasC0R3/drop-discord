@@ -4,3 +4,4 @@ parsedatetime
 requests
 tswift
 lyricsgenius
+duckduckpy
