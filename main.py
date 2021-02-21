@@ -113,8 +113,12 @@ async def on_ready():
 
     if ownerId:
         owner_refresh.start()
-    activitychanger.start()
-    inactivity_func.start()
+    try:
+        activitychanger.start()
+        inactivity_func.start()
+    except RuntimeError:
+        # whoops, already started.
+        pass
 
     for cog in cogs:
         if verbose:
