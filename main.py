@@ -212,37 +212,41 @@ async def owner_refresh():
 
 @tasks.loop(minutes=10, count=None, reconnect=True)
 async def activitychanger():
+    activitytype = None
+    activityname = None
     if (ownerMember.activity and get_config_parameter('syncActivityWithOwner', bool)) and ownerId:
-        if isinstance(ownerMember.activity, discord.activity.Spotify):
-            activitytype = 'listening'
-            # activityname = f"{ownerMember.activity.title.split('(')[0].split('-')[0]}, " \
-            #               f"by {ownerMember.activity.artist.split(';')[0]}"
-            activityname = ownerMember.activity.artist.split(';')[0]
-            # Uncomment the comment block above if you want it to look like "Listening to Papercut, by Linkin Park"
-            # instead of just the artist name.
-        elif isinstance(ownerMember.activity, discord.activity.Activity) or \
-                isinstance(ownerMember.activity, discord.activity.Game):
+        for activity in ownerMember.activities:
+            if isinstance(activity, discord.activity.Spotify):
+                activitytype = 'listening'
+                # activityname = f"{activity.title.split('(')[0].split('-')[0]}, " \
+                #               f"by {activity.artist.split(';')[0]}"
+                activityname = activity.artist.split(';')[0]
+                # Uncomment the comment block above if you want it to look like "Listening to Papercut, by Linkin Park"
+                # instead of just the artist name.
+                break
+            elif isinstance(activity, discord.activity.Activity) or \
+                    isinstance(activity, discord.activity.Game):
+                activitytype = 'playing'
+                activityname = activity.name
+                break
+    if not activitytype:
+        if get_config_parameter('useSteamRecentlyPlayed', int) == 1:
             activitytype = 'playing'
-            activityname = ownerMember.activity.name
+            activityname = get_steam_played_game()
+        elif get_config_parameter('useSteamRecentlyPlayed', int) == 2:
+            with open("data/activities.json", encoding='utf-8', newline="\n") as f:
+                activities = json.load(f)
+            for game in get_steam_recently_played():
+                activities.append(['playing', game])
+            activity = random.choice(activities)
+            activitytype = activity[0]
+            activityname = activity[1]
         else:
-            return
-    elif get_config_parameter('useSteamRecentlyPlayed', int) == 1:
-        activitytype = 'playing'
-        activityname = get_steam_played_game()
-    elif get_config_parameter('useSteamRecentlyPlayed', int) == 2:
-        with open("data/activities.json", encoding='utf-8', newline="\n") as f:
-            activities = json.load(f)
-        for game in get_steam_recently_played():
-            activities.append(['playing', game])
-        activity = random.choice(activities)
-        activitytype = activity[0]
-        activityname = activity[1]
-    else:
-        with open("data/activities.json", encoding='utf-8', newline="\n") as f:
-            dictionary = json.load(f)
-        activity = random.choice(dictionary)
-        activitytype = activity[0]
-        activityname = activity[1]
+            with open("data/activities.json", encoding='utf-8', newline="\n") as f:
+                dictionary = json.load(f)
+            activity = random.choice(dictionary)
+            activitytype = activity[0]
+            activityname = activity[1]
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activitytype], name=activityname))
 
 
