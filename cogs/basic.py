@@ -390,7 +390,7 @@ class Basic(commands.Cog):
                 url=response.get('abstract_url'),
                 color=random.choice(color_list)
             )
-            for topic in response['related_topics']:
+            for topic in response['related_topics'][:5]:
                 if topic.get('topics'):
                     pass  # not really what we're looking for
                 else:
