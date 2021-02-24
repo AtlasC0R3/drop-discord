@@ -326,7 +326,9 @@ class Basic(commands.Cog):
                   "requests, licensed under Apache 2.0 license, no changes made "
                   "(https://github.com/psf/requests/blob/master/LICENSE)\n"
                   "LyricsGenius, licensed under MIT License "
-                  "(https://github.com/johnwmillr/LyricsGenius/blob/master/LICENSE.txt)"
+                  "(https://github.com/johnwmillr/LyricsGenius/blob/master/LICENSE.txt)\n"
+                  "DuckDuckPy, licensed under MIT License "
+                  "(https://github.com/ivankliuk/duckduckpy/blob/master/LICENSE)"
         )  # And of course, you should probably list any other open-source dependencies you used.
         await ctx.send(embed=embed)
         # I'd rather not translate this command.

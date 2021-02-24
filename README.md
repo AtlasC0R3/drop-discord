@@ -65,6 +65,8 @@ Dependencies, people who have helped...
 
 **[LyricsGenius](https://github.com/johnwmillr/LyricsGenius)** by [johnwmillr](https://github.com/johnwmillr)
 
+**[DuckDuckPy](https://github.com/ivankliuk/duckduckpy)** by [ivankliuk](https://github.com/ivankliuk)
+
 ***
 
 **[EvieePy on GitHub Gist](https://gist.github.com/EvieePy)**, has provided a ton of very helpful examples that I used throughout this project
