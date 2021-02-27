@@ -19,14 +19,8 @@ if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confus
     exit(1)
 
 # External libraries that need to be imported
-from data.extdata import TermColors
-from data.extdata import get_config_parameter
-from data.extdata import get_server_config
-from data.extdata import write_server_config
-from data.extdata import get_github_config
-from data.extdata import get_steam_played_game
-from data.extdata import get_steam_recently_played
-from data.extdata import get_language_str
+from data.extdata import TermColors, get_config_parameter, get_server_config, write_server_config, get_github_config, \
+    get_steam_played_game, get_steam_recently_played, get_language_str
 
 try:
     import discord
