@@ -42,7 +42,6 @@ verbose = get_config_parameter('verbose', bool)
 clear_terminal = get_config_parameter('clear_terminal', bool)
 change_terminal_name = get_config_parameter('change_terminal_name', bool)
 
-
 cogs = []
 for cogfile in os.listdir('cogs/'):
     if cogfile.endswith('.py'):
@@ -79,6 +78,7 @@ bot = commands.Bot(                                            # Create a new bo
     intents=intents,                                           # I think I made intents
     help_command=PrettyHelp()                                  # Sets custom help command to discord_pretty_help's
 )
+
 ownerMember = discord.Member
 ownerUser = discord.User
 ownerId = get_config_parameter('owner_id', int)
@@ -124,6 +124,7 @@ async def on_ready():
             print(f"{TermColors.WARNING}WARN: Tried to load a cog/extension that was already loaded "
                   f"({cog}).{TermColors.ENDC}")
     return
+
 
 if verbose:
     print('on_ready has been configured')
@@ -192,6 +193,7 @@ async def on_message(message):
             to_send = random.choice(to_send)
             await message.channel.send(to_send.format(message))
 
+
 if verbose:
     print('on_message has been configured')
 
@@ -258,6 +260,7 @@ async def inactivity_func():
             channel = bot.get_channel(int(x))
             await channel.send(random.choice(inactivities))
     messagecount = {}
+
 
 if verbose:
     print('Task loops has been configured')
