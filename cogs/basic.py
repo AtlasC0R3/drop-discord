@@ -4,7 +4,7 @@ from datetime import datetime as d
 
 import discord
 from discord.ext import commands
-from data.extdata import get_artist, get_lyrics, get_language_str
+from data.extdata import get_artist, get_lyrics, get_language_str, format_html
 from tswift import TswiftError
 import lyricsgenius
 import duckduckpy
@@ -342,8 +342,11 @@ class Basic(commands.Cog):
     async def search_command(self, ctx, *, to_search):
         response = duckduckpy.query(to_search, user_agent=u'duckduckpy 0.2', no_redirect=False, no_html=True,
                                     skip_disambig=True, container='dict')
-        if response['infobox']:
-            infobox = response['infobox']['content']
+        if response['abstract']:
+            if response.get('infobox'):
+                infobox = response['infobox']['content']
+            else:
+                infobox = []
             image = None
             if response['image']:
                 if response['image'].startswith('/'):
@@ -352,7 +355,7 @@ class Basic(commands.Cog):
                     image = response['image']
             embed = discord.Embed(
                 title=response['heading'],
-                description=response.get('abstract_text'),
+                description=format_html(response.get('abstract_text')),
                 url=response['abstract_url'],
                 color=random.choice(color_list)
             )

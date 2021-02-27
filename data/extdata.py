@@ -5,6 +5,7 @@ import random
 import discord
 import tswift
 import lyricsgenius
+import re
 
 
 exampleServerConfig = {
@@ -299,3 +300,19 @@ def get_artist(artist):
         artistname = artist
     to_return = [artistname, randlyrics]
     return ['MetroLyrics', to_return]
+
+
+to_replace = {
+    '<b>': '**',
+    '</b>': '**',
+    '<p>': '\n**',
+    '</p>': '**\n',
+    '</li>': '\n'
+}
+
+
+def format_html(str_input: str):
+    for old, new in to_replace.items():
+        str_input = str_input.replace(old, new)
+    p = re.compile(r'<.*?>')
+    return p.sub('', str_input)
