@@ -48,7 +48,7 @@ Simply create a \*.py file in the `cogs` directory, make it look like an actual 
 Basically just some commands I had made for the bot that turned out to be extremely experimental, or simply mistakes.
 
 ### Q: Can I make the bot say suggestive things? 
-_Okay, why?_ 
+_Okay, why?_
 
 ## Credits
 Dependencies, people who have helped...
