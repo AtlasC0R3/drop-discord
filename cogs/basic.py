@@ -351,9 +351,7 @@ class Basic(commands.Cog):
     )
     async def search_command(self, ctx, *, to_search):
         response = search(to_search)
-        print(response)
         if response is not None:
-            print(response['title'])
             embed = discord.Embed(
                 title=response['title'],
                 description=response['description'],
