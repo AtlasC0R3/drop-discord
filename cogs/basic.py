@@ -1,13 +1,13 @@
 import json
-import random
 from datetime import datetime as d
 
 import discord
 from discord.ext import commands
-from data.extdata import get_artist, get_lyrics, get_language_str, format_html
+from data.extdata import get_language_str
 from tswift import TswiftError
-import lyricsgenius
-import duckduckpy
+
+import drop
+from drop.basic import *
 
 
 with open("data/embed_colors.json") as f:
@@ -36,6 +36,7 @@ class Basic(commands.Cog):
         start = d.timestamp(d.now())
         msg = await ctx.reply(content=huh)
         await msg.edit(content=pong.format((d.timestamp(d.now()) - start) * 1000))
+        # Do not move into rewrite
 
     @commands.command(
         name='8ball',
@@ -197,17 +198,20 @@ class Basic(commands.Cog):
                     args = [activity.title, activity.artist.split(';')[0]]
                     break
                 elif isinstance(activity, discord.activity.Activity):
-                    # Maybe the user is using PreMiD?
+                    # Maybe the user is using PreMiD, or rich presence on some app?
                     if activity.application_id == 463151177836658699:  # YouTube Music
                         args = [activity.details, activity.state.split(' - ')[0]]
                         # curse how yt music is so inconsistent
+                        break
+                    elif activity.application_id == 589905203533185064:  # Rhythmbox (not in PreMiD, I just use it):
+                        args = [activity.details.split(' - ')[0], activity.details.split(' - ')[-1]]
                         break
 
         if type(args) is list:
             song = args[0]
             artist = args[-1]
             msg = await ctx.send(f'Searching for "{song}" by {artist}')
-            lyrics = get_lyrics(artist, song)
+            lyrics = get_lyrics(artist=artist, title=song)
             if type(lyrics) is lyricsgenius.genius.Song:
                 # that is Genius.
                 obtained_from = 'Genius'
@@ -219,15 +223,15 @@ class Basic(commands.Cog):
                 url = None
             try:
                 if len(lyrics.lyrics) >= 2048:
-                    lyricstr = ''.join(list(lyrics.lyrics)[:2045]) + '...'
+                    lyric_str = ''.join(list(lyrics.lyrics)[:2045]) + '...'
                 else:
-                    lyricstr = lyrics.lyrics
+                    lyric_str = lyrics.lyrics
             except TswiftError:
-                lyricstr = get_language_str(ctx.guild.id, 17)
+                lyric_str = get_language_str(ctx.guild.id, 17)
                 obtained_from = 'common sense'
             embed = discord.Embed(
                 title=get_language_str(ctx.guild.id, 20).format(lyrics.title, lyrics.artist),
-                description=lyricstr,
+                description=lyric_str,
                 color=random.choice(color_list),
                 url=url
             )
@@ -253,8 +257,8 @@ class Basic(commands.Cog):
                 await ctx.reply(get_language_str(ctx.guild.id, 18))
                 return
             if service == 'Genius':
-                artistname = artist[0]
-                title = f'Popular songs by *{artistname}*'
+                artist_name = artist[0]
+                title = f'Popular songs by *{artist_name}*'
             elif service == 'MetroLyrics':
                 title = f'Random songs by *{artist[0]}*'
                 artist = obtained[1]
@@ -273,7 +277,7 @@ class Basic(commands.Cog):
                 text=f'obtained using {service}'
             )
             for song in artist[1]:
-                songname = song[0]
+                song_name = song[0]
                 lyrics = '\n'.join(song[1])
                 url = song[2]
                 if not lyrics:
@@ -284,7 +288,7 @@ class Basic(commands.Cog):
                     else:
                         lyrics = lyrics + '\n...'
                 embed.add_field(
-                    name=f'*{songname}*',
+                    name=f'*{song_name}*',
                     value=lyrics,
                     inline=False
                 )
@@ -328,8 +332,14 @@ class Basic(commands.Cog):
                   "LyricsGenius, licensed under MIT License "
                   "(https://github.com/johnwmillr/LyricsGenius/blob/master/LICENSE.txt)\n"
                   "DuckDuckPy, licensed under MIT License "
-                  "(https://github.com/ivankliuk/duckduckpy/blob/master/LICENSE)"
+                  "(https://github.com/ivankliuk/duckduckpy/blob/master/LICENSE)",
+            inline=False
         )  # And of course, you should probably list any other open-source dependencies you used.
+        embed.add_field(
+            name='Drop licenses *(licenses related to the core software and not the actual Discord bot)*',
+            value=drop.licenses(),
+            inline=False
+        )
         await ctx.send(embed=embed)
         # I'd rather not translate this command.
 
@@ -340,78 +350,30 @@ class Basic(commands.Cog):
         brief='Does a DuckDuckGo search'
     )
     async def search_command(self, ctx, *, to_search):
-        response = duckduckpy.query(to_search, user_agent=u'duckduckpy 0.2', no_redirect=False, no_html=True,
-                                    skip_disambig=True, container='dict')
-        if response['abstract']:
-            if response.get('infobox'):
-                infobox = response['infobox']['content']
-            else:
-                infobox = []
-            image = None
-            if response['image']:
-                if response['image'].startswith('/'):
-                    image = 'https://duckduckgo.com' + response['image']
-                else:
-                    image = response['image']
+        response = search(to_search)
+        print(response)
+        if response is not None:
+            print(response['title'])
             embed = discord.Embed(
-                title=response['heading'],
-                description=format_html(response.get('abstract_text')),
-                url=response['abstract_url'],
-                color=random.choice(color_list)
-            )
-            if image:
-                embed.set_thumbnail(
-                    url=image
-                )
-            embed.set_author(
-                name=ctx.message.author.name,
-                icon_url=ctx.message.author.avatar_url,
-                url=f"https://discord.com/users/{ctx.message.author.id}/"
+                title=response['title'],
+                description=response['description'],
+                url=response['url']
             )
             embed.set_footer(
-                text=response['abstract_source']
+                text=response['source']
             )
-            for info in infobox:
-                if info['data_type'] == 'string':
-                    if len(info['value']) >= 256:
-                        value = ''.join(list(info['value'])[:253]) + '...'
-                    else:
-                        value = info['value']
+            if response['image']:
+                embed.set_thumbnail(
+                    url=response['image']
+                )
+            if True:
+                for field in response['fields']:
                     embed.add_field(
-                        name=info['label'],
-                        value=value,
+                        name=field['name'],
+                        value=field['value'],
                         inline=False
                     )
-            await ctx.reply(embed=embed)
-        elif response['related_topics']:
-            description = response.get('abstract_text')
-            if description:
-                description = description + f"*({response['abstract_source']})*"
-            embed = discord.Embed(
-                title=response['heading'],
-                description=description,
-                url=response.get('abstract_url'),
-                color=random.choice(color_list)
-            )
-            for topic in response['related_topics'][:5]:
-                if topic.get('topics'):
-                    pass  # not really what we're looking for
-                else:
-                    name = topic.get('text')
-                    if len(name) >= 256:
-                        name = ''.join(list(name)[:253]) + '...'
-                    if ' - ' in name:
-                        things = name.split(' - ')
-                        name = things[0]
-                        description = ' - '.join(things[1:]) + '\n' + f"({topic.get('first_url')})"
-                    else:
-                        description = topic.get('first_url')
-                    embed.add_field(
-                        name=name,
-                        value=description,
-                        inline=False
-                    )
-            await ctx.reply(embed=embed)
+            await ctx.send(embed=embed)
         else:
             await ctx.reply(get_language_str(ctx.guild.id, 122))
 
