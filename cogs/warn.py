@@ -1,12 +1,11 @@
-import json
-import os
 import random
-from datetime import datetime
 
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions
 from data.extdata import get_language_str
+
+from drop.moderation import *
 
 # These color constants are taken from discord.js library
 with open("data/embed_colors.json") as f:
@@ -43,44 +42,7 @@ class Warn(commands.Cog):
         if user.guild_permissions.manage_messages:
             await ctx.reply(get_language_str(ctx.guild.id, 75))
             return
-        dt_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        if not os.path.exists("data/servers/" + str(ctx.guild.id) + "/warns/"):
-            os.makedirs("data/servers/" + str(ctx.guild.id) + "/warns/")
-            # Checks if the folder for the guild exists. If it doesn't, create it.
-        try:
-            with open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", newline="\n", encoding='utf-8') as warnfile:
-                warndata = json.load(warnfile)
-            # See if the user has been warned
-        except FileNotFoundError:
-            # User has not been warned yet
-            with open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w+', newline="\n", encoding='utf-8') as \
-                    warnfile:
-                warndata = ({
-                    'offender_name': user.name,
-                    'warns': [
-                        {
-                            'warner': ctx.author.id,
-                            'warner_name': ctx.author.name,
-                            'reason': reason,
-                            'channel': str(ctx.channel.id),
-                            'datetime': dt_string
-                        }
-                    ]
-                })
-                json.dump(warndata, warnfile, indent=2)
-        else:
-            # If the script made it this far, then the user has been warned
-            warndata["offender_name"] = user.name
-            new_warn = ({
-                'warner': ctx.author.id,
-                'warner_name': ctx.author.name,
-                'reason': reason,
-                'channel': str(ctx.channel.id),
-                'datetime': dt_string
-            })
-            warndata["warns"].append(new_warn)
-            json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", "w+", newline="\n",
-                                     encoding='utf-8'), indent=2)
+        warn(ctx.guild.id, user.id, user.name, ctx.author.id, ctx.author.name, ctx.message.channel.id, reason)
         discreason = reason.replace('*', '\\*')
         embed = discord.Embed(
             title="User warned",
@@ -100,8 +62,7 @@ class Warn(commands.Cog):
     @warn_command.error
     async def warn_handler(self, ctx, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.reply(f'[{ctx.author.name}], you do not have the correct permissions to do so. '
-                            f'*(commands.MissingPermissions error, action cancelled)*')
+            await ctx.reply(get_language_str(ctx.guild.id, 192))
             return
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'user':
@@ -121,14 +82,9 @@ class Warn(commands.Cog):
     )
     @has_permissions(manage_messages=True)
     async def warns_command(self, ctx, *, user: discord.Member):
-        try:
-            with open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'r', newline="\n", encoding='utf-8') as \
-                    warnfile:
-                warndata = json.load(warnfile)
-            # See if the user has been warned
-        except FileNotFoundError:
-            # User does not have any warns.
-            await ctx.reply(f"[{ctx.author.name}], user [{user.name} ({user.id})] does not have any warns.")
+        warndata = get_warns(ctx.guild.id, user.id)
+        if not warndata:
+            await ctx.reply(get_language_str(ctx.guild.id, 114))
             return
 
         # If the script made it this far, then the user has warns.
@@ -152,17 +108,17 @@ class Warn(commands.Cog):
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
 
-        for index, warn in enumerate(warns):
-            warner_id = warn.get('warner')
+        for index, warn_thing in enumerate(warns):
+            warner_id = warn_thing.get('warner')
             warner_user = self.bot.get_user(id=warner_id)
             if warner_user is None:
-                warner_name = warn.get('warner_name')
+                warner_name = warn_thing.get('warner_name')
             else:
                 warner_name = self.bot.get_user(id=warner_id)
                 
-            warn_reason = warn.get('reason')
-            warn_channel = warn.get('channel')
-            warn_datetime = warn.get('datetime')
+            warn_reason = warn_thing.get('reason')
+            warn_channel = warn_thing.get('channel')
+            warn_datetime = warn_thing.get('datetime')
             
             embed.add_field(
                 name=f"Warn {index + 1}",
@@ -196,21 +152,10 @@ class Warn(commands.Cog):
         brief='Remove a warn from a user'
     )
     @has_permissions(manage_messages=True)
-    async def remove_warn_command(self, ctx, user: discord.Member, *, warn: str):
-        try:
-            with open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", newline="\n", encoding='utf-8') as warnfile:
-                warndata = json.load(warnfile)
-            # See if the user has been warned
-        except FileNotFoundError:
-            # User does not have any warns.
-            await ctx.reply(get_language_str(ctx.guild.id, 114))
-            return
-        warns = warndata.get('warns')
-        warnindex = int(warn) - 1
-        if warnindex < 0:
-            await ctx.reply(get_language_str(ctx.guild.id, 115))
-            return
-        specified_warn = warns[warnindex]
+    async def remove_warn_command(self, ctx, user: discord.Member, *, warn_index: int):
+        warn_index = int(warn_index) - 1
+
+        specified_warn = get_warn(ctx.guild.id, user.id, warn_index)
         warn_warner = specified_warn.get('warner')
         warn_reason = specified_warn.get('reason')
         warn_channel = specified_warn.get('channel')
@@ -218,7 +163,7 @@ class Warn(commands.Cog):
         warn_warner_name = self.bot.get_user(id=warn_warner)
 
         confirmation_embed = discord.Embed(
-            title=f'{user.name}\'s warn number {warn}',
+            title=f'{user.name}\'s warn number {warn_index}',
             description=f'Warner: {warn_warner_name}\n'
                         f'Reason: {warn_reason}\n'
                         f'Channel: <#{warn_channel}>\n'
@@ -236,16 +181,12 @@ class Warn(commands.Cog):
             # As well as by the user who used the command.
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        await ctx.send(content=get_language_str(ctx.guild.id, get_language_str(ctx.guild.id, 116)) + ' (y or n)',
+        await ctx.send(content=get_language_str(ctx.guild.id, 116) + ' (y or n)',
                        embed=confirmation_embed)
         msg = await self.bot.wait_for('message', check=check)
         reply = msg.content.lower()   # Set the title
         if reply in ('y', 'yes', 'confirm'):
-            # do the whole removing process.
-            warns = [x for x in warns if x != warns[warnindex]]
-            warndata["warns"] = warns
-            json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
-                                     encoding='utf-8'), indent=2)
+            remove_warn(ctx.guild.id, user.id, warn_index)
             await ctx.reply(get_language_str(ctx.guild.id, 117))
             return
         elif reply in ('n', 'no', 'cancel'):
@@ -275,38 +216,32 @@ class Warn(commands.Cog):
         brief='Edit a user\'s warn'
     )
     @has_permissions(manage_messages=True)
-    async def edit_warn_command(self, ctx, user: discord.Member, *, warn: str):
-        try:
-            with open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", newline="\n", encoding='utf-8') as warnfile:
-                warndata = json.load(warnfile)
-            # See if the user has been warned
-        except FileNotFoundError:
-            # User does not have any warns.
-            await ctx.reply(get_language_str(ctx.guild.id, 114))
-            return
-
+    async def edit_warn_command(self, ctx, user: discord.Member, *, warn_index: str):
         def check(ms):
             # Look for the message sent in the same channel where the command was used
             # As well as by the user who used the command.
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        await ctx.send(content=get_language_str(ctx.guild.id, 119))
-        msg = await self.bot.wait_for('message', check=check)
-        warn_new_reason = msg.content.lower()   # Set the title
-
-        warns = warndata.get("warns")
-        warnindex = int(warn) - 1
+        warnindex = int(warn_index) - 1
         if warnindex < 0:
             await ctx.reply(get_language_str(ctx.guild.id, 115))
             return
-        specified_warn = warns[warnindex]
+        try:
+            specified_warn = get_warn(ctx.guild.id, user.id, warnindex)
+        except IndexError:
+            await ctx.reply(get_language_str(ctx.guild.id, 115))
+            return
+        await ctx.send(content=get_language_str(ctx.guild.id, 119))
+        msg = await self.bot.wait_for('message', check=check)
+        warn_new_reason = msg.content
+
         warn_warner = specified_warn.get('warner')
         warn_channel = specified_warn.get('channel')
         warn_datetime = specified_warn.get('datetime')
         warn_warner_name = self.bot.get_user(id=warn_warner)
 
         confirmation_embed = discord.Embed(
-            title=f'{user.name}\'s warn number {warn}',
+            title=f'{user.name}\'s warn number {warn_index}',
             description=f'Warner: {warn_warner_name}\n'
                         f'Reason: {warn_new_reason}\n'
                         f'Channel: <#{warn_channel}>\n'
@@ -319,15 +254,13 @@ class Warn(commands.Cog):
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
 
-        await ctx.send(content=get_language_str(ctx.guild.id, get_language_str(ctx.guild.id, 120)) + ' (y/n)',
+        await ctx.send(content=get_language_str(ctx.guild.id, 120) + ' (y/n)',
                        embed=confirmation_embed)
 
         msg = await self.bot.wait_for('message', check=check)
         reply = msg.content.lower()   # Set the title
         if reply in ('y', 'yes', 'confirm'):
-            specified_warn['reason'] = warn_new_reason
-            json.dump(warndata, open(f"data/servers/{ctx.guild.id}/warns/{user.id}.json", 'w', newline="\n",
-                                     encoding='utf-8'), indent=2)
+            edit_warn(ctx.guild.id, user.id, int(warnindex), warn_new_reason)
             await ctx.reply(get_language_str(ctx.guild.id, 121))
             return
         elif reply in ('n', 'no', 'cancel', 'flanksteak'):
