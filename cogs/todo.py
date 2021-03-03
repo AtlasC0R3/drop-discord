@@ -175,39 +175,49 @@ class Todo(commands.Cog):
                 if not ctx.author.guild_permissions.manage_messages:
                     await ctx.send(get_language_str(ctx.guild.id, 108))
                     return
-                with open(f"data/servers/{ctx.guild.id}/todo.json", newline="\n", encoding='utf-8') as todofile:
-                    tododata = json.load(todofile)
+                try:
+                    with open(f"data/servers/{ctx.guild.id}/todo.json", newline="\n", encoding='utf-8') as todofile:
+                        tododata = json.load(todofile)
+                except FileNotFoundError:
+                    with open(f"data/servers/{ctx.guild.id}/todo.json", "w+", newline="\n", encoding='utf-8') as \
+                            todofile:
+                        json.dump([], todofile)
+                    tododata = []
                 if not desc:
                     # check guild todos
-                    embed = discord.Embed(
-                        title="Guild to-do list",
-                        color=random.choice(color_list)
-                    )
-                    embed.set_author(
-                        name=ctx.message.author.name,
-                        icon_url=ctx.message.author.avatar_url,
-                        url=f"https://discord.com/users/{ctx.message.author.id}/"
-                    )
-                    for idx, todo in enumerate(tododata):
-                        desc = todo['desc']
-                        time = todo['time']
-                        author = ctx.guild.get_member(todo['author'])
-                        if not author:
-                            tododata.pop(idx)
-                            with open(f"data/servers/{ctx.guild.id}/todo.json", 'w+', newline="\n", encoding='utf-8') \
-                                    as todofile:
-                                json.dump(tododata, todofile)
-                                break
-                        else:
-                            author = author.name
-                        embed.add_field(
-                            name=f'Item {idx + 1}',
-                            value=f'{desc}\n'
-                                  f'*{time}, authored by {author}*',
-                            inline=True
+                    if tododata:
+                        embed = discord.Embed(
+                            title="Guild to-do list",
+                            color=random.choice(color_list)
                         )
-                    await ctx.reply(embed=embed)
-                    return
+                        embed.set_author(
+                            name=ctx.message.author.name,
+                            icon_url=ctx.message.author.avatar_url,
+                            url=f"https://discord.com/users/{ctx.message.author.id}/"
+                        )
+                        for idx, todo in enumerate(tododata):
+                            desc = todo['desc']
+                            time = todo['time']
+                            author = ctx.guild.get_member(todo['author'])
+                            if not author:
+                                tododata.pop(idx)
+                                with open(f"data/servers/{ctx.guild.id}/todo.json", 'w+', newline="\n",
+                                          encoding='utf-8') as todofile:
+                                    json.dump(tododata, todofile)
+                                    break
+                            else:
+                                author = author.name
+                            embed.add_field(
+                                name=f'Item {idx + 1}',
+                                value=f'{desc}\n'
+                                      f'*{time}, authored by {author}*',
+                                inline=True
+                            )
+                        await ctx.reply(embed=embed)
+                        return
+                    else:
+                        await ctx.reply("There's nothing in the guild's to-do list.")
+                        return
                 if desc.isdigit():
                     desc = int(desc) - 1
                     try:
@@ -219,10 +229,13 @@ class Todo(commands.Cog):
                         await ctx.reply(get_language_str(ctx.guild.id, 109))
                         return
                     tododata = [x for x in tododata if x != toremove]
-                    with open(f"data/servers/{ctx.guild.id}/todo.json", 'w+', newline="\n", encoding='utf-8') as \
-                            todofile:
-                        json.dump(tododata, todofile)
-                        todofile.close()
+                    if len(tododata) == 0:
+                        os.remove(f"data/servers/{ctx.guild.id}/todo.json")
+                    else:
+                        with open(f"data/servers/{ctx.guild.id}/todo.json", "w+", newline="\n", encoding='utf-8') as \
+                                todofile:
+                            json.dump(tododata, todofile)
+                            todofile.close()
                     await ctx.reply(get_language_str(ctx.guild.id, 104))
                     return
                 else:
