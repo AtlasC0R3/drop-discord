@@ -316,3 +316,18 @@ def format_html(str_input: str):
         str_input = str_input.replace(old, new)
     p = re.compile(r'<.*?>')
     return p.sub('', str_input)
+
+
+def get_listening_to(activities: discord.Member.activities):
+    for activity in activities:
+        if isinstance(activity, discord.activity.Spotify):
+            return [activity.title, activity.artist.split(';')[0]]
+        elif isinstance(activity, discord.activity.Activity):
+            # Maybe the user is using PreMiD, or rich presence on some app plugin whatever?
+            if activity.application_id == 463151177836658699:  # YouTube Music
+                return [activity.details, activity.state.split(' - ')[0]]
+                # curse how yt music is so inconsistent
+            elif activity.application_id == 589905203533185064:  # Rhythmbox (not in PreMiD, I just use it):
+                return [activity.details.split(' - ')[0], activity.details.split(' - ')[-1]]
+            elif activity.application_id == 404277856525352974:  # SMTCRP, not in PreMiD, by theLMGN
+                return [activity.details.split(' - ')[-1], activity.state.replace("👥 ", "")]

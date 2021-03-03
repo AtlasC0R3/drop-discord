@@ -3,7 +3,7 @@ from datetime import datetime as d
 
 import discord
 from discord.ext import commands
-from data.extdata import get_language_str
+from data.extdata import get_language_str, get_listening_to
 from tswift import TswiftError
 
 import drop
@@ -159,20 +159,7 @@ class Basic(commands.Cog):
         else:
             # check if user playing something on spotefiye
             # discord when will you add support for tidal /s
-            activities = ctx.author.activities
-            for activity in activities:
-                if isinstance(activity, discord.activity.Spotify):
-                    args = [activity.title, activity.artist.split(';')[0]]
-                    break
-                elif isinstance(activity, discord.activity.Activity):
-                    # Maybe the user is using PreMiD, or rich presence on some app?
-                    if activity.application_id == 463151177836658699:  # YouTube Music
-                        args = [activity.details, activity.state.split(' - ')[0]]
-                        # curse how yt music is so inconsistent
-                        break
-                    elif activity.application_id == 589905203533185064:  # Rhythmbox (not in PreMiD, I just use it):
-                        args = [activity.details.split(' - ')[0], activity.details.split(' - ')[-1]]
-                        break
+            args = get_listening_to(ctx.author.activities)
 
         if type(args) is list:
             song = args[0]
