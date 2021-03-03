@@ -1,5 +1,6 @@
 import json
 from datetime import datetime as d
+import re
 
 import discord
 from discord.ext import commands
@@ -162,7 +163,7 @@ class Basic(commands.Cog):
             args = get_listening_to(ctx.author.activities)
 
         if type(args) is list:
-            song = args[0]
+            song = re.compile(r' \(.*?\)').sub('', args[0])
             artist = args[-1]
             msg = await ctx.send(f'Searching for "{song}" by {artist}')
             lyrics = get_lyrics(artist=artist, title=song)
