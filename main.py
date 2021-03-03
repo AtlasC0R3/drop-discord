@@ -22,6 +22,8 @@ if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confus
 from data.extdata import TermColors, get_config_parameter, get_server_config, write_server_config, get_github_config, \
     get_steam_played_game, get_steam_recently_played, get_language_str
 
+from drop.basic import init_genius
+
 try:
     import discord
 except ImportError:
@@ -123,6 +125,8 @@ async def on_ready():
             # Bot tried to load a cog that was already loaded.
             print(f"{TermColors.WARNING}WARN: Tried to load a cog/extension that was already loaded "
                   f"({cog}).{TermColors.ENDC}")
+    if get_config_parameter('geniusApi', str):
+        init_genius(get_config_parameter('geniusApi', str))
     return
 
 
