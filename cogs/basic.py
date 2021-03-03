@@ -89,40 +89,7 @@ class Basic(commands.Cog):
             text = msg.content
             pass
 
-        # now the pain and suffering shall happen
-        no_please_stop = {'r': 'w',
-                          'l': 'w',
-                          'R': 'W',
-                          'L': 'W',
-                          'na': 'nya',  # please stop.
-                          'ne': 'nye',
-                          'ni': 'nyi',
-                          'no': 'nyo',
-                          'nu': 'nyu',
-                          'Na': 'Nya',  # oh no the capitalization
-                          'Ne': 'Nye',
-                          'Ni': 'Nyi',
-                          'No': 'Nyo',
-                          'Nu': 'Nyu',
-                          'nA': 'nyA',  # aaaaaaaaaaaaaaaaaaaaaaaaaa
-                          'nE': 'nyE',
-                          'nI': 'nyI',
-                          'nO': 'nyO',
-                          'nU': 'nyU',
-                          'NA': 'NYA',  # this is mental torture.
-                          'NE': 'NYE',
-                          'NI': 'NYI',
-                          'NO': 'NYO',
-                          'NU': 'NYU'}  # I f***ing hate myself.
-        for key, value in no_please_stop.items():
-            text = text.replace(key, value)
-
-        why_do_you_do_this = [' OwO', ' @w@', ' #w#', ' UwU', ' ewe', ' -w-', ' \'w\'', ' ^w^', ' >w<', ' ~w~', ' ¬w¬',
-                              ' o((>ω< ))o', ' (p≧w≦q)', ' ( •̀ ω •́ )y', ' ✪ ω ✪', ' (。・ω・。)', ' (^・ω・^ )']
-        # why did i put so many in here
-
-        while '!' in text:
-            text = text.replace('!', random.choice(why_do_you_do_this), 1)
+        text = drop.basic.owofy(text)
 
         if not len(text) < 2000:
             await ctx.send(get_language_str(ctx.guild.id, 13).format(len(text)))
