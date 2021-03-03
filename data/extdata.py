@@ -331,3 +331,40 @@ def get_listening_to(activities: discord.Member.activities):
                 return [activity.details.split(' - ')[0], activity.details.split(' - ')[-1]]
             elif activity.application_id == 404277856525352974:  # SMTCRP, not in PreMiD, by theLMGN
                 return [activity.details.split(' - ')[-1], activity.state.replace("👥 ", "")]
+            elif activity.application_id == 409394531948298250:  # MusicBee
+                return [activity.state, activity.details.split(' - ')[0]]
+
+
+def get_new_activity(user_member=None):
+    activitytype = None
+    activityname = None
+    if user_member:
+        if user_member.activity and get_config_parameter('syncActivityWithOwner', bool):
+            music_activity = get_listening_to(user_member.activities)
+            if music_activity:
+                activitytype = 'listening'
+                # activityname = f"{music_activity[0]} by {music_activity[1]}"
+                # Uncomment this if you want it to look like "Listening to In The End by Linkin Park"
+                activityname = music_activity[1]
+            else:
+                activitytype = 'playing'
+                activityname = user_member.activity.name
+    if not activitytype:
+        if get_config_parameter('useSteamRecentlyPlayed', int) == 1:
+            activitytype = 'playing'
+            activityname = get_steam_played_game()
+        elif get_config_parameter('useSteamRecentlyPlayed', int) == 2:
+            with open("data/activities.json", encoding='utf-8', newline="\n") as file:
+                activities = json.load(file)
+            for game in get_steam_recently_played():
+                activities.append(['playing', game])
+            activity = random.choice(activities)
+            activitytype = activity[0]
+            activityname = activity[1]
+        else:
+            with open("data/activities.json", encoding='utf-8', newline="\n") as file:
+                dictionary = json.load(file)
+            activity = random.choice(dictionary)
+            activitytype = activity[0]
+            activityname = activity[1]
+    return [activitytype, activityname]

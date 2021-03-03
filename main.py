@@ -7,6 +7,7 @@ import time
 import sys
 from datetime import datetime
 import random
+import ast
 
 if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confusing to work with.
     # What is this place?!
@@ -20,7 +21,7 @@ if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confus
 
 # External libraries that need to be imported
 from data.extdata import TermColors, get_config_parameter, get_server_config, write_server_config, get_github_config, \
-    get_steam_played_game, get_steam_recently_played, get_language_str
+    get_language_str, get_new_activity
 
 from drop.basic import init_genius
 
@@ -81,8 +82,8 @@ bot = commands.Bot(                                            # Create a new bo
     help_command=PrettyHelp()                                  # Sets custom help command to discord_pretty_help's
 )
 
-ownerMember = discord.Member
-ownerUser = discord.User
+ownerMember = None
+ownerUser = None
 ownerId = get_config_parameter('owner_id', int)
 
 
@@ -196,6 +197,65 @@ async def on_message(message):
             to_send = get_language_str(lang, 2)
             to_send = random.choice(to_send)
             await message.channel.send(to_send.format(message))
+
+    if message.content.startswith(f'<@!{bot.user.id}> activity') and message.author.id == ownerId:
+        with open("data/activities.json", encoding='utf-8', newline="\n") as f:
+            activities = json.load(f)
+        if " activity " in message.content:
+            activity = message.content.replace(f'<@!{bot.user.id}> activity ', '')
+            # user passed arguments
+        else:
+            activity = None
+        activitytype = None
+        activityname = None
+        if activity:
+            if activity.startswith('[') or activity.isdigit():
+                activityentry = ast.literal_eval(activity)
+                if type(activityentry) is int:
+                    try:
+                        activity = activities[activityentry]
+                    except IndexError:
+                        await message.channel.send("Wrong activity! **>:(**")
+                        return
+                    activitytype = activity[0]
+                    activityname = activity[1]
+                    await message.channel.send(content=f'{activitytype.title()} {activityname}, is this correct?')
+
+                    def check(ms):
+                        return ms.channel == message.channel and ms.author == message.author
+                    replymsg = await bot.wait_for('message', check=check)
+                    reply_from_user = replymsg.content.lower()
+
+                    if reply_from_user in ('y', 'yes', 'confirm'):
+                        pass
+                    else:
+                        return
+                elif type(activityentry) is list:
+                    try:
+                        activitytype = activityentry[0]
+                        activityname = activityentry[1]
+                        await bot.change_presence(
+                            activity=discord.Activity(type=discord.ActivityType[activitytype], name=activityname))
+                    except (KeyError, IndexError):
+                        await message.channel.send("Invalid list! Here's an example of how an activity list should be:"
+                                                   "\n"
+                                                   f"```{random.choice(activities)}```")
+                        return
+            else:
+                activitylist = activity.split(' ')
+                if activitylist[0] in [x.name for x in discord.ActivityType]:
+                    activitytype = activitylist[0]
+                    activityname = " ".join(activitylist[1:])
+                else:
+                    activitytype = 'playing'
+                    activityname = activity
+        else:
+            activity = get_new_activity(message.author)
+            activitytype = activity[0]
+            activityname = activity[1]
+        await bot.change_presence(
+            activity=discord.Activity(type=discord.ActivityType[activitytype], name=activityname))
+        await message.reply(content=f'{activitytype.title()} {activityname}')
 
 
 if verbose:
