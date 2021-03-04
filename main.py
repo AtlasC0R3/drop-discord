@@ -85,6 +85,7 @@ bot = commands.Bot(                                            # Create a new bo
 ownerMember = None
 ownerUser = None
 ownerId = get_config_parameter('owner_id', int)
+bot_mention = None
 
 
 @bot.event
@@ -128,6 +129,9 @@ async def on_ready():
                   f"({cog}).{TermColors.ENDC}")
     if get_config_parameter('geniusApi', str):
         init_genius(get_config_parameter('geniusApi', str))
+
+    global bot_mention
+    bot_mention = f'<@!{bot.user.id}>'
     return
 
 
@@ -153,9 +157,6 @@ async def command_check(ctx):
     elif command_disabled:
         is_disabled = False
     return is_disabled  # What a mess.
-
-
-bot_mention = f'<@!{bot.user.id}>'
 
 
 @bot.listen()
