@@ -46,12 +46,12 @@ clear_terminal = get_config_parameter('clear_terminal', bool)
 change_terminal_name = get_config_parameter('change_terminal_name', bool)
 
 cogs = []
-for cogfile in os.listdir('cogs/'):
-    if cogfile.endswith('.py'):
-        cogimport = 'cogs.' + cogfile.split('.')[0]
-        cogs.append(cogimport)
+for cog_file in os.listdir('cogs/'):
+    if cog_file.endswith('.py'):
+        cog_import = 'cogs.' + cog_file.split('.')[0]
+        cogs.append(cog_import)
         if verbose:
-            print(f'Found {cogfile} as cog')
+            print(f'Found {cog_file} as cog')
 
 
 def get_prefix(client, message):
@@ -64,7 +64,7 @@ def get_prefix(client, message):
     # Allow users to @mention the bot instead of using a prefix when using a command. Also optional
     # Do `return prefixes` if you don't want to allow mentions instead of prefix.
     return commands.when_mentioned_or(*prefixes)(client, message)
-    # thanks evieepy for this snippet of code.
+    # thanks EvieePy for this snippet of code.
 
 
 intents = discord.Intents.default()
@@ -112,7 +112,7 @@ async def on_ready():
     if ownerId:
         owner_refresh.start()
     try:
-        activitychanger.start()
+        activity_changer.start()
         inactivity_func.start()
     except RuntimeError:
         # whoops, already started.
@@ -138,7 +138,7 @@ async def on_ready():
 if verbose:
     print('on_ready has been configured')
 
-messagecount = {}
+message_count = {}
 
 
 @bot.check
@@ -172,14 +172,14 @@ async def on_message(message):
                 # People expect the bot to work without even giving them the perms.
     if message.author.id == bot.user.id:
         return  # To prevent the bot itself from triggering things.
-    global messagecount
+    global message_count
     if message.guild and get_server_config(message.guild.id, 'inactivity_func', bool) and \
             message.channel.id in get_server_config(message.guild.id, 'inactivity_channels', list):
-        if message.channel.id in messagecount:
-            count = messagecount[message.channel.id]
+        if message.channel.id in message_count:
+            count = message_count[message.channel.id]
         else:
             count = 0
-        messagecount[message.channel.id] = count + 1
+        message_count[message.channel.id] = count + 1
     if message.content == bot_mention:
         if message.author.id in get_server_config(message.guild.id, 'asked_prefix', list):
             lang = get_server_config(message.guild.id, 'language', str)
@@ -209,56 +209,56 @@ async def on_message(message):
             # user passed arguments
         else:
             activity = None
-        activitytype = None
-        activityname = None
+        activity_type = None
+        activity_name = None
         if activity:
             if activity.startswith('[') or activity.isdigit():
-                activityentry = ast.literal_eval(activity)
-                if type(activityentry) is int:
+                activity_entry = ast.literal_eval(activity)
+                if type(activity_entry) is int:
                     try:
-                        activity = activities[activityentry]
+                        activity = activities[activity_entry]
                     except IndexError:
                         await message.channel.send("Wrong activity! **>:(**")
                         return
-                    activitytype = activity[0]
-                    activityname = activity[1]
-                    await message.channel.send(content=f'{activitytype.title()} {activityname}, is this correct?')
+                    activity_type = activity[0]
+                    activity_name = activity[1]
+                    await message.channel.send(content=f'{activity_type.title()} {activity_name}, is this correct?')
 
                     def check(ms):
                         return ms.channel == message.channel and ms.author == message.author
-                    replymsg = await bot.wait_for('message', check=check)
-                    reply_from_user = replymsg.content.lower()
+                    reply_msg = await bot.wait_for('message', check=check)
+                    reply_from_user = reply_msg.content.lower()
 
                     if reply_from_user in ('y', 'yes', 'confirm'):
                         pass
                     else:
                         return
-                elif type(activityentry) is list:
+                elif type(activity_entry) is list:
                     try:
-                        activitytype = activityentry[0]
-                        activityname = activityentry[1]
+                        activity_type = activity_entry[0]
+                        activity_name = activity_entry[1]
                         await bot.change_presence(
-                            activity=discord.Activity(type=discord.ActivityType[activitytype], name=activityname))
+                            activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
                     except (KeyError, IndexError):
                         await message.channel.send("Invalid list! Here's an example of how an activity list should be:"
                                                    "\n"
                                                    f"```{random.choice(activities)}```")
                         return
             else:
-                activitylist = activity.split(' ')
-                if activitylist[0] in [x.name for x in discord.ActivityType]:
-                    activitytype = activitylist[0]
-                    activityname = " ".join(activitylist[1:])
+                activity_list = activity.split(' ')
+                if activity_list[0] in [x.name for x in discord.ActivityType]:
+                    activity_type = activity_list[0]
+                    activity_name = " ".join(activity_list[1:])
                 else:
-                    activitytype = 'playing'
-                    activityname = activity
+                    activity_type = 'playing'
+                    activity_name = activity
         else:
             activity = get_new_activity(message.author)
-            activitytype = activity[0]
-            activityname = activity[1]
+            activity_type = activity[0]
+            activity_name = activity[1]
         await bot.change_presence(
-            activity=discord.Activity(type=discord.ActivityType[activitytype], name=activityname))
-        await message.reply(content=f'{activitytype.title()} {activityname}')
+            activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
+        await message.reply(content=f'{activity_type.title()} {activity_name}')
 
 
 if verbose:
@@ -278,26 +278,26 @@ async def owner_refresh():
 
 
 @tasks.loop(minutes=10, count=None, reconnect=True)
-async def activitychanger():
+async def activity_changer():
     if ownerMember:
         activity = get_new_activity(ownerMember)
     else:
         activity = get_new_activity()
-    activitytype = activity[0]
-    activityname = activity[1]
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activitytype], name=activityname))
+    activity_type = activity[0]
+    activity_name = activity[1]
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
 
 
 @tasks.loop(minutes=5)
 async def inactivity_func():
-    global messagecount
-    for x in messagecount:
-        if messagecount[x] in range(2, 10):
+    global message_count
+    for x in message_count:
+        if message_count[x] in range(2, 10):
             with open("data/quotes/inactivity_quotes.json", encoding='utf-8', newline='\n') as f:
-                inactivities = json.load(f)
+                inactivity_quotes = json.load(f)
             channel = bot.get_channel(int(x))
-            await channel.send(random.choice(inactivities))
-    messagecount = {}
+            await channel.send(random.choice(inactivity_quotes))
+    message_count = {}
 
 
 if verbose:
@@ -316,7 +316,7 @@ async def on_command_error(ctx, error):
             try:
                 await ctx.reply(str(error))
             except discord.errors.HTTPException:
-                pass  # probably unkinown message, who knows.
+                pass  # probably unknown message, who knows.
         elif get_server_config(ctx.guild.id, 'share_error_logs', bool):
             dt_string = datetime.now().strftime("%d_%m_%Y %H %M %S")
             if not os.path.exists(f"data/errors/{type(error).__name__}/"):
@@ -325,9 +325,9 @@ async def on_command_error(ctx, error):
                  newline="\n").write(
                 f"[{error}] while trying to invoke [{ctx.message.content}]")
         else:
-            errorio = io.BytesIO(bytes(str(error), 'utf-8'))
+            error_file = io.BytesIO(bytes(str(error), 'utf-8'))
             await ctx.reply(content=get_language_str(get_server_config(ctx.guild.id, 'language', str), 8),
-                            file=discord.File(errorio, 'error.txt'))
+                            file=discord.File(error_file, 'error.txt'))
 
 
 @bot.event
@@ -350,8 +350,8 @@ async def on_guild_join(guild):
             data_clear.pop(str(guild.id))
             if not data_clear[guild_entry[0]]:
                 data_clear.pop(guild_entry[0])
-            with open("data/data_clear.json", "w", encoding="utf-8", newline="\n") as dclear:
-                json.dump(data_clear, dclear, indent=2)
+            with open("data/data_clear.json", "w", encoding="utf-8", newline="\n") as d_clear:
+                json.dump(data_clear, d_clear, indent=2)
 
 
 if get_config_parameter('dev_token', bool):
@@ -363,19 +363,19 @@ if get_config_parameter('dev_token', bool):
         print("Could not load Jishaku: skipping...")
     else:
         print("Jishaku loaded: continuing...")
-    tokenpath = "data/devtoken.txt"
+    token_path = "data/devtoken.txt"
 else:
     if verbose:
         print('Using regular token')
-    tokenpath = "data/token.txt"
+    token_path = "data/token.txt"
 
 try:
-    specified_token = open(tokenpath, "rt").read()
+    specified_token = open(token_path, "rt").read()
 except FileNotFoundError:
     specified_token = input("Seems like I couldn't find the token, please enter it: ")
     reply = input("Got it. Would you like to save that token for future use cases? (y/n)\n").lower()
     if reply in ('y', 'yes'):
-        open(tokenpath, "w+", newline="\n", encoding='utf-8').write(specified_token)
+        open(token_path, "w+", newline="\n", encoding='utf-8').write(specified_token)
         print("Alright, token saved. Running bot...\n")
     elif reply in ('n', 'no'):
         print("Alright, running bot.\n")

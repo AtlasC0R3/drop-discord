@@ -39,18 +39,18 @@ class Configuration(commands.Cog):
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        commandmsg = ctx.message.content
+        command_msg = ctx.message.content
         prefix_used = ctx.prefix
         alias_used = ctx.invoked_with
-        commandargs = commandmsg[len(prefix_used) + len(alias_used):]
+        command_args = command_msg[len(prefix_used) + len(alias_used):]
 
         # Next, we check if the user actually passed some text
-        if commandargs == '':
+        if command_args == '':
             await ctx.reply(get_language_str(ctx.guild.id, 21))
             msg = await self.bot.wait_for('message', check=check)
             new_prefix = msg.content
         else:
-            new_prefix = commandargs.replace(' ', '')
+            new_prefix = command_args.replace(' ', '')
 
         if not len(new_prefix) == 1:
             await ctx.reply(get_language_str(ctx.guild.id, 22).format(len(new_prefix)))
@@ -58,8 +58,8 @@ class Configuration(commands.Cog):
 
         # Ask the user for confirmation
         await ctx.send(get_language_str(ctx.guild.id, 23).format(new_prefix))
-        replymsg = await self.bot.wait_for('message', check=check)
-        reply = replymsg.content.lower()
+        reply_msg = await self.bot.wait_for('message', check=check)
+        reply = reply_msg.content.lower()
 
         if reply in ('y', 'yes', 'confirm'):
             if get_server_config(ctx.guild.id, 'prefix', str) == new_prefix:
@@ -113,27 +113,27 @@ class Configuration(commands.Cog):
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        commandmsg = ctx.message.content
+        command_msg = ctx.message.content
         prefix_used = ctx.prefix
         alias_used = ctx.invoked_with
-        commandargs = commandmsg[len(prefix_used) + len(alias_used):]
-        if commandargs == '':
+        command_args = command_msg[len(prefix_used) + len(alias_used):]
+        if command_args == '':
             await ctx.send(get_language_str(ctx.guild.id, 31))
             msg = await self.bot.wait_for('message', check=check)
             nonoword = msg.content
         else:
-            nonoword = commandargs.replace(' ', '')
-        nonowords = get_server_config(ctx.guild.id, 'no_no_words', list)
+            nonoword = command_args.replace(' ', '')
+        no_no_words = get_server_config(ctx.guild.id, 'no_no_words', list)
 
-        if nonoword in nonowords:
+        if nonoword in no_no_words:
             # it's already in, we have to delete it
-            new_nonowords = [x for x in nonowords if x != nonoword]
+            new_nonowords = [x for x in no_no_words if x != nonoword]
             write_server_config(ctx.guild.id, 'no_no_words', new_nonowords)
             await ctx.reply(get_language_str(ctx.guild.id, 32))
         else:
             # it's not in, we have to add it
-            nonowords.append(nonoword)
-            write_server_config(ctx.guild.id, 'no_no_words', nonowords)
+            no_no_words.append(nonoword)
+            write_server_config(ctx.guild.id, 'no_no_words', no_no_words)
             await ctx.reply(get_language_str(ctx.guild.id, 33))
 
     @commands.command(
