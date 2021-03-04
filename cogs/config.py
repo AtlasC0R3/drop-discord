@@ -147,18 +147,18 @@ class Configuration(commands.Cog):
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-        commandmsg = ctx.message.content
+        command_msg = ctx.message.content
         prefix_used = ctx.prefix
         alias_used = ctx.invoked_with
-        commandargs = commandmsg[len(prefix_used) + len(alias_used):]
+        command_args = command_msg[len(prefix_used) + len(alias_used):]
 
         # Next, we check if the user actually passed some text
-        if commandargs == '':
+        if command_args == '':
             await ctx.send(get_language_str(ctx.guild.id, 34))
             msg = await self.bot.wait_for('message', check=check)
             new_channel = msg.content
         else:
-            new_channel = commandargs
+            new_channel = command_args
 
         replace = {' ': '',
                    '<': '',
