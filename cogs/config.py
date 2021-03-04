@@ -185,8 +185,8 @@ class Configuration(commands.Cog):
         else:
             await ctx.send(get_language_str(ctx.guild.id, 38).format(channel.id))
             remove = False
-        replymsg = await self.bot.wait_for('message', check=check)
-        reply = replymsg.content.lower()
+        reply_msg = await self.bot.wait_for('message', check=check)
+        reply = reply_msg.content.lower()
 
         if reply in ('y', 'yes', 'confirm'):
             if remove:
