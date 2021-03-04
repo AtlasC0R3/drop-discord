@@ -155,6 +155,9 @@ async def command_check(ctx):
     return is_disabled  # What a mess.
 
 
+bot_mention = f'<@!{bot.user.id}>'
+
+
 @bot.listen()
 async def on_message(message):
     if message.guild:
@@ -176,7 +179,6 @@ async def on_message(message):
         else:
             count = 0
         messagecount[message.channel.id] = count + 1
-    bot_mention = f'<@!{bot.user.id}>'
     if message.content == bot_mention:
         if message.author.id in get_server_config(message.guild.id, 'asked_prefix', list):
             lang = get_server_config(message.guild.id, 'language', str)
@@ -198,11 +200,11 @@ async def on_message(message):
             to_send = random.choice(to_send)
             await message.channel.send(to_send.format(message))
 
-    if message.content.startswith(f'<@!{bot.user.id}> activity') and message.author.id == ownerId:
+    if message.content.startswith(f'{bot_mention} activity') and message.author.id == ownerId:
         with open("data/activities.json", encoding='utf-8', newline="\n") as f:
             activities = json.load(f)
         if " activity " in message.content:
-            activity = message.content.replace(f'<@!{bot.user.id}> activity ', '')
+            activity = message.content.replace(f'{bot_mention} activity ', '')
             # user passed arguments
         else:
             activity = None
