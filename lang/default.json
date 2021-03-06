@@ -205,5 +205,6 @@
   "Are you sure you want to edit this warn like this?",
   "Successfully edited their warn.",
 
-  "Could not find what you're looking for."
+  "Could not find what you're looking for.",
+  "Uh oh, it appears that your rule file has been corrupted. This probably is the fault of the server's file storage, or that the programmer messed something up. It has been reset; sorry for any inconvenience."
 ]

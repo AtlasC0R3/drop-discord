@@ -111,3 +111,45 @@ def edit_warn(guild_id: int, user_id: int, warn_index: int, new_reason: str):
     write_warns(guild_id, user_id, warns)
 
 # warn stuff done
+# lets do rules now
+
+
+def get_rules(guild_id: int):
+    rule_file = 'data/servers/' + str(guild_id) + '/rules.json'
+    try:
+        return json.load(open(rule_file, "r", encoding="utf-8", newline="\n"))
+    except FileNotFoundError:
+        raise NoRulesError(f"No rules had been set for guild {str(guild_id)}.")
+    except json.JSONDecodeError:
+        # wuh oh we may have a dead JSON file
+        json.dump({}, open('data/servers/' + str(guild_id) + '/rules.json', 'w+', newline='\n', encoding="utf-8"))
+        raise BrokenRulesError(f"Invalid JSON rule file for guild {str(guild_id)}: it has been reset.")
+
+
+def get_rule(guild_id: int, index: str):
+    return get_rules(guild_id).get(index.lower())
+
+
+def set_rule(guild_id: int, index: str, description: str):
+    try:
+        rules = get_rules(guild_id)
+    except NoRulesError:
+        # no rules, make from scratch
+        rules = {}
+    rules[index.lower()] = description
+    json.dump(rules, open('data/servers/' + str(guild_id) + '/rules.json', 'w+', newline='\n', encoding="utf-8"))
+
+
+def pop_rule(guild_id: int, index: str):
+    rules = get_rules(guild_id)
+    filepath = 'data/servers/' + str(guild_id) + '/rules.json'
+    with open(filepath, 'r') as file:
+        try:
+            rules.pop(index.lower())
+        except KeyError:
+            raise KeyError(f"Rule {index.lower()} does not exist for guild {guild_id}.")
+        if rules is None:
+            file.close()
+            os.remove(filepath)
+        else:
+            json.dump(rules, open(filepath, 'w+'))

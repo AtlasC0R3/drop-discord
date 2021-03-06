@@ -1,11 +1,12 @@
 import time
-import json
 import random
-import os
 
 import discord
 from discord.ext import commands
 from data.extdata import get_language_str
+
+from drop.moderation import *
+from drop.errors import *
 
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
@@ -59,22 +60,20 @@ class Moderation(commands.Cog):
         brief='Prints a server rule'
     )
     async def rules_command(self, ctx, rule: str):
-        rulefile = 'data/servers/' + str(ctx.guild.id) + '/rules.json'
         try:
-            open(rulefile, 'r', newline="\n", encoding="utf-8")
-        except FileNotFoundError:
+            rule_desc = get_rules(ctx.guild.id).get(rule.lower())
+        except NoRulesError:
             await ctx.reply(get_language_str(ctx.guild.id, 65))
             return
-
-        rules = json.load(open(rulefile, "r", encoding="utf-8", newline="\n"))
-
-        rule_desc = rules.get(rule.lower())
-        if rule_desc is None:
+        except BrokenRulesError:
+            await ctx.reply(get_language_str(ctx.guild.id, 123))
+            return
+        if not rule_desc:
             await ctx.reply(get_language_str(ctx.guild.id, 66).format(ctx.message.author.name))
             return
 
         embed = discord.Embed(
-            title=f"Rule {rule}",
+            title=f"Rule {rule.lower()}",
             description=f"{rule_desc}",
             color=random.choice(color_list)
         )
@@ -101,31 +100,25 @@ class Moderation(commands.Cog):
         description='Sets a new rule. Can also edit an already existing rule',
         usage='5a\n(as part of a separate message) no nsfw!!!!1!',
         aliases=['addrule', 'newrule', 'editrule', 'edit_rule', 'setrule'],
-        brief='Add a rule to the server.'
+        brief='Set a rule to the server.'
     )
     @commands.has_guild_permissions(manage_guild=True)
     async def addrule_command(self, ctx, rulekey):
-        rulepath = 'data/servers/' + str(ctx.guild.id) + '/'
-        rulefile = 'data/servers/' + str(ctx.guild.id) + '/rules.json'
-        if not os.path.exists(rulepath):
-            os.makedirs(rulepath)
-        if os.path.exists(rulefile):
-            ruledata = json.load(open(rulefile, encoding="utf-8", newline="\n"))
-        else:
-            ruledata = {}
-
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
         await ctx.send(get_language_str(ctx.guild.id, 68))
         replymsg = await self.bot.wait_for('message', check=check)
         rulevalue = replymsg.content
-        ruledata[rulekey.lower()] = rulevalue
-
-        json.dump(ruledata, open(rulefile, 'w+', newline='\n', encoding="utf-8"), indent=2)
+        try:
+            set_rule(ctx.guild.id, rulekey, rulevalue)
+        except BrokenRulesError:
+            await ctx.reply(get_language_str(ctx.guild.id, 123))
+            return
 
         await ctx.reply(get_language_str(ctx.guild.id, 69))
         # hghghgh funny number please help its 9:40 pm im fucking tired
+        # hey past self, i just want you to know you're a champ for going through this hassle. you're the best. -atlas
 
     @addrule_command.error
     async def addrule_handler(self, ctx, error):
@@ -147,24 +140,13 @@ class Moderation(commands.Cog):
             await ctx.reply(get_language_str(ctx.guild.id, 70))
             return
 
-        with open(rulefile, 'r+', newline="\n", encoding="utf-8") as rulefileobject:
-            ruledata = json.load(rulefileobject)
-            try:
-                ruledata.pop(rulekey.lower())
-            except KeyError:
-                await ctx.reply(get_language_str(ctx.guild.id, 71))
-                rulepopped = False
-            else:
-                rulepopped = True
-            if ruledata == {}:
-                rulefileobject.close()
-                os.remove(rulefile)
-            else:
-                json.dump(ruledata, open(rulefile, 'w+', newline='\n', encoding='utf-8'), indent=2)
-                rulefileobject.close()
+        try:
+            pop_rule(ctx.guild.id, rulekey)
+        except KeyError:
+            await ctx.reply(get_language_str(ctx.guild.id, 71))
+            return
 
-        if rulepopped:
-            await ctx.reply(get_language_str(ctx.guild.id, 72))
+        await ctx.reply(get_language_str(ctx.guild.id, 72))
 
     @poprule_command.error
     async def poprule_handler(self, ctx, error):
