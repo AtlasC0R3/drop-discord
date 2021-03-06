@@ -1,0 +1,38 @@
+8ball
+Relies on language stuff that I plan on keeping only for Discord.
+
+embed
+Relies on Discord-only stuff
+
+ping
+Relies on Discord-only stuff. I could do some sort of "library ping" however.
+
+say
+What, do you expect me to do this?
+say(to_repeat)
+return to_repeat
+
+
+
+anonymouslogs
+It's Discord.py that handles that
+
+changelang
+Relies on language stuff that I plan on keeping only for Discord.
+
+inactivitychannel
+Relies on Discord-only stuff
+
+muted_role
+Discord-only stuff ghffghjfkhgfjkgnjhgbdfhbgjdhfbgjhdbgffdg
+
+setprefix
+read above
+
+toggle*
+relies on discord only stuff GHHHHHHHHHHHHJDFJBHJDBJZHBDFGKJHBDG
+
+
+
+ban, unban, kick, purge, storepins
+Discord-only stuff
