@@ -29,7 +29,7 @@ def warn(guild_id: int, user_id: int, user_name: str, author_id: int, author_nam
                     }
                 ]
             })
-            json.dump(warn_data, warn_file, indent=2)
+            json.dump(warn_data, warn_file)
     else:
         # If the script made it this far, then the user has been warned
         warn_data["offender_name"] = user_id
@@ -42,7 +42,7 @@ def warn(guild_id: int, user_id: int, user_name: str, author_id: int, author_nam
         })
         warn_data["warns"].append(new_warn)
         json.dump(warn_data, open(f"data/servers/{guild_id}/warns/{user_id}.json", "w+", newline="\n",
-                                  encoding='utf-8'), indent=2)
+                                  encoding='utf-8'))
 
 
 def get_warns(guild_id: int, user_id: int):
@@ -78,7 +78,7 @@ def get_warn(guild_id: int, user_id: int, warn_index: int):
     try:
         return warns[warn_index]
     except IndexError:
-        raise InvalidWarn(f"Warn index {warn_index} is not in current user's warns")
+        raise IndexError(f"Warn index {warn_index} is not in current user's warns")
 
 
 def remove_warn(guild_id: int, user_id: int, warn_index: int):
@@ -94,7 +94,7 @@ def remove_warn(guild_id: int, user_id: int, warn_index: int):
         os.remove(f"data/servers/{guild_id}/warns/{user_id}.json")
     else:
         json.dump(warn_data, open(f"data/servers/{guild_id}/warns/{user_id}.json", 'w', newline="\n",
-                                  encoding='utf-8'), indent=2)
+                                  encoding='utf-8'))
 
 
 def clear_warns(guild_id: int, user_id: int):
