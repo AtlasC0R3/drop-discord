@@ -3,7 +3,6 @@ import random
 import duckduckpy
 import requests
 import lyricsgenius
-import tswift
 
 import drop.ext as ext
 
@@ -113,8 +112,7 @@ def get_lyrics(artist, title):
         if song:
             return song
     # no genius, woopsies
-    song = tswift.Song(title=title, artist=artist)
-    return song
+    return None
 
 
 # noinspection PyUnresolvedReferences
@@ -132,19 +130,4 @@ def get_artist(artist):
                 lyrics.append([song.title, lyric[:5], song.url])
             artist_name = songs[0].artist
             return ['Genius', [artist_name, lyrics]]
-    artist_item = tswift.Artist(artist)
-    try:
-        random_songs = random.sample(artist_item.songs, 5)
-    except ValueError:
-        # Not a valid artist. God freaking dammit.
-        return None
-    random_lyrics = []
-    artist_name = ""
-    for song in random_songs:
-        lyric = get_lyrics(artist, song.title).load().lyrics.split('\n')
-        random_lyrics.append([song.title, lyric[:5], None])
-        artist_name = artist_item.songs[0].artist
-    if not artist_name:
-        artist_name = artist
-    to_return = [artist_name, random_lyrics]
-    return ['MetroLyrics', to_return]
+    return ['nothing', []]
