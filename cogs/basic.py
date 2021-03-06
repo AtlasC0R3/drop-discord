@@ -5,7 +5,6 @@ import re
 import discord
 from discord.ext import commands
 from data.extdata import get_language_str, get_listening_to
-from tswift import TswiftError
 
 import drop
 from drop.basic import *
@@ -143,7 +142,7 @@ class Basic(commands.Cog):
 
     @commands.command(
         name='lyrics',
-        description='Uses either MetroLyrics (or the Python library "tswift") or Genius to get lyrics.\n'
+        description='Uses Genius (more precisely, the LyricsGenius package for Python) to get lyrics.\n'
                     'Can be used in a multitude of ways: to find random songs by an artist, to find lyrics for a song '
                     'by an artist or to find lyrics using what the user is currently playing on Spotify.\n',
         aliases=['lyric', 'getsong', 'getartist'],
@@ -172,20 +171,24 @@ class Basic(commands.Cog):
                 obtained_from = 'Genius'
                 thumbnail = lyrics.song_art_image_url
                 url = lyrics.url
+                title = lyrics.title
+                artist = lyrics.artist
             else:
-                obtained_from = 'MetroLyrics'
+                obtained_from = 'something'
                 thumbnail = None
                 url = None
+                title = "Silence"
+                artist = "Nature"
             try:
                 if len(lyrics.lyrics) >= 2048:
                     lyric_str = ''.join(list(lyrics.lyrics)[:2045]) + '...'
                 else:
                     lyric_str = lyrics.lyrics
-            except TswiftError:
+            except AttributeError:
                 lyric_str = get_language_str(ctx.guild.id, 17)
                 obtained_from = 'common sense'
             embed = discord.Embed(
-                title=get_language_str(ctx.guild.id, 20).format(lyrics.title, lyrics.artist),
+                title=get_language_str(ctx.guild.id, 20).format(title, artist),
                 description=lyric_str,
                 color=random.choice(color_list),
                 url=url
@@ -280,8 +283,6 @@ class Basic(commands.Cog):
                   "(https://github.com/stroupbslayen/discord-pretty-help/blob/master/LICENSE)\n"
                   "parsedatetime, licensed under Apache 2.0 license, no changes made "  # hopefully no changes made >:(
                   "(https://github.com/bear/parsedatetime/blob/master/LICENSE.txt)\n"
-                  "tswift, licensed under BSD 3-Clause license "
-                  "(https://github.com/brenns10/tswift/blob/master/LICENSE.md)\n"
                   "requests, licensed under Apache 2.0 license, no changes made "
                   "(https://github.com/psf/requests/blob/master/LICENSE)\n"
                   "LyricsGenius, licensed under MIT License "
