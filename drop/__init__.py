@@ -23,12 +23,6 @@ def licenses():
             "license": "MIT License",
             "link": "https://github.com/johnwmillr/LyricsGenius/blob/master/LICENSE.txt",
             "changes": None
-        },
-        {
-            "name": "tswift",
-            "license": "BSD 3-Clause \"New\" or \"Revised\" License",
-            "link": "https://github.com/brenns10/tswift/blob/master/LICENSE.md",
-            "changes": None
         }
     ]
     license_str = ""
