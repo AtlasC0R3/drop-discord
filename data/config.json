@@ -4,7 +4,7 @@
 
   "dev_token": false,
   "owner_id": 0,
-  "bot_description": "Drop, a simple Discord server utility bot. https://github.com/AtlasC0R3/drop-bot/",
+  "bot_description": "Drop's Discord frontend. https://github.com/AtlasC0R3/drop-discord/",
 
   "useSteamRecentlyPlayed": 0,
   "steamApi": {
