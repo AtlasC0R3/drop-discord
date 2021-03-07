@@ -72,4 +72,4 @@ This notice is subject to change without any warning, so please proceed with tha
 If you wish to delete all data from a specific server, please use the `cleardata` command.
 
 ## Open-source dependencies
-Please look at [the credits section in the repo's README](https://github.com/AtlasC0R3/drop-bot#credits) for a list of dependencies, or check out the `license` command.
+Please look at [the credits section in the repo's README](https://github.com/AtlasC0R3/drop-discord#credits) for a list of dependencies, or check out the `license` command.
