@@ -209,5 +209,6 @@
   "Uh oh, it appears that your rule file has been corrupted. This probably is the fault of the server's file storage, or that the programmer messed something up. It has been reset; sorry for any inconvenience.",
 
   "I'd like to edit this, but you gotta tell me *what* to modify it to!",
-  "There's nothing in the guild's to-do list."
+  "There's nothing in the guild's to-do list.",
+  "{0}, you did not specify a valid user to check their mutes. *(Action cancelled)*"
 ]

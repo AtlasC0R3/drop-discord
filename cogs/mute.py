@@ -1,11 +1,9 @@
-import json
 import random
 import discord
 from discord.ext import commands, tasks
-from datetime import datetime
-import parsedatetime
 
 from data.extdata import get_server_config, get_language_str
+from drop.mute import *
 
 cal = parsedatetime.Calendar()
 
@@ -25,76 +23,56 @@ class Mute(commands.Cog):
 
     @commands.command(
         name='mute',
-        description='Removes a user\'s ability to talk (if the muted role is configured to do so).',
-        usage='<@offender> 1h30',
+        description='Removes a user\'s ability to talk (if the muted role is configured to do so).\n'
+                    'Also works with multiple users.',
+        usage='<@offender 1> <@offender 2> 1h30',
         brief='Mutes a user'
     )
     @commands.has_guild_permissions(manage_roles=True)
-    async def mute_command(self, ctx, user: discord.Member, *, timestamp):
+    async def mute_command(self, ctx, users: commands.Greedy[discord.Member], *, timestamp):
         if get_server_config(ctx.guild.id, 'mute_role', int) == 0:
             await ctx.reply(get_language_str(ctx.guild.id, 85))
             return
         role = ctx.guild.get_role(get_server_config(ctx.guild.id, 'mute_role', int))
-        if role in user.roles:
-            await ctx.reply(get_language_str(ctx.guild.id, 86).format(ctx.author.name))
+        if not users:
+            await ctx.reply(get_language_str(ctx.guild.id, 90).format(ctx.author.name, "No users specified."))
             return
-        else:
-            pass
+        for user in users:
+            if role in user.roles:
+                await ctx.reply(get_language_str(ctx.guild.id, 86).format(ctx.author.name))
+                return
+            else:
+                pass
 
-        dt_obj = cal.parseDT(datetimeString=timestamp)
-        now_dt = datetime.now()
-        list_dt_obj = str(dt_obj[0]).split(":")
-        list_now_dt = str(now_dt).split(":")
+            await user.add_roles(role)
 
-        str_now_dt = f'{list_now_dt[0]}:{list_now_dt[1]}'
-        str_dt_obj = f'{list_dt_obj[0]}:{list_dt_obj[1]}'
+            try:
+                str_dt_obj = add_mutes(ctx.guild.id, role.id, user.id, ctx.author.id, timestamp)
+            except InvalidTimeParsed:
+                await ctx.send(get_language_str(ctx.guild.id, 87))
+                return
+            except PastTimeError:
+                await ctx.send(get_language_str(ctx.guild.id, 88))
+                return
+            except PresentTimeError:
+                await ctx.send(get_language_str(ctx.guild.id, 89))
+                return
 
-        if dt_obj[1] == 0:
-            await ctx.send(get_language_str(ctx.guild.id, 87))
-            return
-        elif dt_obj[0] <= now_dt:
-            await ctx.send(get_language_str(ctx.guild.id, 88))
-            return
-        elif dt_obj[0] == now_dt or str_dt_obj == str_now_dt:
-            await ctx.send(get_language_str(ctx.guild.id, 89))
-            return
+            embed = discord.Embed(
+                title="User muted",
+                description=f"User: **{user}**\n"
+                            f"Time until the user will be unmuted: **{str_dt_obj}**\n"
+                            f"Muted by: **{ctx.author}**",
+                color=random.choice(color_list)
+            )
+            embed.set_thumbnail(url=user.avatar_url)
+            embed.set_author(
+                name=ctx.message.author.name,
+                icon_url=ctx.message.author.avatar_url,
+                url=f"https://discord.com/users/{ctx.message.author.id}/"
+            )
 
-        await user.add_roles(role)
-
-        with open("data/unmutes.json", "r+", newline='\n', encoding='utf-8') as tempf:
-            penalties = json.load(tempf)
-            guild = ctx.guild
-            mute_data = ([user.id, role.id, guild.id])
-            if str_dt_obj not in penalties:
-                penalties[str_dt_obj] = []
-            penalties[str_dt_obj].append(mute_data)
-            mute_index = len(penalties[str_dt_obj]) - 1
-            if str(guild.id) not in penalties:
-                penalties[str(guild.id)] = {}
-            if str(user.id) in penalties[str(guild.id)]:
-                penalties[str(guild.id)].pop(str(user.id))
-            if not str(user.id) in penalties[str(guild.id)]:
-                penalties[str(guild.id)][str(user.id)] = []
-            penalties[str(guild.id)][str(user.id)] = [str_dt_obj, ctx.author.id, mute_index]
-            tempf.seek(0)
-            json.dump(penalties, tempf, indent=2)
-            tempf.truncate()
-
-        embed = discord.Embed(
-            title="User muted",
-            description=f"User: **{user}**\n"
-                        f"Time until the user will be unmuted: **{str_dt_obj}**\n"
-                        f"Muted by: **{ctx.author}**",
-            color=random.choice(color_list)
-        )
-        embed.set_thumbnail(url=user.avatar_url)
-        embed.set_author(
-            name=ctx.message.author.name,
-            icon_url=ctx.message.author.avatar_url,
-            url=f"https://discord.com/users/{ctx.message.author.id}/"
-        )
-
-        await ctx.reply(embed=embed)
+            await ctx.reply(embed=embed)
 
     @mute_command.error
     async def mute_handler(self, ctx, error):
@@ -102,9 +80,6 @@ class Mute(commands.Cog):
             await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
             return
         if isinstance(error, commands.errors.MissingRequiredArgument):
-            if error.param.name == 'user':
-                await ctx.reply(get_language_str(ctx.guild.id, 90).format(ctx.author.name, str(error)))
-                return
             if error.param.name == 'timestamp':
                 await ctx.reply(get_language_str(ctx.guild.id, 91).format(ctx.author.name, str(error)))
                 return
@@ -114,44 +89,45 @@ class Mute(commands.Cog):
         name='mute_status',
         description='Checks if the user is muted, and for how long/by who he has been muted.',
         usage='<@potentially muted person>',
-        brief='Checks a user\'s mute status'
+        brief='Checks a user\'s mute status',
+        aliases=["checkmute", "check_mute", "mutestatus"]
     )
     @commands.has_guild_permissions(manage_roles=True)
-    async def mutestatus_command(self, ctx, user: discord.Member):
-        guild_id = ctx.guild.id
-        with open("data/unmutes.json", "r", newline='\n', encoding='utf-8') as tempf:
-            mutes = json.load(tempf)
-            guild_mutes = mutes.get(str(guild_id))
-            if guild_mutes is None:
+    async def mutestatus_command(self, ctx, users: commands.Greedy[discord.Member]):
+        if not users:
+            await ctx.reply(get_language_str(ctx.guild.id, 126).format(ctx.author.name))
+        for user in users:
+            try:
+                user_mute = get_mute_status(ctx.guild.id, user.id)
+            except NoMutesForGuild:
                 await ctx.reply(get_language_str(ctx.guild.id, 92))
                 return
-            user_mutes = guild_mutes.get(str(user.id))
-            if not user_mutes:
-                await ctx.reply(get_language_str(ctx.guild.id, 93).format(user))
+            except NoMutesForUser:
+                await ctx.reply(get_language_str(ctx.guild.id, 93).format(user.name))
                 return
             # user has been muted.
-            mute_time = user_mutes[0]
-            muter_id = user_mutes[1]
+            mute_time = user_mute.get("unmute_time")
+            muter_id = user_mute.get("mute_author_id")
             muter = ctx.guild.get_member(muter_id)
-            # mute_index = user_mutes[2]
-            # mute_data = mutes.get(mute_time)[mute_index]
-            # mute_role_id = mute_data[2]
+            # mute_index = user_mute.get("mute_index")
+            # mute_data = user_mute.get("mute_data")
+            # mute_role_id = user_mute.get("mute_role_id")
             # mute_role = discord.utils.get(ctx.guild.roles, id=mute_role_id)
 
-        embed = discord.Embed(
-            title=f"{user}'s mute status",
-            description=f"Time until the user will be unmuted: {mute_time}\n"
-                        f"Muted by: {muter}\n",
-            color=random.choice(color_list)
-        )
-        embed.set_thumbnail(url=user.avatar_url)
-        embed.set_author(
-            name=ctx.message.author.name,
-            icon_url=ctx.message.author.avatar_url,
-            url=f"https://discord.com/users/{ctx.message.author.id}/"
-        )
+            embed = discord.Embed(
+                title=f"{user}'s mute status",
+                description=f"Time until the user will be unmuted: **{mute_time}**\n"
+                            f"Muted by: **{muter}**",
+                color=random.choice(color_list)
+            )
+            embed.set_thumbnail(url=user.avatar_url)
+            embed.set_author(
+                name=ctx.message.author.name,
+                icon_url=ctx.message.author.avatar_url,
+                url=f"https://discord.com/users/{ctx.message.author.id}/"
+            )
 
-        await ctx.reply(embed=embed)
+            await ctx.reply(embed=embed)
 
     @mutestatus_command.error
     async def mutestatus_handler(self, ctx, error):
@@ -171,36 +147,17 @@ class Mute(commands.Cog):
         brief='Unmutes a person'
     )
     @commands.has_guild_permissions(manage_roles=True)
-    async def unmute_command(self, ctx, user: discord.Member):
-        guild_id = ctx.guild.id
-        with open("data/unmutes.json", "r+", newline='\n', encoding='utf-8') as tempf:
-            mutes = json.load(tempf)
-            guild_mutes = mutes.get(str(guild_id))
-            if guild_mutes is None:
-                await ctx.reply(get_language_str(ctx.guild.id, 94))
-                return
-            user_mutes = guild_mutes.get(str(user.id))
-            if not user_mutes:
-                await ctx.reply(get_language_str(ctx.guild.id, 93).format(user))
-                return
-            # user has been muted.
-            mute_time = user_mutes[0]
-            mute_index = user_mutes[2]
-            mute_data = mutes.get(mute_time)[mute_index]
-            mute_role_id = mute_data[1]
+    async def unmute_command(self, ctx, users: commands.Greedy[discord.Member]):
+        for user in users:
+            mute_role_id = unmute_user(ctx.guild.id, user.id)
+            # seems messy but unmute_user() not only returns the mute role's ID but also deletes all mute data for
+            # specified user
             mute_role = discord.utils.get(ctx.guild.roles, id=mute_role_id)
             await user.remove_roles(mute_role)
-            mutes.get(mute_time).pop(mute_index)
-            if not mutes.get(mute_time):
-                mutes.pop(mute_time)
-            guild_mutes.pop(str(user.id))
-            if not guild_mutes:
-                mutes.pop(str(guild_id))
-            tempf.seek(0)
-            json.dump(mutes, tempf, indent=2)
-            tempf.truncate()
 
         await ctx.reply(get_language_str(ctx.guild.id, 95))
+        # Oh, wow. After moving this command over to the Python module it looks really neat,
+        # until you were to check what unmute_user() does.
 
     @unmute_command.error
     async def unmute_handler(self, ctx, error):
@@ -214,38 +171,19 @@ class Mute(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def unmute_task(self):
-        dt_string = datetime.now().strftime("%Y-%m-%d %H:%M")
-        with open("data/unmutes.json", "r", encoding="utf-8", newline="\n") as file:
-            unmutes = json.load(file)
-        if dt_string in unmutes:
-            guilds = []
-            users = []
-            for toUnmute in unmutes.get(dt_string):
-                guild_id = toUnmute[2]
+        unmutes = check_mutes()
+        if unmutes:
+            for toUnmute in unmutes:
+                guild_id = toUnmute["guild_id"]
                 guild = self.bot.get_guild(guild_id)
-                role_id = toUnmute[1]
+                role_id = toUnmute["role_id"]
                 role = discord.utils.get(guild.roles, id=role_id)
-                user_id = toUnmute[0]
+                user_id = toUnmute["user_id"]
                 user_member = guild.get_member(user_id)  # holy s*** i need to learn intents.
                 await user_member.remove_roles(role)
-                toUnmute.pop()
-                guilds.append(guild_id)
-                users.append(user_id)
-            # Stuff done, remove leftovers
-            with open("data/unmutes.json", "r+", encoding='utf-8', newline="\n") as unmuteFile:
-                unmutes = json.load(unmuteFile)
-                unmutes.pop(dt_string)
-                for toUnmute in users:
-                    for y in guilds:
-                        try:
-                            unmutes[str(y)].pop(str(toUnmute))
-                        except KeyError:
-                            pass  # Wrong guild/user combination.
-                        if not unmutes.get(str(y)):
-                            unmutes.pop(str(y))
-                unmuteFile.seek(0)
-                json.dump(unmutes, unmuteFile, indent=2)
-                unmuteFile.truncate()
+        # So now we have taken care of the current mutes. check_mutes() takes care of pretty much everything, too.
+        # The only thing this task-loop does is just tell check_mutes to get all mutes (and clear them), and then
+        # uses Discord.py to get a member from a guild, and remove the muted role as configured.
 
 
 def setup(bot):
