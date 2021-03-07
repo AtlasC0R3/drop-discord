@@ -109,9 +109,9 @@ async def on_ready():
     get_github_config()
     print(f'My name is {bot.user}.')
 
-    if ownerId:
-        owner_refresh.start()
     try:
+        if ownerId:
+            owner_refresh.start()
         activity_changer.start()
         inactivity_func.start()
     except RuntimeError:
