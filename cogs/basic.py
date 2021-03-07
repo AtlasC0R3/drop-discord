@@ -263,10 +263,10 @@ class Basic(commands.Cog):
     )
     async def license_command(self, ctx):
         embed = discord.Embed(
-            title='Drop',
+            title='drop-discord',
             description="This software is licensed using the Apache 2.0 license "
-                        "(https://github.com/AtlasC0R3/drop-bot/blob/main/LICENSE) "
-                        "as free and open-source software.",
+                        "(https://github.com/AtlasC0R3/drop-discord/blob/main/LICENSE) "
+                        "as free and open-source software based on drop-moderation which also uses Apache 2.0",
             color=0x29b6f6
         )
         # embed.add_field(

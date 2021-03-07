@@ -13,7 +13,7 @@ There are two ways: you can self-host it (recommended), or use the already hoste
 There are two ways of self hosting the bot: the autorun script way, or the manual way.
 
 #### Using the autorun script
-Please move to the [Autorun branch](https://github.com/AtlasC0R3/drop-bot/tree/autorun) of this repository if you want to proceed this way.
+Please move to the [Autorun branch](https://github.com/AtlasC0R3/drop-discord/tree/autorun) of this repository if you want to proceed this way.
 
 #### Manually hosting the bot
 1. Make sure Python3 is installed *(minimum recommended version is Python 3.7, though you may be able to get away with 3.6 or even 3.5, but please note that you are on your own with this, I will not help you)* and that you have a functioning pip install. **Python 2 will not work.**
@@ -25,7 +25,7 @@ Please move to the [Autorun branch](https://github.com/AtlasC0R3/drop-bot/tree/a
 
 ### Using the already hosted bot
 The self hosted version works, and is updated every day, though it may not be available 24/7; some blackouts may occur, it may be slow, or your data could *very rarely* vanish.
-If you are willing to look past those issues, [you can invite the bot using this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot). Please read the [privacy notice](https://atlasc0r3.github.io/drop-bot/#privacy-notice) before proceeding.
+If you are willing to look past those issues, [you can invite the bot using this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot). Please read the [privacy notice](https://atlasc0r3.github.io/drop-discord/#privacy-notice) before proceeding.
 
 ## Frequently Asked Questions ~~even though no one asked any questions~~
 
