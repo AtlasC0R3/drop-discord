@@ -10,7 +10,7 @@ doTransferServerData = True
 
 reqsTxtUrl = 'https://raw.githubusercontent.com/AtlasC0R3/drop-bot/main/requirements.txt'
 # Leave this alone if you don't know what you're doing.
-gitHubRepo = 'https://github.com/AtlasC0R3/drop-bot.git'
+gitHubRepo = 'https://github.com/AtlasC0R3/drop-discord.git'
 # Path to the repository it should clone. Again, don't change this if you don't know what you're doing.
 confJsonUrl = 'https://raw.githubusercontent.com/AtlasC0R3/drop-bot/main/data/config.json'
 # The path to the config.json file. Again again, leave this alone if you don't know what you're doing, dammit.

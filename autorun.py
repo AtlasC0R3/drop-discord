@@ -39,13 +39,13 @@ pip_cmd = [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
 def drop_clone(git_path):
     if not os.path.exists(git_path):
         os.mkdir(git_path)
-    elif os.path.exists(f'{git_path}/drop-bot/'):
-        shutil.rmtree(f'{git_path}/drop-bot/')
+    elif os.path.exists(f'{git_path}/drop-discord/'):
+        shutil.rmtree(f'{git_path}/drop-discord/')
     local_git = git.Git(git_path)
     local_git.clone(gitHubRepo)
-    shutil.rmtree(f'{git_path}/drop-bot/.git/')
-    shutil.rmtree(f'{git_path}/drop-bot/.github/')  # clears out unnecessary folders
-    shutil.rmtree(f'{git_path}/drop-bot/.vscode/')
+    shutil.rmtree(f'{git_path}/drop-discord/.git/')
+    shutil.rmtree(f'{git_path}/drop-discord/.github/')  # clears out unnecessary folders
+    shutil.rmtree(f'{git_path}/drop-discord/.vscode/')
 
 
 runs = 0
@@ -98,7 +98,7 @@ prevDropJson = None
 if doSubdirectoryCleanup:
     previousDropDirs = []
     for directory in [directory.path for directory in os.scandir(os.getcwd()) if directory.is_dir()]:
-        if str(directory.split('/')[-1]).startswith('drop-bot'):
+        if str(directory.split('/')[-1]).startswith('drop-discord'):
             previousDropDirs.append(directory)
         elif str(directory.split('/')[-1]) == 'cogs' or '.git':  # oh my god finally, git can stop going crazy!
             pass
@@ -107,28 +107,28 @@ if doSubdirectoryCleanup:
     previousDropDirs.reverse()
     if previousDropDirs:
         for directory in previousDropDirs:
-            if os.path.isfile(f'{directory}/drop-bot/data/config.json'):
-                prevDropJson = check_config(f'{directory}/drop-bot/data/config.json')
+            if os.path.isfile(f'{directory}/drop-discord/data/config.json'):
+                prevDropJson = check_config(f'{directory}/drop-discord/data/config.json')
                 if doTransferServerData:
                     if os.path.isdir('.temp/'):
                         shutil.rmtree('.temp/')
                     os.mkdir('.temp/')
                     os.mkdir('.temp/data/')
-                    if os.path.isdir(f'{directory}/drop-bot/data/servers/'):
-                        shutil.move(f'{directory}/drop-bot/data/servers/', '.temp/data/')
-                    if os.path.isfile(f'{directory}/drop-bot/data/data_clear.json'):
-                        shutil.move(f'{directory}/drop-bot/data/data_clear.json', '.temp/data/data_clear.json')
-                    if os.path.isfile(f'{directory}/drop-bot/data/unmutes.json'):
-                        shutil.move(f'{directory}/drop-bot/data/unmutes.json', '.temp/data/unmutes.json')
-                    if os.path.isdir(f'{directory}/drop-bot/data/todo/'):
-                        shutil.move(f'{directory}/drop-bot/data/todo/', '.temp/data/')
+                    if os.path.isdir(f'{directory}/drop-discord/data/servers/'):
+                        shutil.move(f'{directory}/drop-discord/data/servers/', '.temp/data/')
+                    if os.path.isfile(f'{directory}/drop-discord/data/data_clear.json'):
+                        shutil.move(f'{directory}/drop-discord/data/data_clear.json', '.temp/data/data_clear.json')
+                    if os.path.isfile(f'{directory}/drop-discord/data/unmutes.json'):
+                        shutil.move(f'{directory}/drop-discord/data/unmutes.json', '.temp/data/unmutes.json')
+                    if os.path.isdir(f'{directory}/drop-discord/data/todo/'):
+                        shutil.move(f'{directory}/drop-discord/data/todo/', '.temp/data/')
                 shutil.rmtree(directory)
                 break
             else:
                 shutil.rmtree(directory)
 
-print(f"Cloning repository to drop-bot{runs + 1}/")
-drop_clone(f'drop-bot{runs + 1}')
+print(f"Cloning repository to drop-discord{runs + 1}/")
+drop_clone(f'drop-discord{runs + 1}')
 add_cogs()
 
 if doPipInstallReqs:
@@ -143,19 +143,19 @@ if doPipInstallReqs:
                  "Troubleshooting or manual installation required. I'm aborting now.")
 
 while True:
-    if os.path.exists(f'drop-bot{runs}'):
-        shutil.rmtree(f'drop-bot{runs}')
+    if os.path.exists(f'drop-discord{runs}'):
+        shutil.rmtree(f'drop-discord{runs}')
     runs = runs + 1
     bot_cmd = [sys.executable, 'main.py']
 
     if prevDropJson:
-        json.dump(prevDropJson, open(f'drop-bot{runs}/drop-bot/data/config.json', 'w'))
+        json.dump(prevDropJson, open(f'drop-discord{runs}/drop-discord/data/config.json', 'w'))
     if autoWriteTokens:
-        open(f'drop-bot{runs}/drop-bot/data/token.txt', 'w').write(token)
-        open(f'drop-bot{runs}/drop-bot/data/devtoken.txt', 'w').write(devToken)
+        open(f'drop-discord{runs}/drop-discord/data/token.txt', 'w').write(token)
+        open(f'drop-discord{runs}/drop-discord/data/devtoken.txt', 'w').write(devToken)
     if os.path.isdir('.temp/'):
         root_src_dir = '.temp/'
-        root_dst_dir = f'drop-bot{runs}/drop-bot/'
+        root_dst_dir = f'drop-discord{runs}/drop-discord/'
         for src_dir, dirs, files in os.walk(root_src_dir):
             dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
             if not os.path.exists(dst_dir):
@@ -172,7 +172,7 @@ while True:
         shutil.rmtree('.temp/')
 
     print(f'Running loop, take {runs}')
-    sp = subprocess.Popen(bot_cmd, shell=False, cwd=f'drop-bot{runs}/drop-bot/')
+    sp = subprocess.Popen(bot_cmd, shell=False, cwd=f'drop-discord{runs}/drop-discord/')
 
     try:
         time.sleep(runtime)
@@ -180,27 +180,27 @@ while True:
         exit("\nKeyboardInterrupt, aborting.")
 
     # Due for an update. Do stuff, I guess.
-    drop_clone(f'drop-bot{runs + 1}')
+    drop_clone(f'drop-discord{runs + 1}')
     add_cogs()
-    newJson = json.load(open(f'drop-bot{runs + 1}/drop-bot/data/config.json'))
-    json.dump(check_config(f'drop-bot{runs}/drop-bot/data/config.json'),
-              open(f'drop-bot{runs + 1}/drop-bot/data/config.json', 'w'))
+    newJson = json.load(open(f'drop-discord{runs + 1}/drop-discord/data/config.json'))
+    json.dump(check_config(f'drop-discord{runs}/drop-discord/data/config.json'),
+              open(f'drop-discord{runs + 1}/drop-discord/data/config.json', 'w'))
     if autoWriteTokens:
-        open(f'drop-bot{runs + 1}/drop-bot/data/token.txt', 'w').write(token)
-        open(f'drop-bot{runs + 1}/drop-bot/data/devtoken.txt', 'w').write(devToken)
+        open(f'drop-discord{runs + 1}/drop-discord/data/token.txt', 'w').write(token)
+        open(f'drop-discord{runs + 1}/drop-discord/data/devtoken.txt', 'w').write(devToken)
     if doTransferServerData:
         if os.path.isdir('.temp/'):
             shutil.rmtree('.temp/')
         os.mkdir('.temp/')
         os.mkdir('.temp/data/')
-        if os.path.isdir(f'drop-bot{runs}/drop-bot/data/servers/'):
-            shutil.move(f'drop-bot{runs}/drop-bot/data/servers/', f'drop-bot{runs + 1}/drop-bot/data/')
-        if os.path.isfile(f'drop-bot{runs}/drop-bot/data/data_clear.json'):
-            shutil.copy(f'drop-bot{runs}/drop-bot/data/data_clear.json',
-                        f'drop-bot{runs + 1}/drop-bot/data/data_clear.json')
-        if os.path.isfile(f'drop-bot{runs}/drop-bot/data/unmutes.json'):
-            shutil.move(f'drop-bot{runs}/drop-bot/data/unmutes.json',
-                        f'drop-bot{runs + 1}/drop-bot/data/unmutes.json')
+        if os.path.isdir(f'drop-discord{runs}/drop-discord/data/servers/'):
+            shutil.move(f'drop-discord{runs}/drop-discord/data/servers/', f'drop-discord{runs + 1}/drop-discord/data/')
+        if os.path.isfile(f'drop-discord{runs}/drop-discord/data/data_clear.json'):
+            shutil.copy(f'drop-discord{runs}/drop-discord/data/data_clear.json',
+                        f'drop-discord{runs + 1}/drop-discord/data/data_clear.json')
+        if os.path.isfile(f'drop-discord{runs}/drop-discord/data/unmutes.json'):
+            shutil.move(f'drop-discord{runs}/drop-discord/data/unmutes.json',
+                        f'drop-discord{runs + 1}/drop-discord/data/unmutes.json')
     if doPipInstallReqs:
         reqs = requests.get(reqsTxtUrl).text
         if not os.path.isfile('requirements.txt') or open('requirements.txt').read() != reqs:
