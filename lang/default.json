@@ -210,5 +210,8 @@
 
   "I'd like to edit this, but you gotta tell me *what* to modify it to!",
   "There's nothing in the guild's to-do list.",
-  "{0}, you did not specify a valid user to check their mutes. *(Action cancelled)*"
+  "{0}, you did not specify a valid user to check their mutes. *(Action cancelled)*",
+  "{0} matches found, expected 1.",
+  "Successfully done requested changes.",
+  "No valid changes requested; none made."
 ]

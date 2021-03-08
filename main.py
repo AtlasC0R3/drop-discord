@@ -41,6 +41,14 @@ except ImportError:
              "Please install it using:\n  pip install discord-pretty-help\n"
              "or by running\n  pip install -r requirements.txt")
 
+try:
+    import drop
+except ImportError:
+    sys.exit("drop-mod has not been installed. "
+             "This bot requires it to have help commands (which are required). "
+             "Please install it using:\n  pip install drop-mod\n"
+             "or by running\n  pip install -r requirements.txt")
+
 verbose = get_config_parameter('verbose', bool)
 clear_terminal = get_config_parameter('clear_terminal', bool)
 change_terminal_name = get_config_parameter('change_terminal_name', bool)
@@ -162,14 +170,34 @@ async def command_check(ctx):
 @bot.listen()
 async def on_message(message):
     if message.guild:
-        for item in get_server_config(message.guild.id, 'no_no_words', list):
-            if item in message.content.lower():
-                try:
-                    await message.delete()
-                except discord.errors.Forbidden:
-                    await message.channel.send(get_language_str(get_server_config(message.guild.id, 'language', str), 5)
-                                               )  # NO PYCHARM, NO
-                # People expect the bot to work without even giving them the perms.
+        # if (not message.author.guild_permissions.manage_messages) or \
+        #         (not message.author.guild_permissions.manage_guild):
+        if True:
+            for item in get_server_config(message.guild.id, 'no_no_words', dict):
+                if item in message.content.lower().replace(" ", ""):
+                    try:
+                        await message.delete()
+                        penalties = get_server_config(message.guild.id, 'no_no_words', dict)
+                        if penalties.get(item):
+                            penalties = penalties.get(item)
+                            if "ban" in penalties:
+                                await message.author.ban(reason=f'Banned for saying word {item}\n'
+                                                                f'Full message: {message.content}')
+                            elif "kick" in penalties:
+                                await message.author.kick(reason=f'Kicked for saying word {item}\n'
+                                                                 f'Full message: {message.content}')
+                            elif "mute" in penalties:
+                                role = message.guild.get_role(get_server_config(message.guild.id, 'mute_role', int))
+                                await message.author.add_roles(role)
+                                drop.mute.add_mutes(message.guild.id, role.id, message.author.id, bot.user.id, "1 hour")
+                            if "warn" in penalties:
+                                drop.moderation.warn(message.guild.id, message.author.id, message.author.name,
+                                                     bot.user.id, bot.user.name, message.channel.id,
+                                                     f'Warned for saying word {item}\n'
+                                                     f'Full message: {message.content}')
+                    except discord.errors.Forbidden:
+                        await message.channel.send(get_language_str(message.guild.id, 5))
+                    # People expect the bot to work without even giving them the perms.
     if message.author.id == bot.user.id:
         return  # To prevent the bot itself from triggering things.
     global message_count
