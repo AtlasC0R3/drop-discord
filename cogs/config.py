@@ -601,7 +601,7 @@ class Configuration(commands.Cog):
         brief="Change the language of this bot"
     )
     @has_guild_permissions(manage_guild=True)
-    async def banword_command(self, ctx, *, commandargs=None):
+    async def changelang_command(self, ctx, *, commandargs=None):
         # NOTICE: DO NOT TRANSLATE THIS COMMAND!
         def check(ms):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
