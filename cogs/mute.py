@@ -5,8 +5,6 @@ from discord.ext import commands, tasks
 from data.extdata import get_server_config, get_language_str
 from drop.mute import *
 
-cal = parsedatetime.Calendar()
-
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
     color_list = [c for c in colors.values()]

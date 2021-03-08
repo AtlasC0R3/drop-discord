@@ -122,17 +122,18 @@ class Configuration(commands.Cog):
             msg = await self.bot.wait_for('message', check=check)
             nonoword = msg.content
         else:
-            nonoword = command_args.replace(' ', '')
-        no_no_words = get_server_config(ctx.guild.id, 'no_no_words', list)
+            nonoword = command_args
+        no_no_words = get_server_config(ctx.guild.id, 'no_no_words', dict)
+        nonoword = nonoword.lower().replace(" ", "")
 
         if nonoword in no_no_words:
             # it's already in, we have to delete it
-            new_nonowords = [x for x in no_no_words if x != nonoword]
-            write_server_config(ctx.guild.id, 'no_no_words', new_nonowords)
+            no_no_words.pop(nonoword)
+            write_server_config(ctx.guild.id, 'no_no_words', no_no_words)
             await ctx.reply(get_language_str(ctx.guild.id, 32))
         else:
             # it's not in, we have to add it
-            no_no_words.append(nonoword)
+            no_no_words[nonoword] = []
             write_server_config(ctx.guild.id, 'no_no_words', no_no_words)
             await ctx.reply(get_language_str(ctx.guild.id, 33))
 
@@ -618,8 +619,48 @@ class Configuration(commands.Cog):
             write_server_config(ctx.guild.id, 'language', commandargs)
             await ctx.reply(get_language_str(commandargs, 4).format(get_server_config(ctx.guild.id, 'prefix', str)))
         else:
-            # me no habla whatever the hell kind of language they want to tell me
+            # me no tabla whatever the hell kind of language they want to tell me
             await ctx.reply("Could not find that language, no changes made.")
+
+    @commands.command(
+        name="banword_penalties",
+        description="Sets which penalties should be triggered when a banned word is triggered.\n"
+                    "While calling the command, you must include the word which should have these penalties (it does "
+                    "not have to be exactly what the word is, as long as what you said starts with a currently "
+                    "\"banned\" word) followed by which penalties should be issued when said word is triggered.",
+        aliases=["banwordpenalty", "bwordpenalty", "bwordpenalties", "bwordpen"],
+        usage="(banned word)",
+        brief="Change the language of this bot"
+    )
+    @has_guild_permissions(manage_guild=True)
+    async def bwordpenalty_command(self, ctx, word: str, *args):
+        matching_words = []
+        penalties = []
+        possible_penalties = ["warn", "kick", "mute", "ban"]
+        no_no_words = get_server_config(ctx.guild.id, "no_no_words", dict)
+        for banned_word in no_no_words:
+            if banned_word.lower().replace(" ", "").startswith(word.lower()):
+                matching_words.append(banned_word)
+        if len(matching_words) != 1:
+            await ctx.reply(get_language_str(ctx.guild.id, 127).format(len(matching_words)))
+            return
+        for arg in args:
+            if arg.lower() in possible_penalties:
+                penalties.append(arg)
+        no_no_word = matching_words[0]
+        word_penalties = no_no_words[no_no_word]
+        if not penalties:
+            await ctx.send(get_language_str(ctx.guild.id, 129))
+            return
+        for penalty in penalties:
+            penalty = penalty.lower()
+            if penalty in word_penalties:
+                word_penalties = [x for x in word_penalties if x != penalty]
+            else:
+                word_penalties.append(penalty)
+        no_no_words[no_no_word] = word_penalties
+        write_server_config(ctx.guild.id, "no_no_words", no_no_words)
+        await ctx.send(get_language_str(ctx.guild.id, 128))
 
     @tasks.loop(minutes=1)
     async def data_clearer(self):
