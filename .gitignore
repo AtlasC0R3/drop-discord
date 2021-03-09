@@ -1,7 +1,6 @@
 .idea/
 data/config.json
 data/__pycache__
-data/json/feedback.json
 data/servers/
 data/todo/
 data/token.txt
