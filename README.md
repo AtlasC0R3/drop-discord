@@ -1,5 +1,8 @@
 # Drop
-A Discord.py bot that is meant to be a simple Discord server utility bot that requires the least amount of configuration possible.
+A drop-mod frontend built with Discord.py
+
+### NOTICE
+This project may fall behind due to my focus shifting on finishing the Python module. I will still update this, however, and unless the repository is archived, it will continue to be.
 
 ## What the hell is this? 
 ~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as free as possible, while still retaining utility in mind. 
