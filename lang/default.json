@@ -213,5 +213,7 @@
   "{0}, you did not specify a valid user to check their mutes. *(Action cancelled)*",
   "{0} matches found, expected 1.",
   "Successfully done requested changes.",
-  "No valid changes requested; none made."
+  "No valid changes requested; none made.",
+  "There currently are no temp-bans for this guild.",
+  "That user is banned, however not temp-banned."
 ]

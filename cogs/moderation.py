@@ -2,10 +2,11 @@ import time
 import random
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from data.extdata import get_language_str
 
 from drop.moderation import *
+from drop.tempban import *
 from drop.errors import *
 
 with open("data/embed_colors.json") as f:
@@ -20,6 +21,7 @@ class Moderation(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.unban_task.start()
 
     @commands.command(
         name='purge',
@@ -272,24 +274,36 @@ class Moderation(commands.Cog):
                 await ctx.reply(get_language_str(ctx.guild.id, 79))
                 return
             for entry in banlist:
-                if (userfull[0], userfull[1]) == (entry.user.name, entry.user.discriminator):
+                if (userfull[0].lower(), userfull[1]) == (entry.user.name.lower(), entry.user.discriminator):
                     # We have found the correct user
                     user = entry.user
         else:
             # That must be just the user's name.
             for entry in banlist:
-                if user == entry.user.name:
+                if user.lower() == entry.user.name.lower():
                     # We have found the correct user
                     user = entry.user
 
-        if user.id == self.bot.user.id:
+        if type(user) is str:
+            await ctx.reply(get_language_str(ctx.guild.id, 82))
+            return
+        elif user.id == self.bot.user.id:
             await ctx.reply(get_language_str(ctx.guild.id, 80))
             return
-        if user == ctx.author:
+        elif user == ctx.author:
             await ctx.reply(get_language_str(ctx.guild.id, 81))
             return
 
-        await ctx.guild.unban(user)
+        await ctx.guild.unban(user, reason=f"Manually unbanned by {ctx.author}")
+        try:
+            temp_ban = get_ban_status(ctx.guild.id, user.id)
+        except NoTempBansForGuild:
+            pass
+        else:
+            if temp_ban:
+                # user is also temp-banned
+                unban_user(ctx.guild.id, user.id)
+
         embed = discord.Embed(
             title="User unbanned",
             description=f"User: **{user}**\n"
@@ -370,6 +384,147 @@ class Moderation(commands.Cog):
             if error.param.name == 'channel':
                 await ctx.reply(get_language_str(ctx.guild.id, 84).format(ctx.message.author.name))
                 return
+
+    @commands.command(
+        name='tempban',
+        description='This will ban someone, then unban them after a specified time.',
+        usage='<@offender 1> <@offender 2> 1h30',
+        brief='Temporarily bans a user'
+    )
+    @commands.has_guild_permissions(ban_members=True)
+    async def tempban_command(self, ctx, users: commands.Greedy[discord.Member], *, timestamp):
+        if not users:
+            await ctx.reply(get_language_str(ctx.guild.id, 90).format(ctx.author.name, "No users specified."))
+            return
+        for user in users:
+            str_dt_obj = add_bans(ctx.guild.id, user.id, ctx.author.id, timestamp)
+            await user.ban(reason=f"Banned by {ctx.author.name}, will be unbanned at: {str_dt_obj}")
+            embed = discord.Embed(
+                title="User temp-banned",
+                description=f"User: **{user}**\n"
+                            f"Time until the user will be unbanned: **{str_dt_obj}**\n"
+                            f"Banned by: **{ctx.author}**",
+                color=random.choice(color_list)
+            )
+            embed.set_thumbnail(url=user.avatar_url)
+            embed.set_author(
+                name=ctx.message.author.name,
+                icon_url=ctx.message.author.avatar_url,
+                url=f"https://discord.com/users/{ctx.message.author.id}/"
+            )
+            await ctx.reply(embed=embed)
+
+    @tempban_command.error
+    async def tempban_handler(self, ctx, error):
+        if isinstance(error, commands.errors.MissingPermissions):
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
+            return
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            if error.param.name == 'timestamp':
+                await ctx.reply(get_language_str(ctx.guild.id, 91).format(ctx.author.name, str(error)))
+                return
+            return
+
+    @commands.command(
+        name='ban_status',
+        description='Checks if the user is temp-banned, and for how long/by who they have been temp-banned.',
+        usage='Offender#0123 (can also just be Offender, or their user ID)',
+        brief='Checks a user\'s ban status',
+        aliases=["checktempban", "check_tempban", "tempbanstatus", "banstatus"]
+    )
+    @commands.has_guild_permissions(manage_roles=True)
+    async def temp_ban_status_command(self, ctx, *, user: str):
+        ban_list = await ctx.guild.bans()
+        if user.isdigit():
+            # The user has been specified using an ID.
+            for entry in ban_list:
+                if entry.user.id == int(user):
+                    # We have found the correct user
+                    user = entry.user
+        elif '#' in user:
+            # The user also comes with a discriminator.
+            user_full = user.split('#')
+            if len(user_full) != 2:
+                await ctx.reply(get_language_str(ctx.guild.id, 78))
+                return
+            elif type(user_full) is not list:
+                await ctx.reply(get_language_str(ctx.guild.id, 79))
+                return
+            for entry in ban_list:
+                if (user_full[0], user_full[1]) == (entry.user.name, entry.user.discriminator):
+                    # We have found the correct user
+                    user = entry.user
+        else:
+            # That must be just the user's name.
+            for entry in ban_list:
+                if user.lower() == entry.user.name.lower():
+                    # We have found the correct user
+                    user = entry.user
+        if type(user) is str:
+            await ctx.send(get_language_str(ctx.guild.id, 82))
+            return
+        if user.id == self.bot.user.id:
+            await ctx.reply(get_language_str(ctx.guild.id, 80))
+            return
+        if user == ctx.author:
+            await ctx.reply(get_language_str(ctx.guild.id, 81))
+            return
+        try:
+            temp_ban_data = get_ban_status(ctx.guild.id, user.id)
+        except NoTempBansForGuild:
+            await ctx.send(get_language_str(ctx.guild.id, 130))
+            return
+        if not temp_ban_data:
+            await ctx.reply(get_language_str(ctx.guild.id, 131))
+            return
+        unban_time = temp_ban_data["unban_time"]
+        ban_author_id = temp_ban_data["ban_author_id"]
+        if ban_author_id == ctx.author.id:
+            ban_author_name = ctx.author.name
+        else:
+            ban_author = ctx.guild.get_member(ban_author_id)
+            if ban_author:
+                ban_author_name = ban_author.name
+            else:
+                ban_author_name = "Someone who probably left"
+        embed = discord.Embed(
+            title=f"{user}'s temp-ban status",
+            description=f"Time until the user will be unbanned: **{unban_time}**\n"
+                        f"Temp-banned by: **{ban_author_name}**",
+            color=random.choice(color_list)
+        )
+        embed.set_thumbnail(url=user.avatar_url)
+        embed.set_author(
+            name=ctx.message.author.name,
+            icon_url=ctx.message.author.avatar_url,
+            url=f"https://discord.com/users/{ctx.message.author.id}/"
+        )
+        await ctx.reply(embed=embed)
+
+    @temp_ban_status_command.error
+    async def temp_ban_status_handler(self, ctx, error):
+        if isinstance(error, commands.errors.MissingPermissions):
+            await ctx.reply(get_language_str(ctx.guild.id, 28).format(ctx.author.name, error))
+            return
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            if error.param.name == 'user':
+                await ctx.reply(f'[{ctx.author.name}], you did not specify a user. '
+                                f'*({error} Action cancelled)*')
+                return
+
+    @tasks.loop(minutes=1)
+    async def unban_task(self):
+        unbans = check_bans()
+        if unbans:
+            for toUnban in unbans:
+                guild_id = toUnban["guild_id"]
+                guild = self.bot.get_guild(guild_id)
+                user_id = toUnban["user_id"]
+                ban_list = await guild.bans()
+                for entry in ban_list:
+                    if entry.user.id == int(user_id):
+                        # We have found the correct user
+                        await guild.unban(entry.user, reason="Their temp-ban period is over.")
 
 
 def setup(bot):
