@@ -1,25 +1,30 @@
 [
     ["playing", "something"],
-    ["watching", "your every single message"],
     ["playing", "Python"],
-    ["listening", "Vaporwave"],
-    ["competing", "Say That Answer!"],
-    ["playing", "Quake"],
-    ["watching", "Scott the Woz"],
-    ["listening", "Big Chungus"],
+    ["playing", "Beat Saber"],
+    ["playing", "RAID: Shadow Legends"],
     ["playing", "Half-Life 2"],
     ["playing", "DOOM"],
     ["playing", "Counter-Strike: Global Offensive"],
     ["playing", "crappy Roblox games"],
+    ["playing", "Quake"],
+    ["playing", "Minecraft"],
+    ["playing", "Lethal Omen"],
+    ["playing", "Summer 64"],
+
+    ["watching", "Scott the Woz"],
     ["watching", "Reddit"],
-    ["playing", "Beat Saber"],
-    ["playing", "RAID: Shadow Legends"],
     ["watching", "questionable things"],
     ["watching", "Ahoy"],
     ["watching", "anime"],
-    ["playing", "Minecraft"],
-    ["listening", "ASMR sounds"],
+    ["watching", "Twitter drama"],
+    ["watching", "your every single message"],
     ["watching", "no faces"],
-    ["playing", "Lethal Omen"],
-    ["playing", "Summer 64"]
+
+    ["listening", "Vaporwave"],
+    ["listening", "Big Chungus"],
+    ["listening", "ASMR sounds"],
+    ["listening", "Hatsune Miku nightcore at 1AM"],
+
+    ["competing", "Say That Answer!"]
 ]
