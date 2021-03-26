@@ -42,7 +42,7 @@ except ImportError:
              "or by running\n  pip install -r requirements.txt")
 
 try:
-    import drop
+    from drop import moderation, mute
 except ImportError:
     sys.exit("drop-mod has not been installed. "
              "This bot requires it to have help commands (which are required). "
@@ -81,13 +81,13 @@ intents.guilds = True
 intents.presences = True
 # F**k intents.
 
-bot = commands.Bot(                                            # Create a new bot
-    command_prefix=get_prefix,                                 # Set the prefix
+bot = commands.Bot(  # Create a new bot
+    command_prefix=get_prefix,  # Set the prefix
     description=get_config_parameter('bot_description', str),  # Set a description for the bot
-    owner_id=get_config_parameter('owner_id', int),            # Your unique User ID
-    case_insensitive=True,                                     # Make the commands case insensitive
-    intents=intents,                                           # I think I made intents
-    help_command=PrettyHelp()                                  # Sets custom help command to discord_pretty_help's
+    owner_id=get_config_parameter('owner_id', int),  # Your unique User ID
+    case_insensitive=True,  # Make the commands case insensitive
+    intents=intents,  # I think I made intents
+    help_command=PrettyHelp()  # Sets custom help command to discord_pretty_help's
 )
 
 ownerMember = None
@@ -189,12 +189,12 @@ async def on_message(message):
                             elif "mute" in penalties:
                                 role = message.guild.get_role(get_server_config(message.guild.id, 'mute_role', int))
                                 await message.author.add_roles(role)
-                                drop.mute.add_mutes(message.guild.id, role.id, message.author.id, bot.user.id, "1 hour")
+                                mute.add_mutes(message.guild.id, role.id, message.author.id, bot.user.id, "1 hour")
                             if "warn" in penalties:
-                                drop.moderation.warn(message.guild.id, message.author.id, message.author.name,
-                                                     bot.user.id, bot.user.name, message.channel.id,
-                                                     f'Warned for saying word {item}\n'
-                                                     f'Full message: {message.content}')
+                                moderation.warn(message.guild.id, message.author.id, message.author.name,
+                                                bot.user.id, bot.user.name, message.channel.id,
+                                                f'Warned for saying word {item}\n'
+                                                f'Full message: {message.content}')
                     except discord.errors.Forbidden:
                         await message.channel.send(get_language_str(message.guild.id, 5))
                     # People expect the bot to work without even giving them the perms.
@@ -254,6 +254,7 @@ async def on_message(message):
 
                     def check(ms):
                         return ms.channel == message.channel and ms.author == message.author
+
                     reply_msg = await bot.wait_for('message', check=check)
                     reply_from_user = reply_msg.content.lower()
 

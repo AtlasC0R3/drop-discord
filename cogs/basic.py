@@ -89,7 +89,7 @@ class Basic(commands.Cog):
             text = msg.content
             pass
 
-        text = drop.basic.owofy(text)
+        text = owofy(text)
 
         if not len(text) < 2000:
             await ctx.send(get_language_str(ctx.guild.id, 13).format(len(text)))
@@ -284,11 +284,7 @@ class Basic(commands.Cog):
                   "parsedatetime, licensed under Apache 2.0 license, no changes made "  # hopefully no changes made >:(
                   "(https://github.com/bear/parsedatetime/blob/master/LICENSE.txt)\n"
                   "requests, licensed under Apache 2.0 license, no changes made "
-                  "(https://github.com/psf/requests/blob/master/LICENSE)\n"
-                  "LyricsGenius, licensed under MIT License "
-                  "(https://github.com/johnwmillr/LyricsGenius/blob/master/LICENSE.txt)\n"
-                  "DuckDuckPy, licensed under MIT License "
-                  "(https://github.com/ivankliuk/duckduckpy/blob/master/LICENSE)",
+                  "(https://github.com/psf/requests/blob/master/LICENSE)",
             inline=False
         )  # And of course, you should probably list any other open-source dependencies you used.
         embed.add_field(
