@@ -343,12 +343,12 @@ class Moderation(commands.Cog):
                 channel = channel.replace(key, value)
             if channel.isdigit():
                 channelsendin = ctx.guild.get_channel(int(channel))
-                if channel is None:
+                if channelsendin is None:
                     await ctx.reply(get_language_str(ctx.guild.id, 83))
                     return
             else:
                 channelsendin = discord.utils.get(self.bot.get_all_channels(), guild=ctx.guild, name=channel)
-                if channel is None:
+                if channelsendin is None:
                     await ctx.reply(get_language_str(ctx.guild.id, 36))
                     return
 
