@@ -95,6 +95,16 @@ ownerUser = None
 ownerId = get_config_parameter('owner_id', int)
 bot_mention = None
 
+for cog in cogs:
+    if verbose:
+        print(f'Loading {cog}')
+    try:
+        bot.load_extension(cog)
+    except discord.ext.commands.errors.ExtensionAlreadyLoaded:
+        # Bot tried to load a cog that was already loaded.
+        print(f"{TermColors.WARNING}WARN: Tried to load a cog/extension that was already loaded "
+              f"({cog}).{TermColors.ENDC}")
+
 
 @bot.event
 async def on_ready():
@@ -126,15 +136,6 @@ async def on_ready():
         # whoops, already started.
         pass
 
-    for cog in cogs:
-        if verbose:
-            print(f'Loading {cog}')
-        try:
-            bot.load_extension(cog)
-        except discord.ext.commands.errors.ExtensionAlreadyLoaded:
-            # Bot tried to load a cog that was already loaded.
-            print(f"{TermColors.WARNING}WARN: Tried to load a cog/extension that was already loaded "
-                  f"({cog}).{TermColors.ENDC}")
     if get_config_parameter('geniusApi', str):
         init_genius(get_config_parameter('geniusApi', str))
 
