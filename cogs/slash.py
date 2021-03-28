@@ -94,6 +94,25 @@ class Slash(commands.Cog):
             content = f"**{title}**\n{lyric_portion}\n*{footer}*"
             await ctx.send(content=content, hidden=True)
 
+    @cog_ext.cog_slash(name="search", description="Does a DuckDuckGo search.")
+    async def search_slash(self, ctx: SlashContext, query: str):
+        await ctx.defer(hidden=True)
+        response = search(query)
+        if response is not None:
+            title = response['title']
+            description = response['description']
+            url = response['url']
+            source = response['source']
+            fields = ""
+            for field in response['fields']:
+                name = field['name']
+                value = field['value']
+                fields = fields + f'**{name}**: {value}\n'
+            content = f"**{title}** *(<{url}>)*\n{description}\n*-{source}*\n\n{fields}"
+            await ctx.send(content=content, hidden=True)
+        else:
+            await ctx.send(get_language_str(ctx.guild.id, 122), hidden=True)
+
 
 def setup(bot):
     bot.add_cog(Slash(bot))
