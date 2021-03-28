@@ -281,6 +281,8 @@ class Basic(commands.Cog):
             value="Discord.py, licensed under MIT License (https://github.com/Rapptz/discord.py/blob/master/LICENSE)\n"
                   "discord-pretty-help, licensed under MIT License "
                   "(https://github.com/stroupbslayen/discord-pretty-help/blob/master/LICENSE)\n"
+                  "discord-py-slash-command, licensed under MIT License "
+                  "(https://github.com/eunwoo1104/discord-py-slash-command/blob/master/LICENSE)\n"
                   "parsedatetime, licensed under Apache 2.0 license, no changes made "  # hopefully no changes made >:(
                   "(https://github.com/bear/parsedatetime/blob/master/LICENSE.txt)\n"
                   "requests, licensed under Apache 2.0 license, no changes made "
