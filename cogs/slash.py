@@ -55,9 +55,9 @@ class Slash(commands.Cog):
                 obtained_from = 'common sense'
             song_by_artist = get_language_str(ctx.guild.id, 20).format(title, artist)
             footer = f"*obtained using {obtained_from}*\n{url}"
-            remaining_caracters = 2000 - (len(song_by_artist) + len(footer) + 16)   # added the 16 in case full_content
-            if len(lyric_str) >= remaining_caracters:                               # would add any more caracters.
-                lyric_str = ''.join(list(lyric_str)[:remaining_caracters]) + '...'  # and for that right here.
+            remaining_characters = 2000 - (len(song_by_artist) + len(footer) + 16)   # added the 16 in case full_content
+            if len(lyric_str) >= remaining_characters:                               # would add any more characters.
+                lyric_str = ''.join(list(lyric_str)[:remaining_characters]) + '...'  # and for that right here.
             full_content = f"{song_by_artist}\n" \
                            f"```{lyric_str}```" \
                            f"\n{footer}"
@@ -117,11 +117,11 @@ class Slash(commands.Cog):
     @cog_ext.cog_slash(name="warns", description="Returns the author's warns.")
     async def warns_slash(self, ctx: SlashContext):
         await ctx.defer(hidden=True)
-        warndata = get_warns(ctx.guild.id, ctx.author.id)
-        if not warndata:
+        warn_data = get_warns(ctx.guild.id, ctx.author.id)
+        if not warn_data:
             await ctx.send(get_language_str(ctx.guild.id, 114), hidden=True)
             return
-        warns = warndata.get("warns")
+        warns = warn_data.get("warns")
         warns_str = ""
         for index, warn_thing in enumerate(warns):
             warner_id = warn_thing.get('warner')
