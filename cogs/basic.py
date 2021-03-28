@@ -159,6 +159,10 @@ class Basic(commands.Cog):
         else:
             # check if user playing something on spotefiye
             # discord when will you add support for tidal /s
+            if not ctx.guild:
+                await ctx.send("I can't retrieve your user activity inside private messages, "
+                               "so you'll have to manually insert them.")
+                return
             args = get_listening_to(ctx.author.activities)
 
         if type(args) is list:

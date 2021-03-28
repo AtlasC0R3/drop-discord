@@ -26,6 +26,11 @@ class Slash(commands.Cog):
         else:
             # check if user playing something on spotefiye
             # discord when will you add support for tidal /s
+            if not ctx.guild:
+                await ctx.send("I can't retrieve your user activity inside private messages, "
+                               "so you'll have to manually insert them.",
+                               hidden=True)
+                return
             author = ctx.guild.get_member(ctx.author.id)
             args = get_listening_to(author.activities)
         if not args:
