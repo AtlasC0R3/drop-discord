@@ -1,7 +1,8 @@
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from data.extdata import get_listening_to, get_language_str
-from drop.basic import get_lyrics, get_artist
+from drop.basic import get_lyrics, get_artist, search
+from drop.moderation import get_warns
 from lyricsgenius.genius import Song
 import re
 
@@ -112,6 +113,32 @@ class Slash(commands.Cog):
             await ctx.send(content=content, hidden=True)
         else:
             await ctx.send(get_language_str(ctx.guild.id, 122), hidden=True)
+
+    @cog_ext.cog_slash(name="warns", description="Returns the author's warns.")
+    async def warns_slash(self, ctx: SlashContext):
+        await ctx.defer(hidden=True)
+        warndata = get_warns(ctx.guild.id, ctx.author.id)
+        if not warndata:
+            await ctx.send(get_language_str(ctx.guild.id, 114), hidden=True)
+            return
+        warns = warndata.get("warns")
+        warns_str = ""
+        for index, warn_thing in enumerate(warns):
+            warner_id = warn_thing.get('warner')
+            warner_user = self.bot.get_user(id=warner_id)
+            if warner_user is None:
+                warner_name = warn_thing.get('warner_name')
+            else:
+                warner_name = self.bot.get_user(id=warner_id)
+
+            warn_reason = warn_thing.get('reason')
+            warn_channel = warn_thing.get('channel')
+            warn_datetime = warn_thing.get('datetime')
+
+            warns_str = warns_str + f"```{warn_reason}```" \
+                                    f"*<#{warn_channel}>, {warn_datetime}, " \
+                                    f"warned by {warner_name} (<@{warner_id}>), warn {index + 1}*\n\n"
+        await ctx.send(warns_str, hidden=True)
 
 
 def setup(bot):
