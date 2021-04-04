@@ -371,10 +371,13 @@ async def on_guild_join(guild):
             # Data deletion has been queued, but will need to be cancelled.
             system_channel = guild.system_channel
             if system_channel:
-                await system_channel.send("Woah there. It seems like this server had their data deletion queued. "
-                                          "Since someone invited me back, this data deletion queue will be cancelled. "
-                                          "If you'd like to queue it back, please run the `cleardata` command again "
-                                          "(and don't invite me back in this server).")
+                try:
+                    await system_channel.send("Woah there. It seems like this server had their data deletion queued. "
+                                              "Since someone invited me back, this data deletion queue will be "
+                                              "cancelled. If you'd like to queue it back, please run the `cleardata` "
+                                              "command again (and don't invite me back in this server).")
+                except discord.errors.Forbidden:
+                    pass  # it's not like it's *super* important anyways...
             else:
                 # No channel has been set for system messages. So, just say no warning, I guess...
                 pass
