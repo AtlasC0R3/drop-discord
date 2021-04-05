@@ -61,6 +61,8 @@ class Basic(commands.Cog):
         if not repeat:
             await ctx.reply(get_language_str(ctx.guild.id, 11))
             return
+        elif repeat == "** **":
+            await ctx.reply(f"** **... ***{get_language_str(ctx.guild.id, 11)}***")
         else:
             await ctx.send(repeat)
 
