@@ -317,3 +317,26 @@ def get_new_activity(user_member=None):
             activitytype = activity[0]
             activityname = activity[1]
     return [activitytype, activityname]
+
+
+def check_banword_filter(message: str, guild_id: list):
+    result = 0
+    offensive_word = ""
+    warn = False
+    for item in get_server_config(guild_id, 'no_no_words', dict):
+        if item in message.lower().replace(" ", ""):
+            result = 1
+            offensive_word = item
+            penalties = get_server_config(guild_id, 'no_no_words', dict)
+            if penalties.get(item):
+                penalties = penalties.get(item)
+                if "ban" in penalties:
+                    result = 2
+                elif "kick" in penalties:
+                    result = 3
+                elif "mute" in penalties:
+                    result = 4
+                if "warn" in penalties:
+                    warn = True
+    return_list = [result, offensive_word, warn]
+    return return_list
