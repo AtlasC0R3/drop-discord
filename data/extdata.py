@@ -224,14 +224,14 @@ def get_steam_recently_played():
               "Please disable \"useSteamRecentlyPlayed\" in config.json, "
               "or fill in the correct values in steamApi.\n"
               "If you need help, you can check out "
-              "https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration")
+              "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
         return 'Steam'
     elif userdata.status_code == 500:
         print("Invalid user ID passed, falling back to playing Steam.\n"
               "Please disable \"useSteamRecentlyPlayed\" in config.json, "
               "or fill in the correct values in steamApi.\n"
               "If you need help, you can check out "
-              "https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration")
+              "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
         return 'Steam'
     elif userdata.status_code != 200:
         print(f"Something went wrong with the API callout, falling back to playing Steam.\n"
