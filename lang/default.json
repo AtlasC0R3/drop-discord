@@ -215,5 +215,9 @@
   "Successfully done requested changes.",
   "No valid changes requested; none made.",
   "There currently are no temp-bans for this guild.",
-  "That user is banned, however not temp-banned."
+  "That user is banned, however not temp-banned.",
+
+  "Couldn't find that game on Steam.",
+  "That game doesn't seem to have any reports on ProtonDB.",
+  "**Linux seems to be natively supported**, according to Steam!"
 ]

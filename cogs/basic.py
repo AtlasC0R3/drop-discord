@@ -1,18 +1,23 @@
 import json
 from datetime import datetime as d
 import re
+import requests
 
 import discord
 from discord.ext import commands
-from data.extdata import get_language_str, get_listening_to
+from data.extdata import get_language_str, get_listening_to, get_config_parameter
 
 import drop
 from drop.basic import *
-
+from drop.steam import search_game, get_protondb_summary, get_steam_app_info
+from drop.errors import GameNotFound
 
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
     color_list = [c for c in colors.values()]
+
+steam_key = get_config_parameter("steamApi", dict).get("key")
+protondb_colors = {"Platinum": 0xB7C9DE, "Gold": 0xCFB526, "Silver": 0xC1C1C1, "Bronze": 0xCB7F22, "Borked": 0xF90000}
 
 
 # New - The Cog class must extend the commands.Cog class
@@ -334,6 +339,57 @@ class Basic(commands.Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.reply(get_language_str(ctx.guild.id, 122))
+
+    @commands.command(
+        name='protondb',
+        description="Fetches results from ProtonDB to know your game's compatibility rating (platinum, gold, silver, "
+                    "etc.)\nBecause Linux gaming is awesome.",  # :^)
+        brief='Fetches ProtonDB results',
+        usage="[220 | Half-Life 2] (note: inputting nothing will default to looking for Half-Life 2)"
+    )
+    async def protondb_command(self, ctx, *, requested_app="220"):
+        if requested_app.isdigit():
+            app_id = requested_app
+        else:
+            try:
+                app_id = search_game(requested_app)[0]
+            except IndexError:
+                await ctx.reply(get_language_str(ctx.guild.id, 132))
+                return
+
+        try:
+            received = get_protondb_summary(app_id)
+        except GameNotFound:
+            await ctx.reply(get_language_str(ctx.guild.id, 133))
+            return
+
+        tier = received.get("tier").title()
+        string_result = received.get("string_result")
+
+        steam_url = get_steam_app_info(app_id)
+        game_data = requests.get(steam_url).json()[str(app_id)]["data"]
+        game_name = game_data["name"]
+        game_image = game_data["header_image"]
+        color = received.get("color")
+        if game_data["platforms"]["linux"]:
+            string_result = string_result + '\n\n' + get_language_str(ctx.guild.id, 134)
+
+        # await ctx.reply(string_result)
+        # await ctx.send(f"Game's {game_name} by the way, here's an image: {game_image}")
+        embed = discord.Embed(
+            title=game_name,
+            description=f"**{tier}**\n{string_result}",
+            url=f"https://www.protondb.com/app/{app_id}",
+            color=color
+        )
+        embed.set_footer(
+            text="ProtonDB",
+            icon_url="https://www.protondb.com/sites/protondb/images/favicon.ico"
+        )
+        embed.set_thumbnail(
+            url=game_image
+        )
+        await ctx.reply(embed=embed)
 
 
 def setup(bot):
