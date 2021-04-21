@@ -366,11 +366,10 @@ class Basic(commands.Cog):
         tier = received.get("tier").title()
         string_result = received.get("string_result")
 
-        steam_url = get_steam_app_info(app_id)
-        game_data = requests.get(steam_url).json()[str(app_id)]["data"]
+        game_data = get_steam_app_info(app_id).json()[str(app_id)]["data"]
         game_name = game_data["name"]
         game_image = game_data["header_image"]
-        color = received.get("color")
+        color = received.get("tier_color")
         if game_data["platforms"]["linux"]:
             string_result = string_result + '\n\n' + get_language_str(ctx.guild.id, 134)
 
