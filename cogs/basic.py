@@ -490,6 +490,11 @@ class Basic(commands.Cog):
                 value=misc,
                 inline=True
             )
+        if game_data['content_descriptors']['notes']:
+            embed.add_field(
+                name="Content descriptors",
+                value=game_data['content_descriptors']['notes']
+            )
         await ctx.reply(embed=embed)
 
 
