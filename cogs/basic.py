@@ -1,7 +1,7 @@
 import json
 from datetime import datetime as d
 import re
-import requests
+import requests  # otherwise lyrics will sometimes freak out.
 
 import discord
 from discord.ext import commands
@@ -11,6 +11,7 @@ import drop
 from drop.basic import *
 from drop.steam import search_game, get_protondb_summary, get_steam_app_info
 from drop.errors import GameNotFound
+from drop.ext import format_html, format_names
 
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
@@ -18,6 +19,10 @@ with open("data/embed_colors.json") as f:
 
 steam_key = get_config_parameter("steamApi", dict).get("key")
 protondb_colors = {"Platinum": 0xB7C9DE, "Gold": 0xCFB526, "Silver": 0xC1C1C1, "Bronze": 0xCB7F22, "Borked": 0xF90000}
+
+
+def check_if_steam_nsfw(ctx, game_data: dict):
+    return (1 in game_data['content_descriptors']['ids']) and (not ctx.channel.is_nsfw())
 
 
 # New - The Cog class must extend the commands.Cog class
@@ -366,9 +371,14 @@ class Basic(commands.Cog):
         tier = received.get("tier").title()
         string_result = received.get("string_result")
 
-        game_data = get_steam_app_info(app_id).json()[str(app_id)]["data"]
-        game_name = game_data["name"]
-        game_image = game_data["header_image"]
+        game_data = get_steam_app_info(app_id)[str(app_id)]["data"]
+        if check_if_steam_nsfw(ctx, game_data):  # fuck my server forcing me to do this to make them shut up
+            game_name = "Unnamed NSFW game"
+            game_image = \
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Snake_plant.jpg/1200px-Snake_plant.jpg"
+        else:
+            game_name = game_data["name"]
+            game_image = game_data["header_image"]
         color = received.get("tier_color")
         if game_data["platforms"]["linux"]:
             string_result = string_result + '\n\n' + get_language_str(ctx.guild.id, 134)
@@ -388,6 +398,98 @@ class Basic(commands.Cog):
         embed.set_thumbnail(
             url=game_image
         )
+        await ctx.reply(embed=embed)
+
+    @commands.command(
+        name='steam',
+        description="get steam store page",
+        brief='steam store, woo',
+        usage="[220 | Half-Life 2] (note: inputting nothing will default to looking for Half-Life 2)"
+    )
+    async def steam_command(self, ctx, *, requested_app="220"):
+        if requested_app.isdigit():
+            app_id = requested_app
+        else:
+            try:
+                app_id = search_game(requested_app)[0]
+            except IndexError:
+                await ctx.reply(get_language_str(ctx.guild.id, 132))
+                return
+
+        game_data = get_steam_app_info(app_id)[str(app_id)]["data"]
+        if check_if_steam_nsfw(ctx, game_data):
+            await ctx.send(f"<@{ctx.author.id}>, what are you doing? :^)")
+            return
+        game_name = game_data["name"]
+        game_image = game_data["header_image"]
+        descriptions = (game_data["about_the_game"], game_data["detailed_description"], game_data["short_description"])
+        description = "Descriptions too long in length. Sorry!"
+        for desc in descriptions:
+            if len(desc) <= 2048:
+                description = format_html(desc)
+        developers = format_names(game_data["developers"])
+        publishers = format_names(game_data["publishers"])
+
+        embed = discord.Embed(
+            title=game_name,
+            description=description,
+            url=f"http://store.steampowered.com/app/{app_id}"
+        )
+        if (developers == publishers) or (not publishers):
+            embed.set_author(name=developers)
+        else:
+            embed.set_author(name=f"Developed by {developers}, published by {publishers}")
+        embed.set_footer(
+            text="Steam Store",
+            icon_url="https://upload.wikimedia.org/"
+                     "wikipedia/commons/thumb/8/83/Steam_icon_logo.svg/512px-Steam_icon_logo.svg.png"
+        )
+        embed.set_thumbnail(
+            url=game_image
+        )
+        price = "Free"
+        if game_data["release_date"]["coming_soon"]:
+            price = f"Coming soon ({game_data['release_date']['date']})"
+        else:
+            embed.add_field(
+                name="Release date",
+                value=game_data['release_date']['date'],
+                inline=True
+            )
+        if not game_data["is_free"]:
+            try:
+                price = game_data["price_overview"]["final_formatted"]
+            except KeyError:
+                price = "¯\\\\_(ツ)\\_/¯"
+        embed.add_field(
+            name="Price",
+            value=price,
+            inline=True
+        )
+        if game_data.get("metacritic"):
+            embed.add_field(
+                name=f"Metacritic",
+                value=f"[{game_data['metacritic']['score']} (link)]({game_data['metacritic']['url']})",
+                inline=True
+            )
+        misc = ""
+        if game_data.get("demos"):
+            demos = game_data.get("demos")
+            if len(demos) == 1:
+                misc += f"[Demo found!](https://store.steampowered.com/app/{demos[0]['appid']})\n"
+        platforms = game_data["platforms"]
+        if platforms["mac"] and platforms["linux"]:
+            misc += "macOS and Linux natively supported!\n"
+        elif platforms["linux"]:
+            misc += "Linux natively supported!\n"
+        elif platforms["mac"]:
+            misc += "macOS natively supported!\n"
+        if misc:
+            embed.add_field(
+                name="Miscellaneous",
+                value=misc,
+                inline=True
+            )
         await ctx.reply(embed=embed)
 
 
