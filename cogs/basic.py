@@ -402,8 +402,8 @@ class Basic(commands.Cog):
 
     @commands.command(
         name='steam',
-        description="get steam store page",
-        brief='steam store, woo',
+        description="Fetches results from the Steam store, similar to how you'd post a link to a Steam app.",
+        brief='Searches the Steam store',
         usage="[220 | Half-Life 2] (note: inputting nothing will default to looking for Half-Life 2)"
     )
     async def steam_command(self, ctx, *, requested_app="220"):
