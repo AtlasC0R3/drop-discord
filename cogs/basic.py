@@ -468,7 +468,7 @@ class Basic(commands.Cog):
         )
         if game_data.get("metacritic"):
             embed.add_field(
-                name=f"Metacritic",
+                name="Metacritic",
                 value=f"[{game_data['metacritic']['score']} (link)]({game_data['metacritic']['url']})",
                 inline=True
             )
