@@ -113,7 +113,10 @@ async def check_message(message):
     result = check_banword_filter(message.content, message.guild.id)
     penalty = result[0]
     if penalty != 0:
-        await message.delete()
+        try:
+            await message.delete()
+        except discord.errors.NotFound:
+            pass  # oh well.
         if penalty != 1:
             try:
                 offensive_word = result[1]
