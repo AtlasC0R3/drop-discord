@@ -5,6 +5,7 @@ import random
 import discord
 import lyricsgenius
 import re
+from drop import config, errors
 
 
 exampleServerConfig = {
@@ -22,9 +23,6 @@ exampleServerConfig = {
 }
 
 exampleConfig = {}
-
-with open("data/config.json", "r", encoding="utf-8", newline="\n") as f:
-    bot_config = json.load(f)
 
 langs = {}
 for lang in os.listdir('lang/'):
@@ -84,11 +82,11 @@ def get_discpy_version():
 
 
 def get_config_parameter(param, paramtype):
-    config_param = bot_config.get(param)
-    if config_param is None:
+    try:
+        config_param = config.get_config_parameter(param, paramtype)
+    except errors.ConfigParameterNotFound:
         config_param = exampleConfig.get(param)
-        bot_config[param] = config_param
-        json.dump(bot_config, open(f"data/config.json", "w+", encoding="utf-8", newline='\n'), indent=2)
+        config.write_config_parameter(param, config_param)
     return paramtype(config_param)
 
 
@@ -102,54 +100,39 @@ except TypeError:
 
 def get_server_config(serverid, param, paramtype):
     try:
-        with open(f"data/servers/{serverid}/config.json", "r", encoding="utf-8", newline="\n") as file:
-            server_config = json.load(file)
-            config_param = server_config.get(param)
-            if config_param is None:
-                config_param = exampleServerConfig.get(param)
-                server_config[param] = config_param
-                json.dump(server_config, open(f"data/servers/{serverid}/config.json", "w+", encoding="utf-8",
-                                              newline='\n'))
-            return paramtype(config_param)
-    except FileNotFoundError:
-        # No config exists for this server.
-        if not os.path.exists(f"data/servers/{serverid}/"):
-            os.makedirs(f"data/servers/{serverid}/")
-        with open(f"data/servers/{serverid}/config.json", "w+", encoding="utf-8", newline='\n') as file:
-            json.dump(exampleServerConfig, file, indent=2)
-            return paramtype(exampleServerConfig.get(param))
+        return config.get_server_config(serverid, param, paramtype)
+    except errors.ConfigParameterNotFound:
+        config_param = exampleServerConfig.get(param)
+        config.write_server_config(serverid, param, config_param)
+        return config_param
+    except errors.ConfigNotFound:
+        config.write_entire_server_config(serverid, exampleServerConfig)
+        return paramtype(exampleServerConfig.get(param))
 
 
 def get_entire_server_config(serverid):
-    try:
-        with open(f"data/servers/{serverid}/config.json", "r", encoding="utf-8", newline="\n") as file:
-            server_config = json.load(file)
-            return server_config
-    except FileNotFoundError:
-        # No config exists for this server.
-        with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as file:
-            json.dump(exampleServerConfig, file, indent=2)
-            return exampleServerConfig
+    return config.get_entire_server_config(serverid)
 
 
 def write_server_config(serverid, param, value):
-    try:
-        with open(f"data/servers/{serverid}/config.json", "r+", encoding="utf-8", newline="\n") as file:
-            server_config = json.load(file)
-            server_config[param] = value
-            file.seek(0)
-            json.dump(server_config, file, indent=2)
-            file.truncate()
-            return
-    except FileNotFoundError:
-        # No config exists for this server.
-        with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as file:
-            server_config = exampleServerConfig
-            server_config[param] = value
-            file.seek(0)
-            json.dump(server_config, file, indent=2)
-            file.truncate()
-            return
+    config.write_server_config(serverid, param, value)
+#     try:
+#         with open(f"data/servers/{serverid}/config.json", "r+", encoding="utf-8", newline="\n") as file:
+#             server_config = json.load(file)
+#             server_config[param] = value
+#             file.seek(0)
+#             json.dump(server_config, file, indent=2)
+#             file.truncate()
+#             return
+#     except FileNotFoundError:
+#         # No config exists for this server.
+#         with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as file:
+#             server_config = exampleServerConfig
+#             server_config[param] = value
+#             file.seek(0)
+#             json.dump(server_config, file, indent=2)
+#             file.truncate()
+#             return
 
 
 def get_steam_played_game():
