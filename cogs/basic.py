@@ -1,7 +1,6 @@
 import json
 from datetime import datetime as d
 import re
-import requests  # otherwise lyrics will sometimes freak out.
 
 import discord
 from discord.ext import commands
