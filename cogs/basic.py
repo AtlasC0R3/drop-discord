@@ -44,7 +44,12 @@ class Basic(commands.Cog):
         pong = get_language_str(ctx.guild.id, 9)
         start = d.timestamp(d.now())
         msg = await ctx.reply(content=huh)
-        await msg.edit(content=pong.format((d.timestamp(d.now()) - start) * 1000))
+        message_latency = (d.timestamp(d.now()) - start) * 1000
+        await msg.edit(content=pong.format(message_latency), embed=discord.Embed(
+            title="extra details for nerds",
+            description=f"message latency: {message_latency}ms\n"
+                        f"discord.py latency: {round(self.bot.latency * 1000)}ms"
+        ))
         # Do not move into rewrite
 
     @commands.command(
