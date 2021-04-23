@@ -228,6 +228,7 @@ class Moderation(commands.Cog):
         brief='Store all of the pins in a channel',
         aliases=['savepins', 'pincenter']
     )
+    @commands.has_permissions(manage_messages=True)
     async def storepins_command(self, ctx, channel):
         pins = reversed(await ctx.channel.pins())
         for pin in pins:
