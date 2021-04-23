@@ -218,18 +218,19 @@ async def on_message(message):
             count = 0
         message_count[message.channel.id] = count + 1
     if message.content == bot_mention:
-        if message.author.id in get_server_config(message.guild.id, 'asked_prefix', list):
-            lang = get_server_config(message.guild.id, 'language', str)
-            to_send = get_language_str(lang, 0)
-            await message.channel.send(random.choice(to_send).format(message))
-            return
-        else:
-            lang = get_server_config(message.guild.id, 'language', str)
-            to_send = get_language_str(lang, 4)
-            await message.channel.send(to_send.format(get_server_config(message.guild.id, 'prefix', str)))
+        if message.author.id not in get_server_config(message.guild.id, 'asked_prefix', list):
+            # remind user about the prefix
             asked = get_server_config(message.guild.id, 'asked_prefix', list)
             asked.append(message.author.id)
             write_server_config(message.guild.id, 'asked_prefix', asked)
+            await message.channel.send(get_language_str(message.guild.id, 4).format(
+                get_server_config(message.guild.id, 'prefix', str)))
+        else:
+            # taunt the user
+            to_send = get_language_str(get_server_config(message.guild.id, 'language', str), 0)
+            await message.channel.send(random.choice(to_send).format(message))
+            return
+
     if '(╯°□°）╯︵ ┻━┻' in message.content and message.guild:
         if get_server_config(message.guild.id, 'tableflip', bool):
             time.sleep(0.75)
