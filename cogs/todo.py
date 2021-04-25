@@ -1,7 +1,7 @@
 import random
 
 from discord.ext import commands
-from data.extdata import get_language_str
+from data.extdata import get_language_str, wait_for_user
 import discord
 
 from drop.todo import *
@@ -10,22 +10,6 @@ from drop.todo import *
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
     color_list = [c for c in colors.values()]
-
-
-async def wait_for_user(ctx, bot):
-    def check(ms):
-        return ms.channel == ctx.message.channel and ms.author == ctx.message.author
-
-    reply_msg = await bot.wait_for('message', check=check)
-    reply = reply_msg.content.lower()
-    if reply in ('y', 'yes', 'confirm'):
-        return True
-    elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-        await ctx.send(get_language_str(ctx.guild.id, 26))
-        return False
-    else:
-        await ctx.send(get_language_str(ctx.guild.id, 27))
-        return False
 
 
 rm_aliases = ['rm', 'r', 'del', 'd', 'delete']

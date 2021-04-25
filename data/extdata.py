@@ -306,3 +306,19 @@ def check_banword_filter(message: str, guild_id: list):
                     warn = True
     return_list = [result, offensive_word, warn]
     return return_list
+
+
+async def wait_for_user(ctx, bot):
+    def check(ms):
+        return ms.channel == ctx.message.channel and ms.author == ctx.message.author
+
+    reply_msg = await bot.wait_for('message', check=check)
+    reply = reply_msg.content.lower()
+    if reply in ('y', 'yes', 'confirm'):
+        return True
+    elif reply in ('n', 'no', 'cancel', 'flanksteak'):
+        await ctx.send(get_language_str(ctx.guild.id, 26))
+        return False
+    else:
+        await ctx.send(get_language_str(ctx.guild.id, 27))
+        return False
