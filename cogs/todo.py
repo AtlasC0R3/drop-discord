@@ -17,17 +17,20 @@ edit_aliases = ['e', 'ed']
 add_aliases = ['a']
 
 
-class TodoNew(commands.Cog):
+class Todo(commands.Cog):
     """
-    remastered
-    TODO: change this name
+    Just regular, to-do notes for the user and guild.
     """
 
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group(
-        name="todo"
+        name="todo",
+        description="The to-do command. This is a command group that has many different commands inside, "
+                    "notably \"add\", \"delete\", \"remove\", and other subcommands in \"todo guild\"",
+        brief="Basic to-do subcommands",
+        usage="add Bite my own tongue"
     )
     async def todo_group(self, ctx):
         if not ctx.invoked_subcommand:
@@ -59,17 +62,20 @@ class TodoNew(commands.Cog):
 
     @todo_group.command(
         name="add",
-        aliases=add_aliases
+        aliases=add_aliases,
+        brief="Add things to your to-do list",
+        usage="Bake a cake for tomorrow"
     )
     async def add_todo_command(self, ctx, *, user_args):
-        print(self)
         add_todo(ctx.author.id, user_args)
         await ctx.reply(get_language_str(ctx.guild.id, 99))
         return
     
     @todo_group.command(
         name="remove",
-        aliases=rm_aliases
+        aliases=rm_aliases,
+        brief="Remove things from your to-do list",
+        usage="1"
     )
     async def remove_todo_command(self, ctx, index):
         index = int(index) - 1
@@ -99,7 +105,9 @@ class TodoNew(commands.Cog):
 
     @todo_group.command(
         name="edit",
-        aliases=edit_aliases
+        aliases=edit_aliases,
+        brief="Edit things from your to-do list",
+        usage="1 Throw away the cake for tomorrow"
     )
     async def edit_todo_command(self, ctx, index, *, user_args):
         if not index.isdigit(): return
@@ -127,8 +135,11 @@ class TodoNew(commands.Cog):
             return
 
     @todo_group.group(
-        name="guild"
+        name="guild",
+        brief="Command group for guild-specific to-do lists",
+        usage="add Remove #general"
     )
+    @commands.has_guild_permissions(manage_messages=True)
     async def guild_todo_group(self, ctx):
         if not ctx.invoked_subcommand:
             # check guild todos
@@ -166,7 +177,9 @@ class TodoNew(commands.Cog):
 
     @guild_todo_group.command(
         name="add",
-        aliases=add_aliases
+        aliases=add_aliases,
+        brief="Add things to the guild's to-do list",
+        usage="Delete server"
     )
     async def add_todo_command(self, ctx, *, user_args):
         add_guild_todo(ctx.guild.id, user_args, ctx.author.id)
@@ -175,7 +188,9 @@ class TodoNew(commands.Cog):
 
     @guild_todo_group.command(
         name="remove",
-        aliases=rm_aliases
+        aliases=rm_aliases,
+        brief="Remove things from the guild's to-do list",
+        usage="1"
     )
     async def remove_guild_todo_command(self, ctx, index):
         desc = int(index) - 1
@@ -194,7 +209,9 @@ class TodoNew(commands.Cog):
 
     # @guild_todo_group.command(
     #     name="edit",
-    #     aliases=edit_aliases
+    #     aliases=edit_aliases,
+    #     brief="Edit things from the guild's to-do list",
+    #     usage="1 Archive this server instead"
     # )
     # async def edit_guild_todo_command(self, ctx, index, *, user_args):
     #     if not index.isdigit(): return
@@ -234,4 +251,4 @@ class TodoNew(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(TodoNew(bot))
+    bot.add_cog(Todo(bot))
