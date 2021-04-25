@@ -116,23 +116,6 @@ def get_entire_server_config(serverid):
 
 def write_server_config(serverid, param, value):
     config.write_server_config(serverid, param, value)
-#     try:
-#         with open(f"data/servers/{serverid}/config.json", "r+", encoding="utf-8", newline="\n") as file:
-#             server_config = json.load(file)
-#             server_config[param] = value
-#             file.seek(0)
-#             json.dump(server_config, file, indent=2)
-#             file.truncate()
-#             return
-#     except FileNotFoundError:
-#         # No config exists for this server.
-#         with open(f"data/servers/{serverid}/config.json", "w", encoding="utf-8", newline='\n') as file:
-#             server_config = exampleServerConfig
-#             server_config[param] = value
-#             file.seek(0)
-#             json.dump(server_config, file, indent=2)
-#             file.truncate()
-#             return
 
 
 def get_steam_played_game():
