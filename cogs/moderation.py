@@ -3,7 +3,7 @@ import random
 
 import discord
 from discord.ext import commands, tasks
-from data.extdata import get_language_str
+from data.extdata import get_language_str, wait_for_user
 
 from drop.tempban import *
 from drop.errors import *
@@ -38,19 +38,11 @@ class Moderation(commands.Cog):
             return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
         await ctx.send(get_language_str(ctx.guild.id, 63).format(ctx.author.name, str(to_delete)))
-        msg = await self.bot.wait_for('message', check=check)
-        reply = msg.content.lower()  # Set the confirmation
-        if reply in ('y', 'yes', 'confirm'):
+        if await wait_for_user(ctx, self.bot):
             await ctx.channel.purge(limit=to_delete + 3)
             temp_message = await ctx.send(get_language_str(ctx.guild.id, 64).format(ctx.author.name, str(to_delete)))
             time.sleep(5)
             await temp_message.delete()
-            return
-        elif reply in ('n', 'no', 'cancel', 'flanksteak'):  # idk why i decided to put flanksteak there
-            await ctx.send(26)
-            return
-        else:
-            await ctx.send(27)
             return
 
     @commands.command(

@@ -10,7 +10,7 @@ from discord.ext.commands import has_guild_permissions
 import parsedatetime
 
 from data.extdata import write_server_config, get_server_config, get_entire_server_config, get_language_str, \
-    get_all_languages
+    get_all_languages, wait_for_user
 
 cal = parsedatetime.Calendar()
 
@@ -58,10 +58,8 @@ class Configuration(commands.Cog):
 
         # Ask the user for confirmation
         await ctx.send(get_language_str(ctx.guild.id, 23).format(new_prefix))
-        reply_msg = await self.bot.wait_for('message', check=check)
-        reply = reply_msg.content.lower()
 
-        if reply in ('y', 'yes', 'confirm'):
+        if await wait_for_user(ctx, self.bot):
             if get_server_config(ctx.guild.id, 'prefix', str) == new_prefix:
                 await ctx.send(get_language_str(ctx.guild.id, 24))
                 return
@@ -69,11 +67,6 @@ class Configuration(commands.Cog):
             await ctx.reply(get_language_str(ctx.guild.id, 25))
             write_server_config(ctx.guild.id, 'asked_prefix', [])
             return
-        elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-            await ctx.send(get_language_str(ctx.guild.id, 26))
-            return
-        else:
-            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @setprefix_command.error
     async def setprefix_handler(self, ctx, error):
@@ -189,7 +182,7 @@ class Configuration(commands.Cog):
         reply_msg = await self.bot.wait_for('message', check=check)
         reply = reply_msg.content.lower()
 
-        if reply in ('y', 'yes', 'confirm'):
+        if await wait_for_user(ctx, self.bot):
             if remove:
                 new_list = [x for x in get_server_config(ctx.guild.id, 'inactivity_channels', list) if x != channel.id]
                 write_server_config(ctx.guild.id, 'inactivity_channels', new_list)
@@ -201,11 +194,6 @@ class Configuration(commands.Cog):
                 write_server_config(ctx.guild.id, 'inactivity_channels', new_list)
                 await ctx.reply(get_language_str(ctx.guild.id, 40).format(channel.id))
                 return
-        elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-            await ctx.send(get_language_str(ctx.guild.id, 26))
-            return
-        else:
-            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @inactivitychannel_command.error
     async def inactivitychannel_handler(self, ctx, error):
@@ -265,15 +253,10 @@ class Configuration(commands.Cog):
         replymsg = await self.bot.wait_for('message', check=check)
         reply = replymsg.content.lower()
 
-        if reply in ('y', 'yes', 'confirm'):
+        if await wait_for_user(ctx, self.bot):
             write_server_config(ctx.guild.id, 'mute_role', role.id)
             await ctx.reply(get_language_str(ctx.guild.id, 46).format(role.name))
             return
-        elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-            await ctx.send(get_language_str(ctx.guild.id, 26))
-            return
-        else:
-            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @mutedrole_command.error
     async def mutedrole_handler(self, ctx, error):
@@ -412,14 +395,8 @@ class Configuration(commands.Cog):
             replymsg = await self.bot.wait_for('message', check=check)
             reply = replymsg.content.lower()
 
-            if reply in ('y', 'yes', 'confirm'):
+            if await wait_for_user(ctx, self.bot):
                 pass
-            elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-                await ctx.send(get_language_str(ctx.guild.id, 26))
-                return
-            else:
-                await ctx.send(get_language_str(ctx.guild.id, 27))
-                return
         if togglethingy in disabled_commands:
             new_commands = [x for x in disabled_commands if x != togglethingy]
             write_server_config(ctx.guild.id, 'disabled_commands', new_commands)

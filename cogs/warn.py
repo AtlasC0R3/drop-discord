@@ -3,7 +3,7 @@ import random
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions
-from data.extdata import get_language_str
+from data.extdata import get_language_str, wait_for_user
 
 from drop.moderation import *
 
@@ -183,17 +183,10 @@ class Warn(commands.Cog):
 
         await ctx.send(content=get_language_str(ctx.guild.id, 116) + ' (y or n)',
                        embed=confirmation_embed)
-        msg = await self.bot.wait_for('message', check=check)
-        reply = msg.content.lower()   # Set the title
-        if reply in ('y', 'yes', 'confirm'):
+        if await wait_for_user(ctx, self.bot):
             remove_warn(ctx.guild.id, user.id, warn_index)
             await ctx.reply(get_language_str(ctx.guild.id, 117))
             return
-        elif reply in ('n', 'no', 'cancel'):
-            await ctx.send(get_language_str(ctx.guild.id, 26))
-            return
-        else:
-            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @remove_warn_command.error
     async def remove_warn_handler(self, ctx, error):
@@ -257,17 +250,10 @@ class Warn(commands.Cog):
         await ctx.send(content=get_language_str(ctx.guild.id, 120) + ' (y/n)',
                        embed=confirmation_embed)
 
-        msg = await self.bot.wait_for('message', check=check)
-        reply = msg.content.lower()   # Set the title
-        if reply in ('y', 'yes', 'confirm'):
+        if await wait_for_user(ctx, self.bot):
             edit_warn(ctx.guild.id, user.id, int(warnindex), warn_new_reason)
             await ctx.reply(get_language_str(ctx.guild.id, 121))
             return
-        elif reply in ('n', 'no', 'cancel', 'flanksteak'):
-            await ctx.send(get_language_str(ctx.guild.id, 26))
-            return
-        else:
-            await ctx.send(get_language_str(ctx.guild.id, 27))
 
     @edit_warn_command.error
     async def edit_warn_handler(self, ctx, error):
