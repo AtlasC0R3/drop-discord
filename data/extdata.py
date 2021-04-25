@@ -248,6 +248,8 @@ def get_listening_to(activities: discord.Member.activities):
                 return [activity.details.split(' - ')[-1], activity.state.replace("👥 ", "")]
             elif activity.application_id == 409394531948298250:  # MusicBee
                 return [activity.state, activity.details.split(' - ')[0]]
+            elif activity.application_id == 826521040275636325:  # Dopamine
+                return [activity.details, activity.state.replace('by ', '', 1)]
 
 
 def get_new_activity(user_member=None):
