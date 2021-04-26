@@ -97,6 +97,7 @@ ownerMember = None
 ownerUser = None
 ownerId = get_config_parameter('owner_id', int)
 bot_mention = None
+bot_mention_mobile = None
 
 for cog in cogs:
     if verbose:
@@ -175,7 +176,9 @@ async def on_ready():
         init_genius(get_config_parameter('geniusApi', str))
 
     global bot_mention
+    global bot_mention_mobile
     bot_mention = f'<@!{bot.user.id}>'
+    bot_mention_mobile = f'<@{bot.user.id}>'
     return
 
 
@@ -217,7 +220,7 @@ async def on_message(message):
         else:
             count = 0
         message_count[message.channel.id] = count + 1
-    if message.content == bot_mention:
+    if (message.content == bot_mention) or (message.content == bot_mention_mobile):
         if message.author.id not in get_server_config(message.guild.id, 'asked_prefix', list):
             # remind user about the prefix
             asked = get_server_config(message.guild.id, 'asked_prefix', list)
