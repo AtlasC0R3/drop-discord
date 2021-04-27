@@ -295,8 +295,8 @@ class Configuration(commands.Cog):
     @configinfo_command.error
     async def configinfo_handler(self, ctx, error):
         if isinstance(error, commands.errors.MissingPermissions):
-            await ctx.repy(f"{ctx.author.name}, you don't have the permissions to do that.\n"
-                           f"*({error} Action cancelled)*")
+            await ctx.reply(f"{ctx.author.name}, you don't have the permissions to do that.\n"
+                            f"*({error} Action cancelled)*")
             return
 
     @commands.command(
