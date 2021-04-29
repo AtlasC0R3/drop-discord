@@ -207,47 +207,47 @@ class Todo(commands.Cog):
         await ctx.reply(get_language_str(ctx.guild.id, 104))
         return
 
-    # @guild_todo_group.command(
-    #     name="edit",
-    #     aliases=edit_aliases,
-    #     brief="Edit things from the guild's to-do list",
-    #     usage="1 Archive this server instead"
-    # )
-    # async def edit_guild_todo_command(self, ctx, index, *, user_args):
-    #     if not index.isdigit(): return
-    #     index = int(index) - 1
-    #
-    #     if not user_args:
-    #         await ctx.reply(get_language_str(ctx.guild.id, 124))
-    #         return
-    #
-    #     try:
-    #         to_edit = get_guild_todos(ctx.guild.id)[index]
-    #     except IndexError:
-    #         await ctx.reply(get_language_str(ctx.guild.id, 102))
-    #         return
-    #
-    #     if to_edit.get('author') != ctx.author.id:
-    #         await ctx.reply(get_language_str(ctx.guild.id, 109))
-    #         return
-    #
-    #     embed = discord.Embed(
-    #         title=f"Item {index + 1}",
-    #         description=f"{user_args}\n"
-    #                     f"*{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}*",
-    #         color=random.choice(color_list)
-    #     )
-    #     embed.set_author(
-    #         name=ctx.message.author.name,
-    #         icon_url=ctx.message.author.avatar_url,
-    #         url=f"https://discord.com/users/{ctx.message.author.id}/"
-    #     )
-    #     await ctx.send(get_language_str(ctx.guild.id, 106), embed=embed)
-    #
-    #     if await wait_for_user(ctx, self.bot):
-    #         edit_guild_todo(ctx.guild.id, index, user_args)
-    #         await ctx.reply(get_language_str(ctx.guild.id, 107))
-    #         return
+    @guild_todo_group.command(
+        name="edit",
+        aliases=edit_aliases,
+        brief="Edit things from the guild's to-do list",
+        usage="1 Archive this server instead"
+    )
+    async def edit_guild_todo_command(self, ctx, index, *, user_args):
+        if not index.isdigit(): return
+        index = int(index) - 1
+
+        if not user_args:
+            await ctx.reply(get_language_str(ctx.guild.id, 124))
+            return
+
+        try:
+            to_edit = get_guild_todos(ctx.guild.id)[index]
+        except IndexError:
+            await ctx.reply(get_language_str(ctx.guild.id, 102))
+            return
+
+        if to_edit.get('author') != ctx.author.id:
+            await ctx.reply(get_language_str(ctx.guild.id, 109))
+            return
+
+        embed = discord.Embed(
+            title=f"Item {index + 1}",
+            description=f"{user_args}\n"
+                        f"*{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}*",
+            color=random.choice(color_list)
+        )
+        embed.set_author(
+            name=ctx.message.author.name,
+            icon_url=ctx.message.author.avatar_url,
+            url=f"https://discord.com/users/{ctx.message.author.id}/"
+        )
+        await ctx.send(get_language_str(ctx.guild.id, 106), embed=embed)
+
+        if await wait_for_user(ctx, self.bot):
+            edit_guild_todo(ctx.guild.id, index, user_args)
+            await ctx.reply(get_language_str(ctx.guild.id, 107))
+            return
 
 
 def setup(bot):
