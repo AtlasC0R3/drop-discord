@@ -66,7 +66,7 @@ class Todo(commands.Cog):
         brief="Add things to your to-do list",
         usage="Bake a cake for tomorrow"
     )
-    async def add_todo_command(self, ctx, *, user_args):
+    async def add_todo_command(ctx, *, user_args):
         add_todo(ctx.author.id, user_args)
         await ctx.reply(get_language_str(ctx.guild.id, 99))
         return
