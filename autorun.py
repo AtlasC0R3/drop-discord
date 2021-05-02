@@ -34,7 +34,6 @@ except ImportError:
     raise ImportError("Uh, you may want to create a config file for this script?")
 
 pip_cmd = [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
-pip_update_drop = [sys.executable, '-m', 'pip', 'install', 'drop-mod']
 
 
 def drop_clone(git_path):
@@ -144,12 +143,6 @@ if doPipInstallReqs:
                  "Troubleshooting or manual installation required. I'm aborting now.")
 
 while True:
-    print(f"Updating drop-mod using {pip_update_drop}")
-    try:
-        subprocess.check_call(pip_update_drop, shell=False)
-    except subprocess.CalledProcessError:
-        exit("Uh oh, seems like something didn't go right while trying to install drop-mod, which is this bot's core "
-             "program. Troubleshooting or manual installation required. I'm aborting now.")
     if os.path.exists(f'drop-discord{runs}'):
         shutil.rmtree(f'drop-discord{runs}')
     runs = runs + 1
