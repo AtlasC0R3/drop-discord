@@ -250,6 +250,9 @@ def get_listening_to(activities: discord.Member.activities):
                 return [activity.state, activity.details.split(' - ')[0]]
             elif activity.application_id == 826521040275636325:  # Dopamine
                 return [activity.details, activity.state.replace('by ', '', 1)]
+            elif activity.application_id == 435587535150907392:  # discordrp-mpris
+                things = activity.details.split('\n')
+                return [things[0], things[1].replace('by ', '', 1)]
 
 
 def get_new_activity(user_member=None):
