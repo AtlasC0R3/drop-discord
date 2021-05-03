@@ -94,28 +94,6 @@ def add_cogs():
         # Yup, ripped straight from the original bot's code!
 
 
-def move_server_data(runs: int):
-    root_src_dir = '.temp/'
-    if os.path.exists(root_src_dir):
-        shutil.rmtree(root_src_dir)
-    os.mkdir(root_src_dir)  # to clear stuff
-    root_dst_dir = f'drop-discord{runs}/drop-discord/'
-    for src_dir, dirs, files in os.walk(root_src_dir):
-        dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
-        if not os.path.exists(dst_dir):
-            os.makedirs(dst_dir)
-        for file_ in files:
-            src_file = os.path.join(src_dir, file_)
-            dst_file = os.path.join(dst_dir, file_)
-            if os.path.exists(dst_file):
-                # in case of the src and dst are the same file
-                if os.path.samefile(src_file, dst_file):
-                    continue
-                os.remove(dst_file)
-            shutil.copy(src_file, dst_dir)
-    shutil.rmtree('.temp/')
-
-
 prevDropJson = None
 if doSubdirectoryCleanup:
     previousDropDirs = []
@@ -175,8 +153,23 @@ while True:
     if autoWriteTokens:
         open(f'drop-discord{runs}/drop-discord/data/token.txt', 'w').write(token)
         open(f'drop-discord{runs}/drop-discord/data/devtoken.txt', 'w').write(devToken)
-    if doTransferServerData:
-        move_server_data(runs)
+    if os.path.isdir('.temp/'):
+        root_src_dir = '.temp/'
+        root_dst_dir = f'drop-discord{runs}/drop-discord/'
+        for src_dir, dirs, files in os.walk(root_src_dir):
+            dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
+            if not os.path.exists(dst_dir):
+                os.makedirs(dst_dir)
+            for file_ in files:
+                src_file = os.path.join(src_dir, file_)
+                dst_file = os.path.join(dst_dir, file_)
+                if os.path.exists(dst_file):
+                    # in case of the src and dst are the same file
+                    if os.path.samefile(src_file, dst_file):
+                        continue
+                    os.remove(dst_file)
+                shutil.copy(src_file, dst_dir)
+        shutil.rmtree('.temp/')
 
     print(f'Running loop, take {runs}')
     sp = subprocess.Popen(bot_cmd, shell=False, cwd=f'drop-discord{runs}/drop-discord/')
