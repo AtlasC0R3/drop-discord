@@ -374,8 +374,8 @@ async def on_command_error(ctx, error):
                 f"[{error}] while trying to invoke [{ctx.message.content}]")
         else:
             error_file = io.BytesIO(bytes(str(error), 'utf-8'))
-            await ctx.reply(content=get_language_str(get_server_config(ctx.guild.id, 'language', str), 8),
-                            file=discord.File(error_file, 'error.txt'))
+            await ctx.send(content=get_language_str(get_server_config(ctx.guild.id, 'language', str), 8),
+                           file=discord.File(error_file, 'error.txt'))
 
 
 @bot.event
@@ -403,6 +403,11 @@ async def on_guild_join(guild):
                 data_clear.pop(guild_entry[0])
             with open("data/data_clear.json", "w", encoding="utf-8", newline="\n") as d_clear:
                 json.dump(data_clear, d_clear, indent=2)
+
+
+# @bot.event
+# async def on_reaction_add(reaction, user):
+#     print(type(user))
 
 
 if get_config_parameter('dev_token', bool):
