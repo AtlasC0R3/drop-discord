@@ -119,16 +119,18 @@ class Configuration(commands.Cog):
         no_no_words = get_server_config(ctx.guild.id, 'no_no_words', dict)
         nonoword = nonoword.lower().replace(" ", "")
 
+        to_send = 0
         if nonoword in no_no_words:
             # it's already in, we have to delete it
             no_no_words.pop(nonoword)
             write_server_config(ctx.guild.id, 'no_no_words', no_no_words)
-            await ctx.reply(get_language_str(ctx.guild.id, 32))
+            to_send = 32
         else:
             # it's not in, we have to add it
             no_no_words[nonoword] = []
             write_server_config(ctx.guild.id, 'no_no_words', no_no_words)
-            await ctx.reply(get_language_str(ctx.guild.id, 33))
+            to_send = 33
+        await ctx.send(get_language_str(ctx.guild.id, to_send))
 
     @commands.command(
         name="inactivitychannel",
