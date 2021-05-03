@@ -253,6 +253,22 @@ def get_listening_to(activities: discord.Member.activities):
             elif activity.application_id == 435587535150907392:  # discordrp-mpris
                 things = activity.details.split('\n')
                 return [things[0], things[1].replace('by ', '', 1)]
+            else:
+                # Try guessing.
+                title = None
+                artist = None
+                if list(activity.state)[:2] == 'by ':
+                    artist = activity.state.replace('by ', '', 1)
+                    title = activity.details
+                elif ' - ' in activity.details:
+                    if ('playing' in activity.state) or ('paused' in activity.state):
+                        title = activity.details.split(' - ')[0]
+                        artist = activity.details.split(' - ')[-1]
+                    else:
+                        title = activity.state
+                        artist = activity.details.split(' - ')[0]
+                if title and artist:
+                    return [title, artist]
 
 
 def get_new_activity(user_member=None):
