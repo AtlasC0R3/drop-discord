@@ -338,13 +338,16 @@ class Basic(commands.Cog):
                 embed.set_thumbnail(
                     url=response['image']
                 )
-            if True:
-                for field in response['fields']:
-                    embed.add_field(
-                        name=field['name'],
-                        value=field['value'],
-                        inline=False
-                    )
+            if ctx.guild:
+                limit = 6
+            else:
+                limit = None
+            for field in response['fields'][:limit]:
+                embed.add_field(
+                    name=field['name'],
+                    value=field['value'],
+                    inline=True
+                )
             await ctx.send(embed=embed)
         else:
             await ctx.reply(get_language_str(ctx.guild.id, 122))
