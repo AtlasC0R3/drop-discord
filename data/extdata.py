@@ -257,18 +257,19 @@ def get_listening_to(activities: discord.Member.activities):
                 # Try guessing.
                 title = None
                 artist = None
-                if activity.state[:3] == 'by ':
-                    artist = activity.state.replace('by ', '', 1)
-                    title = activity.details
-                elif ' - ' in activity.details:
-                    if ('playing' in activity.state.lower()) or ('paused' in activity.state.lower()):
-                        title = activity.details.split(' - ')[0]
-                        artist = activity.details.split(' - ')[-1]
-                    else:
-                        title = activity.state
-                        artist = activity.details.split(' - ')[0]
-                if title and artist:
-                    return [title, artist]
+                if activity.state:
+                    if activity.state[:3] == 'by ':
+                        artist = activity.state.replace('by ', '', 1)
+                        title = activity.details
+                    elif ' - ' in activity.details:
+                        if ('playing' in activity.state.lower()) or ('paused' in activity.state.lower()):
+                            title = activity.details.split(' - ')[0]
+                            artist = activity.details.split(' - ')[-1]
+                        else:
+                            title = activity.state
+                            artist = activity.details.split(' - ')[0]
+                    if title and artist:
+                        return [title, artist]
 
 
 def get_new_activity(user_member=None):
