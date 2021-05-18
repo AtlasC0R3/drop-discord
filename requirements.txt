@@ -1,8 +1,8 @@
-drop-mod==1.5.1
+drop-mod==1.6
 
 discord.py==1.6.0
 discord-pretty-help
-discord-py-slash-command==1.1.0
+discord-py-slash-command==1.1.2
 parsedatetime
 requests
 lyricsgenius
