@@ -304,7 +304,7 @@ async def on_message(message):
 
 
 @bot.listen()
-async def on_message_edit(before, after):
+async def on_message_edit(_before, after):
     if after.guild:
         await check_message(after)
 
