@@ -45,7 +45,7 @@ try:
     from drop import moderation, mute
 except ImportError:
     sys.exit("drop-mod has not been installed. "
-             "This bot requires it to have help commands (which are required). "
+             "That's basically this bot's backend. "
              "Please install it using:\n  pip install drop-mod\n"
              "or by running\n  pip install -r requirements.txt")
 
