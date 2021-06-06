@@ -79,6 +79,3 @@ Dependencies, people who have helped...
 **Countless other Discord bots** that I took inspiration from
 
 **You** for checking this out, you're amazing
-
-**The Bus community**, I guess?
-<!--- Don't ask. It's better if you don't. -->
