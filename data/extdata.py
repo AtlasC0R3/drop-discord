@@ -7,6 +7,7 @@ import lyricsgenius
 import re
 from drop import config, errors
 
+from discord_components import Button, ButtonStyle
 
 exampleServerConfig = {
     "prefix": "!",
@@ -330,15 +331,26 @@ def check_banword_filter(message: str, guild_id: list):
     return return_list
 
 
-async def wait_for_user(ctx, bot):
+async def wait_for_user(ctx, bot, msg: discord.Message):
     def check(ms):
         return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
-    reply_msg = await bot.wait_for('message', check=check)
-    reply = reply_msg.content.lower()
-    if reply in ('y', 'yes', 'confirm'):
+    yes = "Yes"
+    no = "No"
+    what_the_fuck = "what the fuck"
+
+    await msg.edit(components=[[
+        Button(label=yes, style=ButtonStyle.green),
+        Button(label=no, style=ButtonStyle.red),
+        Button(label=what_the_fuck, style=ButtonStyle.gray)
+    ]])
+
+    interaction = await bot.wait_for("button_click", check=check)
+    await msg.edit(components=[])
+    reply = interaction.component.label
+    if reply == yes:
         return True
-    elif reply in ('n', 'no', 'cancel', 'flanksteak'):
+    elif reply == no:
         await ctx.send(get_language_str(ctx.guild.id, 26))
         return False
     else:

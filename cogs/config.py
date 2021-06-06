@@ -57,9 +57,9 @@ class Configuration(commands.Cog):
             return
 
         # Ask the user for confirmation
-        await ctx.send(get_language_str(ctx.guild.id, 23).format(new_prefix))
+        msg = await ctx.send(get_language_str(ctx.guild.id, 23).format(new_prefix))
 
-        if await wait_for_user(ctx, self.bot):
+        if await wait_for_user(ctx, self.bot, msg):
             if get_server_config(ctx.guild.id, 'prefix', str) == new_prefix:
                 await ctx.send(get_language_str(ctx.guild.id, 24))
                 return
@@ -119,7 +119,6 @@ class Configuration(commands.Cog):
         no_no_words = get_server_config(ctx.guild.id, 'no_no_words', dict)
         nonoword = nonoword.lower().replace(" ", "")
 
-        to_send = 0
         if nonoword in no_no_words:
             # it's already in, we have to delete it
             no_no_words.pop(nonoword)
@@ -176,15 +175,13 @@ class Configuration(commands.Cog):
 
         # Ask the user for confirmation
         if channel.id in get_server_config(ctx.guild.id, 'inactivity_channels', list):
-            await ctx.send(get_language_str(ctx.guild.id, 37).format(channel.id))
+            msg = await ctx.send(get_language_str(ctx.guild.id, 37).format(channel.id))
             remove = True
         else:
-            await ctx.send(get_language_str(ctx.guild.id, 38).format(channel.id))
+            msg = await ctx.send(get_language_str(ctx.guild.id, 38).format(channel.id))
             remove = False
-        reply_msg = await self.bot.wait_for('message', check=check)
-        reply = reply_msg.content.lower()
 
-        if await wait_for_user(ctx, self.bot):
+        if await wait_for_user(ctx, self.bot, msg):
             if remove:
                 new_list = [x for x in get_server_config(ctx.guild.id, 'inactivity_channels', list) if x != channel.id]
                 write_server_config(ctx.guild.id, 'inactivity_channels', new_list)
@@ -251,11 +248,9 @@ class Configuration(commands.Cog):
             await ctx.send(get_language_str(ctx.guild.id, 44))
             return
         else:
-            await ctx.send(get_language_str(ctx.guild.id, 45).format(role.name))
-        replymsg = await self.bot.wait_for('message', check=check)
-        reply = replymsg.content.lower()
+            msg = await ctx.send(get_language_str(ctx.guild.id, 45).format(role.name))
 
-        if await wait_for_user(ctx, self.bot):
+        if await wait_for_user(ctx, self.bot, msg):
             write_server_config(ctx.guild.id, 'mute_role', role.id)
             await ctx.reply(get_language_str(ctx.guild.id, 46).format(role.name))
             return
@@ -393,11 +388,9 @@ class Configuration(commands.Cog):
             await ctx.reply(get_language_str(ctx.guild.id, 54))
             return
         if togglethingy == 'help':
-            await ctx.send(get_language_str(ctx.guild.id, 55))
-            replymsg = await self.bot.wait_for('message', check=check)
-            reply = replymsg.content.lower()
+            msg = await ctx.send(get_language_str(ctx.guild.id, 55))
 
-            if await wait_for_user(ctx, self.bot):
+            if await wait_for_user(ctx, self.bot, msg):
                 pass
         if togglethingy in disabled_commands:
             new_commands = [x for x in disabled_commands if x != togglethingy]

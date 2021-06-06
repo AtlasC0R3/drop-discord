@@ -34,11 +34,8 @@ class Moderation(commands.Cog):
             await ctx.reply(get_language_str(ctx.guild.id, 62))
             return
 
-        def check(ms):
-            return ms.channel == ctx.message.channel and ms.author == ctx.message.author
-
-        await ctx.send(get_language_str(ctx.guild.id, 63).format(ctx.author.name, str(to_delete)))
-        if await wait_for_user(ctx, self.bot):
+        msg = await ctx.send(get_language_str(ctx.guild.id, 63).format(ctx.author.name, str(to_delete)))
+        if await wait_for_user(ctx, self.bot, msg):
             await ctx.channel.purge(limit=to_delete + 3)
             temp_message = await ctx.send(get_language_str(ctx.guild.id, 64).format(ctx.author.name, str(to_delete)))
             time.sleep(5)

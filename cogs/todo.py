@@ -96,9 +96,9 @@ class Todo(commands.Cog):
             icon_url=ctx.message.author.avatar_url,
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
-        await ctx.send(get_language_str(ctx.guild.id, 103), embed=embed)
+        msg = await ctx.send(get_language_str(ctx.guild.id, 103), embed=embed)
 
-        if await wait_for_user(ctx, self.bot):
+        if await wait_for_user(ctx, self.bot, msg):
             rm_todo(ctx.author.id, index)  # shouldn't raise an error since we know that to-do already exists
             await ctx.reply(get_language_str(ctx.guild.id, 104))
         return
@@ -127,9 +127,9 @@ class Todo(commands.Cog):
             icon_url=ctx.message.author.avatar_url,
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
-        await ctx.send(get_language_str(ctx.guild.id, 106), embed=embed)
+        msg = await ctx.send(get_language_str(ctx.guild.id, 106), embed=embed)
 
-        if await wait_for_user(ctx, self.bot):
+        if await wait_for_user(ctx, self.bot, msg):
             edit_todo(ctx.author.id, index, user_args)
             await ctx.reply(get_language_str(ctx.guild.id, 107))
             return
@@ -242,9 +242,9 @@ class Todo(commands.Cog):
             icon_url=ctx.message.author.avatar_url,
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
-        await ctx.send(get_language_str(ctx.guild.id, 106), embed=embed)
+        msg = await ctx.send(get_language_str(ctx.guild.id, 106), embed=embed)
 
-        if await wait_for_user(ctx, self.bot):
+        if await wait_for_user(ctx, self.bot, msg):
             edit_guild_todo(ctx.guild.id, index, user_args)
             await ctx.reply(get_language_str(ctx.guild.id, 107))
             return

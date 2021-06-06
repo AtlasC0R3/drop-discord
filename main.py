@@ -50,6 +50,7 @@ except ImportError:
              "or by running\n  pip install -r requirements.txt")
 
 from discord_slash import SlashCommand
+from discord_components import DiscordComponents
 
 verbose = get_config_parameter('verbose', bool)
 clear_terminal = get_config_parameter('clear_terminal', bool)
@@ -160,6 +161,7 @@ async def on_ready():
         else:
             # What the hell is this running on!?
             print(f"Running on an unknown OS ({os.name})")
+    DiscordComponents(bot)
     get_github_config()
     print(f'My name is {bot.user}.')
 

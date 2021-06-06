@@ -176,14 +176,9 @@ class Warn(commands.Cog):
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
 
-        def check(ms):
-            # Look for the message sent in the same channel where the command was used
-            # As well as by the user who used the command.
-            return ms.channel == ctx.message.channel and ms.author == ctx.message.author
-
-        await ctx.send(content=get_language_str(ctx.guild.id, 116) + ' (y or n)',
-                       embed=confirmation_embed)
-        if await wait_for_user(ctx, self.bot):
+        msg = await ctx.send(content=get_language_str(ctx.guild.id, 116),
+                             embed=confirmation_embed)
+        if await wait_for_user(ctx, self.bot, msg):
             remove_warn(ctx.guild.id, user.id, warn_index)
             await ctx.reply(get_language_str(ctx.guild.id, 117))
             return
@@ -247,10 +242,10 @@ class Warn(commands.Cog):
             url=f"https://discord.com/users/{ctx.message.author.id}/"
         )
 
-        await ctx.send(content=get_language_str(ctx.guild.id, 120) + ' (y/n)',
-                       embed=confirmation_embed)
+        msg = await ctx.send(content=get_language_str(ctx.guild.id, 120),
+                             embed=confirmation_embed)
 
-        if await wait_for_user(ctx, self.bot):
+        if await wait_for_user(ctx, self.bot, msg):
             edit_warn(ctx.guild.id, user.id, int(warnindex), warn_new_reason)
             await ctx.reply(get_language_str(ctx.guild.id, 121))
             return
