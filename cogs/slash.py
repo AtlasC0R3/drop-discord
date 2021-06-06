@@ -1,6 +1,6 @@
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
-from data.extdata import get_listening_to, get_language_str
+from data.extdata import get_listening_to, get_language_str, get_config_parameter
 from drop.basic import get_lyrics, get_artist, search
 from drop.moderation import get_warns
 from lyricsgenius.genius import Song
@@ -147,4 +147,5 @@ class Slash(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Slash(bot))
+    if get_config_parameter('slash_commands', bool):
+        bot.add_cog(Slash(bot))

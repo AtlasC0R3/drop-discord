@@ -12,6 +12,7 @@
     "key": "",
     "excludedGames": []
   },
+  "slash_commands": false,
   "verbose": false,
   "syncActivityWithOwner": false,
 

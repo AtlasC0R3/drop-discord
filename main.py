@@ -49,7 +49,14 @@ except ImportError:
              "Please install it using:\n  pip install drop-mod\n"
              "or by running\n  pip install -r requirements.txt")
 
-from discord_slash import SlashCommand
+if get_config_parameter('slash_commands', bool):
+    try:
+        from discord_slash import SlashCommand
+    except ImportError:
+        sys.exit("discord-py-slash-command has not been installed, even though "
+                 "slash commands are enabled in the bot's config.json file. "
+                 "To use slash commands, please install the slash-command library using:\n  "
+                 "pip install discord-py-slash-command\n")
 from discord_components import DiscordComponents
 
 verbose = get_config_parameter('verbose', bool)
@@ -58,11 +65,14 @@ change_terminal_name = get_config_parameter('change_terminal_name', bool)
 
 cogs = []
 for cog_file in os.listdir('cogs/'):
-    if cog_file.endswith('.py'):
+    if cog_file.endswith('.py') and cog_file != 'slash.py':
         cog_import = 'cogs.' + cog_file.split('.')[0]
         cogs.append(cog_import)
         if verbose:
             print(f'Found {cog_file} as cog')
+
+if get_config_parameter('slash_commands', bool):
+    cogs.append('cogs.slash')
 
 
 def get_prefix(client, message):
