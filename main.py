@@ -102,7 +102,8 @@ bot = commands.Bot(                                            # Create a new bo
     intents=intents,                                           # I think I made intents
     help_command=PrettyHelp()                                  # Sets custom help command to discord_pretty_help's
 )
-bot.slash = SlashCommand(bot, override_type=True, sync_commands=True, sync_on_cog_reload=True)
+if get_config_parameter('slash_commands', bool):
+    bot.slash = SlashCommand(bot, override_type=True, sync_commands=True, sync_on_cog_reload=True)
 
 ownerMember = None
 ownerUser = None
