@@ -337,12 +337,12 @@ async def wait_for_user(ctx, bot, msg: discord.Message):
 
     yes = "Yes"
     no = "No"
-    what_the_fuck = "what the fuck"
+    what_the_fuck = ""
 
     await msg.edit(components=[[
-        Button(label=yes, style=ButtonStyle.green),
-        Button(label=no, style=ButtonStyle.red),
-        Button(label=what_the_fuck, style=ButtonStyle.gray)
+        Button(label=yes, style=ButtonStyle.green, emoji='✔️'),
+        Button(label=no, style=ButtonStyle.red, emoji='✖️'),
+        Button(label=what_the_fuck, style=ButtonStyle.gray, emoji='🗑️')
     ]])
 
     interaction = await bot.wait_for("button_click", check=check)
@@ -354,5 +354,4 @@ async def wait_for_user(ctx, bot, msg: discord.Message):
         await ctx.send(get_language_str(ctx.guild.id, 26))
         return False
     else:
-        await ctx.send(get_language_str(ctx.guild.id, 27))
         return False
