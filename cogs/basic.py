@@ -383,9 +383,11 @@ class Basic(commands.Cog):
             game_name = "Unnamed NSFW game"
             game_image = \
                 "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Snake_plant.jpg/1200px-Snake_plant.jpg"
+            game_url = ""
         else:
             game_name = game_data["name"]
             game_image = game_data["header_image"]
+            game_url = f"https://www.protondb.com/app/{app_id}"
         color = received.get("tier_color")
         if game_data["platforms"]["linux"]:
             string_result = string_result + '\n\n' + get_language_str(ctx.guild.id, 134)
@@ -395,7 +397,7 @@ class Basic(commands.Cog):
         embed = discord.Embed(
             title=game_name,
             description=f"**{tier}**\n{string_result}",
-            url=f"https://www.protondb.com/app/{app_id}",
+            url=game_url,
             color=color
         )
         embed.set_footer(
