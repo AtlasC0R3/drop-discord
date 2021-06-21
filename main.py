@@ -387,7 +387,7 @@ async def on_command_error(ctx, error):
                 f"[{error}] while trying to invoke [{ctx.message.content}]")
         else:
             error_file = io.BytesIO(bytes(str(error), 'utf-8'))
-            await ctx.send(content=get_language_str(get_server_config(ctx.guild.id, 'language', str), 8),
+            await ctx.send(content=get_language_str(get_server_config(ctx.guild.id, 'language', str), 7),
                            file=discord.File(error_file, 'error.txt'))
 
 
