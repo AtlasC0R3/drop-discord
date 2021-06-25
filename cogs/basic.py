@@ -77,6 +77,8 @@ class Basic(commands.Cog):
             return
         elif repeat == "** **":
             await ctx.reply(f"** **... ***{get_language_str(ctx.guild.id, 11)}***")
+        elif "@everyone" in repeat:
+            await ctx.reply("**No.**")
         else:
             await ctx.send(repeat)
 
