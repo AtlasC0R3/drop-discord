@@ -205,17 +205,20 @@ def get_steam_recently_played():
               f"Error code {userdata.status_code}, in case you may need it.")
         return 'Steam'
     else:
-        playedgames = []
+        played_games = []
         userdata = userdata.json()
         userdata = userdata.get('response').get('games')
         for game in userdata:
-            playedgames.append(game.get('name'))
-        excludedgames = steamapiconfig.get('excludedGames')
-        for no in excludedgames:
-            for game in playedgames:
-                if no.lower() in game.lower():
-                    playedgames = [x for x in playedgames if x != game]
-        return playedgames
+            played_games.append(game.get('name'))
+        excluded_games = steamapiconfig.get('excludedGames')
+        for no in excluded_games:
+            for game in played_games:
+                if game:
+                    print(no)
+                    print(game)
+                    if no.lower() in game.lower():
+                        played_games = [x for x in played_games if x != game]
+        return played_games
 
 
 to_replace = {
