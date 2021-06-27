@@ -214,8 +214,6 @@ def get_steam_recently_played():
         for no in excluded_games:
             for game in played_games:
                 if game:
-                    print(no)
-                    print(game)
                     if no.lower() in game.lower():
                         played_games = [x for x in played_games if x != game]
         return played_games
