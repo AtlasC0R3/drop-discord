@@ -21,7 +21,11 @@ protondb_colors = {"Platinum": 0xB7C9DE, "Gold": 0xCFB526, "Silver": 0xC1C1C1, "
 
 
 def check_if_steam_nsfw(ctx, game_data: dict):
-    return (1 in game_data['content_descriptors']['ids']) and (not ctx.channel.is_nsfw())
+    if ctx.channel is discord.TextChannel:
+        is_channel_nsfw = ctx.channel.is_nsfw()
+    else:
+        is_channel_nsfw = True
+    return (1 in game_data['content_descriptors']['ids']) and (not is_channel_nsfw)
 
 
 # New - The Cog class must extend the commands.Cog class
