@@ -9,31 +9,31 @@ This project may fall behind due to my focus shifting on finishing the Python mo
 ## How do I use it?
 There are two ways: you can self-host it (recommended), or use the already hosted version, that I am personally hosting.
 
-*Note: I don't mind if you just try the already hosted version just to see if the bot functions, but please, if you do end up using the bot, please consider self hosting it; the one I'm already hosting might not always work or be online.*
+*Note: I don't mind if you just try the already hosted version just to see if the bot functions. If you do end up using the bot, consider self-hosting it; the one I'm already hosting might not always work or be online.*
 
 
 ### Self-hosting the bot
-There are two ways of self hosting the bot: the autorun script way, or the manual way.
+There are two ways of self-hosting the bot: the autorun script way, or the manual way.
 
 #### Using the autorun script
 Please move to the [Autorun branch](https://github.com/AtlasC0R3/drop-discord/tree/autorun) of this repository if you want to proceed this way.
 
 #### Manually hosting the bot
-1. Make sure Python3 is installed *(minimum recommended version is Python 3.7, though you may be able to get away with 3.6 or even 3.5, but please note that you are on your own with this, I will not help you)* and that you have a functioning pip install. **Python 2 will not work.**
+1. Make sure Python3 is installed *(minimum recommended version is Python 3.7, though you may be able to get away with 3.6 or even 3.5. If you do, please note that you are on your own with this, I can not help you)* and that you have a functioning pip install. **Python 2 will not work.**
 2. Download the bot's files; you may clone this repository using Git.
 3. Install the required dependencies. To do so, you may use `pip install -r requirements.txt` *(or pip3, depending on your install)*
-4. Make sure your `config.json` is configured correctly, and that `token.txt` has the correct bot token (if the bot cannot find it, it will ask the user for the token and ask if it should save it). *If you do not know how to get a bot token, you may search it on Google, Bing, DuckDuckGo or whatever your preferred search engine may be.*
+4. Make sure your `config.json` is configured correctly, and that `token.txt` has the correct bot token (if the bot cannot find it, it will ask the user for the token). *If you do not know how to get a bot token, you may search it on Google, Bing, DuckDuckGo or whatever your preferred search engine may be.*
 5. Run `main.py`
 6. ~~Profit.~~ You now have self-hosted this bot.
 
 ### Using the already hosted bot
-The self hosted version works, and is updated every day, though it may not be available 24/7; some blackouts may occur, it may be slow, or your data could *very rarely* vanish.
+The self-hosted version works, and is updated every day, though it may not be available 24/7; some blackouts may occur, it may be slow, or your data could *very rarely* vanish.
 If you are willing to look past those issues, [you can invite the bot using this link](https://discord.com/oauth2/authorize?client_id=749623401706029057&permissions=60518&scope=bot). Please read the [privacy notice](https://atlasc0r3.github.io/drop-discord/#privacy-notice) before proceeding.
 
 ## Frequently Asked Questions ~~even though no one asked any questions~~
 
-### Q: Do I _have_ to self host this bot? Is there no online hosted version?
-Well, you can use the online version, but please consider self hosting it unless you *really* can't.
+### Q: Do I _have_ to self-host this bot? Is there no online hosted version?
+Well, you can use the online version, but please consider self-hosting it unless you *really* can't.
 
 ### Q: How can I contribute?
 You can use a pull request to do so, or open an issue.
