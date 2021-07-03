@@ -3,7 +3,7 @@ import os
 import io
 import datetime
 import json
-import time
+import asyncio
 import sys
 from datetime import datetime
 import random
@@ -249,11 +249,12 @@ async def on_message(message):
 
     if '(╯°□°）╯︵ ┻━┻' in message.content and message.guild:
         if get_server_config(message.guild.id, 'tableflip', bool):
-            time.sleep(0.75)
-            lang = get_server_config(message.guild.id, 'language', str)
-            to_send = get_language_str(lang, 2)
-            to_send = random.choice(to_send)
-            await message.channel.send(to_send.format(message))
+            async with message.channel.typing():
+                lang = get_server_config(message.guild.id, 'language', str)
+                to_send = get_language_str(lang, 2)
+                to_send = random.choice(to_send)
+                await asyncio.sleep(0.75)
+                await message.channel.send(to_send.format(message))
 
     if message.content.startswith(f'{bot_mention} activity') and message.author.id == ownerId:
         with open("data/activities.json", encoding='utf-8', newline="\n") as f:
