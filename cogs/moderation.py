@@ -1,4 +1,4 @@
-import time
+import asyncio
 import random
 
 import discord
@@ -38,7 +38,7 @@ class Moderation(commands.Cog):
         if await wait_for_user(ctx, self.bot, msg):
             await ctx.channel.purge(limit=to_delete + 3)
             temp_message = await ctx.send(get_language_str(ctx.guild.id, 64).format(ctx.author.name, str(to_delete)))
-            time.sleep(5)
+            await asyncio.sleep(5)
             await temp_message.delete()
             return
 
@@ -261,7 +261,7 @@ class Moderation(commands.Cog):
                 value=f'https://discordapp.com/channels/{pin.guild.id}/{pin.channel.id}/{pin.id}'
             )
             await channelsendin.send(embed=embed)
-            time.sleep(5)
+            await asyncio.sleep(5)
         await ctx.reply('Done storing pins.')
 
     @storepins_command.error
