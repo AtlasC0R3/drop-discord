@@ -34,9 +34,16 @@ class Moderation(commands.Cog):
             await ctx.reply(get_language_str(ctx.guild.id, 62))
             return
 
-        msg = await ctx.send(get_language_str(ctx.guild.id, 63).format(ctx.author.name, str(to_delete)))
-        if await wait_for_user(ctx, self.bot, msg):
-            await ctx.channel.purge(limit=to_delete + 3)
+        do_purge = True
+        if to_delete >= 10:
+            to_delete += 3
+            msg = await ctx.send(get_language_str(ctx.guild.id, 63).format(ctx.author.name, str(to_delete)))
+            do_purge = await wait_for_user(ctx, self.bot, msg)
+        if do_purge:
+            try:
+                await ctx.channel.purge(limit=to_delete)
+            except discord.NotFound:
+                pass
             temp_message = await ctx.send(get_language_str(ctx.guild.id, 64).format(ctx.author.name, str(to_delete)))
             await asyncio.sleep(5)
             await temp_message.delete()
