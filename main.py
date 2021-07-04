@@ -256,66 +256,70 @@ async def on_message(message):
                 await asyncio.sleep(0.75)
                 await message.channel.send(to_send.format(message))
 
-    if message.content.startswith(f'{bot_mention} activity') and message.author.id == ownerId:
-        with open("data/activities.json", encoding='utf-8', newline="\n") as f:
-            activities = json.load(f)
-        if " activity " in message.content:
-            activity = message.content.replace(f'{bot_mention} activity ', '')
-            # user passed arguments
-        else:
-            activity = None
-        activity_type = None
-        activity_name = None
-        if activity:
-            if activity.startswith('[') or activity.isdigit():
-                activity_entry = ast.literal_eval(activity)
-                if type(activity_entry) is int:
-                    try:
-                        activity = activities[activity_entry]
-                    except IndexError:
-                        await message.channel.send("Wrong activity! **>:(**")
-                        return
-                    activity_type = activity[0]
-                    activity_name = activity[1]
-                    await message.channel.send(content=f'{activity_type.title()} {activity_name}, is this correct?')
 
-                    def check(ms):
-                        return ms.channel == message.channel and ms.author == message.author
+@bot.command(
+    name='activity',
+    description='This command will change the bot\'s current activity '
+                'as well as reset the timer for activity_changer (the task loop).',
+    usage='[SteamVR | playing something | listening Red Vox | watching """anime""" | 17]',
+    brief='Changes the bot\'s activity'
+)
+@commands.is_owner()
+async def activity_changer_command(ctx, *, activity=None):
+    # with very janky argument parsing
+    with open("data/activities.json", encoding='utf-8', newline="\n") as f:
+        activities = json.load(f)
+    activity_type = None
+    activity_name = None
+    if activity:
+        if activity.startswith('[') or activity.isdigit():
+            activity_entry = ast.literal_eval(activity)
+            if type(activity_entry) is int:
+                try:
+                    activity = activities[activity_entry]
+                except IndexError:
+                    await ctx.send("Wrong activity! **>:(**")
+                    return
+                activity_type = activity[0]
+                activity_name = activity[1]
+                await ctx.message.channel.send(content=f'{activity_type.title()} {activity_name}, is this correct?')
 
-                    reply_msg = await bot.wait_for('message', check=check)
-                    reply_from_user = reply_msg.content.lower()
+                def check(ms):
+                    return ms.channel == ctx.channel and ms.author == ctx.author
 
-                    if reply_from_user in ('y', 'yes', 'confirm'):
-                        pass
-                    else:
-                        return
-                elif type(activity_entry) is list:
-                    try:
-                        activity_type = activity_entry[0]
-                        activity_name = activity_entry[1]
-                        await bot.change_presence(
-                            activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
-                    except (KeyError, IndexError):
-                        await message.channel.send("Invalid list! Here's an example of how an activity list should be:"
-                                                   "\n"
-                                                   f"```{random.choice(activities)}```")
-                        return
-            else:
-                activity_list = activity.split(' ')
-                if activity_list[0] in [x.name for x in discord.ActivityType]:
-                    activity_type = activity_list[0]
-                    activity_name = " ".join(activity_list[1:])
+                reply_msg = await bot.wait_for('message', check=check)
+                reply_from_user = reply_msg.content.lower()
+                if reply_from_user in ('y', 'yes', 'confirm'):
+                    pass
                 else:
-                    activity_type = 'playing'
-                    activity_name = activity
+                    return
+            elif type(activity_entry) is list:
+                try:
+                    activity_type = activity_entry[0]
+                    activity_name = activity_entry[1]
+                    await bot.change_presence(
+                        activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
+                except (KeyError, IndexError):
+                    await ctx.send("Invalid list! Here's an example of how an activity list should be:"
+                                   "\n"
+                                   f"```{random.choice(activities)}```")
+                    return
         else:
-            activity = await get_new_activity(message.author)
-            activity_type = activity[0]
-            activity_name = activity[1]
-        # await bot.change_presence(
-        #     activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
-        await message.reply(content=f'{activity_type.title()} {activity_name}')
-        activity_changer.restart([activity_type, activity_name])
+            activity_list = activity.split(' ')
+            if activity_list[0] in [x.name for x in discord.ActivityType]:
+                activity_type = activity_list[0]
+                activity_name = " ".join(activity_list[1:])
+            else:
+                activity_type = 'playing'
+                activity_name = activity
+    else:
+        activity = await get_new_activity(ctx.author)
+        activity_type = activity[0]
+        activity_name = activity[1]
+    # await bot.change_presence(
+    #     activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
+    await ctx.reply(content=f'{activity_type.title()} {activity_name}')
+    activity_changer.restart([activity_type, activity_name])
 
 
 @bot.listen()
