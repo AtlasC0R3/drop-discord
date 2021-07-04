@@ -1,8 +1,5 @@
 # Drop
-A drop-mod frontend built with Discord.py
-
-### NOTICE
-This project may fall behind due to my focus shifting on finishing the Python module. I will still update this, however, and unless the repository is archived, it will continue to be.
+A drop-mod frontend built with Discord.py, and also my main programming project.
 
 ## What the hell is this? 
 ~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as free as possible, while still retaining utility in mind. 
@@ -49,6 +46,9 @@ Simply create a \*.py file in the `cogs` directory, make it look like an actual 
 
 ### Q: What is `cogs/mistakes.py.bak`?
 Basically just some commands I had made for the bot that turned out to be extremely experimental, or simply mistakes.
+
+### Q: What does `WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported` mean?
+Not much in this case, it's just Discord.py warning you that voice won't be supported. I'm saying that it isn't really an issue, because drop-discord has no voice commands or functions.
 
 ### Q: Can I make the bot say suggestive things? 
 _Okay, why?_

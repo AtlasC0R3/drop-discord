@@ -8,6 +8,7 @@ import sys
 from datetime import datetime
 import random
 import ast
+import logging
 
 if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confusing to work with.
     # What is this place?!
@@ -20,7 +21,7 @@ if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confus
     exit(1)
 
 # External libraries that need to be imported
-from data.extdata import TermColors, get_config_parameter, get_server_config, write_server_config, get_github_config, \
+from data.extdata import get_config_parameter, get_server_config, write_server_config, get_github_config, \
     get_language_str, get_new_activity, check_banword_filter
 
 from drop.basic import init_genius
@@ -63,13 +64,17 @@ verbose = get_config_parameter('verbose', bool)
 clear_terminal = get_config_parameter('clear_terminal', bool)
 change_terminal_name = get_config_parameter('change_terminal_name', bool)
 
+if verbose:
+    logging.basicConfig(level=logging.INFO)
+else:
+    logging.basicConfig(level=logging.WARNING)
+
 cogs = []
 for cog_file in os.listdir('cogs/'):
     if cog_file.endswith('.py') and cog_file != 'slash.py':
         cog_import = 'cogs.' + cog_file.split('.')[0]
         cogs.append(cog_import)
-        if verbose:
-            print(f'Found {cog_file} as cog')
+        logging.info(f'Found {cog_file} as cog')
 
 if get_config_parameter('slash_commands', bool):
     cogs.append('cogs.slash')
@@ -112,14 +117,12 @@ bot_mention = None
 bot_mention_mobile = None
 
 for cog in cogs:
-    if verbose:
-        print(f'Loading {cog}')
+    logging.info(f'Loading {cog}')
     try:
         bot.load_extension(cog)
     except discord.ext.commands.errors.ExtensionAlreadyLoaded:
         # Bot tried to load a cog that was already loaded.
-        print(f"{TermColors.WARNING}WARN: Tried to load a cog/extension that was already loaded "
-              f"({cog}).{TermColors.ENDC}")
+        logging.warning(f"Tried to load a cog/extension that was already loaded ({cog})")
 
 
 async def check_message(message):
@@ -156,25 +159,23 @@ async def check_message(message):
 
 @bot.event
 async def on_ready():
-    if verbose:
-        print('Bot is ready: everything should have loaded successfully.')
+    logging.info('drop-discord is ready: everything should have loaded successfully.')
+    if os.name == 'nt':
+        if clear_terminal:
+            os.system("cls")
+        if change_terminal_name:
+            os.system(f"title {bot.user}")
+    elif os.name == 'posix':
+        if clear_terminal:
+            os.system("clear")
+        if change_terminal_name:
+            os.system(f"printf '\\033]2;{bot.user}\\a'")  # Sets terminal name to the bot's user.
     else:
-        if os.name == 'nt':
-            if clear_terminal:
-                os.system("cls")
-            if change_terminal_name:
-                os.system(f"title {bot.user}")
-        elif os.name == 'posix':
-            if clear_terminal:
-                os.system("clear")
-            if change_terminal_name:
-                os.system(f"printf '\\033]2;{bot.user}\\a'")  # Sets terminal name to the bot's user.
-        else:
-            # What the hell is this running on!?
-            print(f"Running on an unknown OS ({os.name})")
+        # What the hell is this running on!?
+        print(f"Running on an unknown OS ({os.name})")
     DiscordComponents(bot)
     await get_github_config()
-    print(f'My name is {bot.user}.')
+    print(f'I am {bot.user} (user ID {bot.user.id}), in {len(bot.guilds)} guilds.')
 
     try:
         if ownerId:
@@ -195,8 +196,7 @@ async def on_ready():
     return
 
 
-if verbose:
-    print('on_ready has been configured')
+logging.info('on_ready has been configured')
 
 message_count = {}
 
@@ -324,14 +324,12 @@ async def on_message_edit(_before, after):
         await check_message(after)
 
 
-if verbose:
-    print('on_message has been configured')
+logging.info('on_message has been configured')
 
 
 @tasks.loop(minutes=2, count=None, reconnect=True)
 async def owner_refresh():
-    if verbose:
-        print("Refreshing owner member and user objects")
+    logging.info("Refreshing owner member and user objects")
     global ownerUser
     ownerUser = bot.get_user(ownerId)
     for member in bot.get_all_members():
@@ -368,8 +366,7 @@ async def inactivity_func():
     message_count = {}
 
 
-if verbose:
-    print('Task loops has been configured')
+logging.info('Task loops has been configured')
 
 
 @bot.event
@@ -431,18 +428,17 @@ async def on_guild_join(guild):
 
 
 if get_config_parameter('dev_token', bool):
-    print("WARN: Developer mode activated, passing through developer token.")
+    logging.info("Developer mode activated, passing through developer token.")
     try:
-        print("Trying to load Jishaku")
         bot.load_extension('jishaku')
     except discord.ext.commands.errors.ExtensionNotFound:
-        print("Could not load Jishaku: skipping...")
+        logging.warning("Could not load Jishaku. You can install it using \"pip install jishaku\". "
+                        "Jishaku may be helpful for debugging.")
     else:
-        print("Jishaku loaded: continuing...")
+        logging.info("Jishaku loaded: continuing...")
     token_path = "data/devtoken.txt"
 else:
-    if verbose:
-        print('Using regular token')
+    logging.info('dev_token not enabled; using regular token')
     token_path = "data/token.txt"
 
 try:
@@ -458,6 +454,5 @@ except FileNotFoundError:
     else:
         print("I didn't quite get that... I'll take that as a no.\n")
 
-if verbose:
-    print('Connecting to Discord...')
+logging.info('Connecting to Discord...')
 bot.run(specified_token, bot=True, reconnect=True)

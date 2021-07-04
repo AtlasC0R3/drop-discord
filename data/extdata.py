@@ -5,6 +5,7 @@ import random
 import discord
 import lyricsgenius
 import re
+import logging
 from drop import config, errors
 
 from discord_components import Button, ButtonStyle
@@ -126,11 +127,11 @@ async def get_steam_user_recently_played():
     for dictkey, value in steamapiconfig.items():
         if not value:
             if not dictkey == "excludedGames":
-                print(f'Value {dictkey} undefined, playing Steam instead.\n'
-                      f'Please disable "useSteamRecentlyPlayed" in config.json, '
-                      f'or fill in the correct values in steamApi.\n'
-                      f'If you need help, you can check out '
-                      f'https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration')
+                logging.warning(f'Value {dictkey} undefined, playing Steam instead.\n'
+                                f'Please disable "useSteamRecentlyPlayed" in config.json, '
+                                f'or fill in the correct values in steamApi.\n'
+                                f'If you need help, you can check out '
+                                f'https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration')
                 return 'Steam'
     userid = steamapiconfig.get('userId')
     key = steamapiconfig.get('key')
@@ -145,22 +146,22 @@ async def get_steam_user_recently_played():
                 userdata = await r.json()
             else:
                 if r.status == 403:
-                    print("Invalid API key passed, falling back to playing Steam.\n"
-                          "Please disable \"useSteamRecentlyPlayed\" in config.json, "
-                          "or fill in the correct values in steamApi.\n"
-                          "If you need help, you can check out "
-                          "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
+                    logging.error("Invalid API key passed, falling back to playing Steam.\n"
+                                  "Please disable \"useSteamRecentlyPlayed\" in config.json, "
+                                  "or fill in the correct values in steamApi.\n"
+                                  "If you need help, you can check out "
+                                  "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
                     return 'Steam'
                 elif r.status == 500:
-                    print("Invalid user ID passed, falling back to playing Steam.\n"
-                          "Please disable \"useSteamRecentlyPlayed\" in config.json, "
-                          "or fill in the correct values in steamApi.\n"
-                          "If you need help, you can check out "
-                          "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
+                    logging.error("Invalid user ID passed, falling back to playing Steam.\n"
+                                  "Please disable \"useSteamRecentlyPlayed\" in config.json, "
+                                  "or fill in the correct values in steamApi.\n"
+                                  "If you need help, you can check out "
+                                  "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
                     return 'Steam'
                 elif r.status != 200:
-                    print(f"Something went wrong with the API callout, falling back to playing Steam.\n"
-                          f"Error code {r.status}, in case you may need it.")
+                    logging.error(f"Something went wrong with the Steam API callout, falling back to playing Steam.\n"
+                                  f"Error code {r.status}, in case you may need it.")
                     return 'Steam'
     return userdata
 
