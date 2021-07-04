@@ -15,6 +15,6 @@
   "slash_commands": false,
   "verbose": false,
   "syncActivityWithOwner": false,
-
-  "geniusApi": ""
+  "geniusApi": "",
+  "jishaku": false
 }
