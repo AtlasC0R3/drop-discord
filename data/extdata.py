@@ -1,6 +1,6 @@
 import json
 import os
-import requests
+import aiohttp
 import random
 import discord
 import lyricsgenius
@@ -32,10 +32,12 @@ for lang in os.listdir('lang/'):
         langs[langname] = json.load(open('lang/' + lang))
 
 
-def get_github_config():
+async def get_github_config():
     global exampleConfig
-    exampleConfig = json.loads(
-        requests.get('https://raw.githubusercontent.com/AtlasC0R3/drop-bot/main/data/config.json').text)
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://raw.githubusercontent.com/AtlasC0R3/drop-discord/main/data/config.json') as r:
+            if r.status == 200:
+                exampleConfig = json.loads(await r.text())
 
 
 def get_default_language(idx: int):
@@ -119,7 +121,7 @@ def write_server_config(serverid, param, value):
     config.write_server_config(serverid, param, value)
 
 
-def get_steam_played_game():
+async def get_steam_user_recently_played():
     steamapiconfig = get_config_parameter('steamApi', dict)
     for dictkey, value in steamapiconfig.items():
         if not value:
@@ -128,7 +130,7 @@ def get_steam_played_game():
                       f'Please disable "useSteamRecentlyPlayed" in config.json, '
                       f'or fill in the correct values in steamApi.\n'
                       f'If you need help, you can check out '
-                      f'https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration')
+                      f'https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration')
                 return 'Steam'
     userid = steamapiconfig.get('userId')
     key = steamapiconfig.get('key')
@@ -137,86 +139,57 @@ def get_steam_played_game():
         f'?key={key}' \
         f'&steamid={userid}' \
         f'&count=0'
-    userdata = requests.get(steamurl)
-    if userdata.status_code == 403:
-        print("Invalid API key passed, falling back to playing Steam.\n"
-              "Please disable \"useSteamRecentlyPlayed\" in config.json, "
-              "or fill in the correct values in steamApi.\n"
-              "If you need help, you can check out "
-              "https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration")
-        return 'Steam'
-    elif userdata.status_code == 500:
-        print("Invalid user ID passed, falling back to playing Steam.\n"
-              "Please disable \"useSteamRecentlyPlayed\" in config.json, "
-              "or fill in the correct values in steamApi.\n"
-              "If you need help, you can check out "
-              "https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration")
-        return 'Steam'
-    elif userdata.status_code != 200:
-        print(f"Something went wrong with the API callout, falling back to playing Steam.\n"
-              f"Error code {userdata.status_code}, in case you may need it.")
-        return 'Steam'
+    async with aiohttp.ClientSession() as session:
+        async with session.get(steamurl) as r:
+            if r.status == 200:
+                userdata = await r.json()
+            else:
+                if r.status == 403:
+                    print("Invalid API key passed, falling back to playing Steam.\n"
+                          "Please disable \"useSteamRecentlyPlayed\" in config.json, "
+                          "or fill in the correct values in steamApi.\n"
+                          "If you need help, you can check out "
+                          "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
+                    return 'Steam'
+                elif r.status == 500:
+                    print("Invalid user ID passed, falling back to playing Steam.\n"
+                          "Please disable \"useSteamRecentlyPlayed\" in config.json, "
+                          "or fill in the correct values in steamApi.\n"
+                          "If you need help, you can check out "
+                          "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
+                    return 'Steam'
+                elif r.status != 200:
+                    print(f"Something went wrong with the API callout, falling back to playing Steam.\n"
+                          f"Error code {r.status}, in case you may need it.")
+                    return 'Steam'
+    return userdata
+
+
+async def get_steam_played_game():
+    games = await get_steam_recently_played()
+    game = random.choice(games)
+    if game:
+        return game
     else:
-        userdata = userdata.json()
-        userdata = userdata.get('response').get('games')
-        playedgame = random.choice(userdata).get('name')
-        excludedgames = steamapiconfig.get('excludedGames')
-        for no in excludedgames:
-            if no.lower() in playedgame.lower():
-                return get_steam_played_game()
-        return playedgame
+        return await get_steam_played_game()
 
 
-def get_steam_recently_played():
+async def get_steam_recently_played():
     steamapiconfig = get_config_parameter('steamApi', dict)
-    for dictkey, value in steamapiconfig.items():
-        if not value:
-            if not dictkey == "excludedGames":
-                print(f'Value {dictkey} undefined, playing Steam instead.\n'
-                      f'Please disable "useSteamRecentlyPlayed" in config.json, '
-                      f'or fill in the correct values in steamApi.\n'
-                      f'If you need help, you can check out '
-                      f'https://github.com/AtlasC0R3/drop-bot/wiki/Configuring-the-Steam-integration')
-                return 'Steam'
-    userid = steamapiconfig.get('userId')
-    key = steamapiconfig.get('key')
-    steamurl = \
-        f'https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1' \
-        f'?key={key}' \
-        f'&steamid={userid}' \
-        f'&count=0'
-    userdata = requests.get(steamurl)
-    if userdata.status_code == 403:
-        print("Invalid API key passed, falling back to playing Steam.\n"
-              "Please disable \"useSteamRecentlyPlayed\" in config.json, "
-              "or fill in the correct values in steamApi.\n"
-              "If you need help, you can check out "
-              "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
-        return 'Steam'
-    elif userdata.status_code == 500:
-        print("Invalid user ID passed, falling back to playing Steam.\n"
-              "Please disable \"useSteamRecentlyPlayed\" in config.json, "
-              "or fill in the correct values in steamApi.\n"
-              "If you need help, you can check out "
-              "https://github.com/AtlasC0R3/drop-discord/wiki/Configuring-the-Steam-integration")
-        return 'Steam'
-    elif userdata.status_code != 200:
-        print(f"Something went wrong with the API callout, falling back to playing Steam.\n"
-              f"Error code {userdata.status_code}, in case you may need it.")
-        return 'Steam'
-    else:
-        played_games = []
-        userdata = userdata.json()
-        userdata = userdata.get('response').get('games')
-        for game in userdata:
-            played_games.append(game.get('name'))
-        excluded_games = steamapiconfig.get('excludedGames')
-        for no in excluded_games:
-            for game in played_games:
-                if game:
-                    if no.lower() in game.lower():
-                        played_games = [x for x in played_games if x != game]
-        return played_games
+    userdata = await get_steam_user_recently_played()
+    played_games = []
+    userdata = userdata.get('response').get('games')
+    for game in userdata:
+        played_games.append(game.get('name'))
+    excluded_games = steamapiconfig.get('excludedGames')
+    for no in excluded_games:
+        for game in played_games:
+            if game:
+                if no.lower() in game.lower():
+                    played_games = [x for x in played_games if x != game]
+            else:
+                played_games = [x for x in played_games if x != game]
+    return played_games
 
 
 to_replace = {
@@ -274,7 +247,7 @@ def get_listening_to(activities: discord.Member.activities):
                         return [title, artist]
 
 
-def get_new_activity(user_member=None):
+async def get_new_activity(user_member=None):
     activitytype = None
     activityname = None
     if user_member:
@@ -291,11 +264,11 @@ def get_new_activity(user_member=None):
     if not activitytype:
         if get_config_parameter('useSteamRecentlyPlayed', int) == 1:
             activitytype = 'playing'
-            activityname = get_steam_played_game()
+            activityname = await get_steam_played_game()
         elif get_config_parameter('useSteamRecentlyPlayed', int) == 2:
             with open("data/activities.json", encoding='utf-8', newline="\n") as file:
                 activities = json.load(file)
-            for game in get_steam_recently_played():
+            for game in await get_steam_recently_played():
                 activities.append(['playing', game])
             activity = random.choice(activities)
             activitytype = activity[0]
@@ -332,7 +305,7 @@ def check_banword_filter(message: str, guild_id: list):
     return return_list
 
 
-async def wait_for_user(ctx, bot, msg: discord.Message, say_action_cancelled = True):
+async def wait_for_user(ctx, bot, msg: discord.Message, say_action_cancelled=True):
     def check(ms):
         return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 

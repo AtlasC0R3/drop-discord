@@ -173,7 +173,7 @@ async def on_ready():
             # What the hell is this running on!?
             print(f"Running on an unknown OS ({os.name})")
     DiscordComponents(bot)
-    get_github_config()
+    await get_github_config()
     print(f'My name is {bot.user}.')
 
     try:
@@ -309,12 +309,13 @@ async def on_message(message):
                     activity_type = 'playing'
                     activity_name = activity
         else:
-            activity = get_new_activity(message.author)
+            activity = await get_new_activity(message.author)
             activity_type = activity[0]
             activity_name = activity[1]
-        await bot.change_presence(
-            activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
+        # await bot.change_presence(
+        #     activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
         await message.reply(content=f'{activity_type.title()} {activity_name}')
+        activity_changer.restart([activity_type, activity_name])
 
 
 @bot.listen()
@@ -340,13 +341,18 @@ async def owner_refresh():
 
 
 @tasks.loop(minutes=10, count=None, reconnect=True)
-async def activity_changer():
-    if ownerMember:
-        activity = get_new_activity(ownerMember)
+async def activity_changer(activity=None):
+    if not activity:
+        if ownerMember:
+            activity = await get_new_activity(ownerMember)
+        else:
+            activity = await get_new_activity()
+    if isinstance(activity, str):
+        activity_type = "playing"
+        activity_name = activity
     else:
-        activity = get_new_activity()
-    activity_type = activity[0]
-    activity_name = activity[1]
+        activity_type = activity[0]
+        activity_name = activity[1]
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
 
 

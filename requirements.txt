@@ -4,6 +4,6 @@ discord.py==1.*
 discord-pretty-help
 discord-components==0.5.*
 parsedatetime
-requests
 lyricsgenius
 duckduckpy
+aiohttp
