@@ -4,7 +4,7 @@ import random
 import discord
 import drop.errors
 from discord.ext import commands, tasks
-from data.extdata import get_language_str, wait_for_user, get_file_type
+from data.extdata import get_language_str, wait_for_user, get_file_type, attachment_types
 
 from drop.tempban import *
 from drop.errors import *
@@ -247,14 +247,24 @@ class Moderation(commands.Cog):
                 url=pin.jump_url,
                 timestamp=pin.created_at
             )
+            msg_content = ""
             if pin.attachments:
                 file_type = get_file_type(pin.attachments[0].url)
                 if file_type == 1:
                     embed.set_image(url=pin.attachments[0].url)
+                elif file_type == 2:
+                    await channel.send(f'{pin.attachments[0].url} '
+                                       f'**(putting this attachment link here so that the video can load, '
+                                       f'since Discord currently does not allow videos inside bot embeds)**')
                 if len(pin.attachments) > 1 or file_type != 1:
                     attachments = ""
-                    for attachment in pin.attachments:
-                        attachments = attachments + attachment.url + '\n'
+                    for idx, attachment in enumerate(pin.attachments):
+                        # attachments += attachment.url + '\n'
+                        file_type = get_file_type(attachment.url)
+                        attachments += f"[{attachment.filename} ({attachment_types[file_type]} {idx + 1})]" \
+                                       f"({attachment.url})\n"
+                    if file_type == 2:
+                        attachments += "**The attached video has been sent as a separate message!**"
                     embed.add_field(
                         name='Attachments',
                         value=attachments
@@ -264,7 +274,7 @@ class Moderation(commands.Cog):
                 icon_url=pin.author.avatar_url,
                 url=f"https://discord.com/users/{pin.author.id}/"
             )
-            await channel.send(embed=embed)
+            await channel.send(content=msg_content, embed=embed)
             if delete_pins:
                 await pin.delete()
             do_sleep = True

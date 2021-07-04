@@ -343,7 +343,21 @@ video_types = (
     '.mp4',
     '.mov'
 )
+audio_types = (
+    '.wav',
+    '.mp3',
+    '.ogg',
+    '.flac',
+    '.m4a'
+)
 # https://www.reddit.com/r/discordapp/comments/f2kt5r/guide_file_formats_discord_can_embed/
+
+attachment_types = {
+    0: "file",
+    1: "image",
+    2: "video",
+    3: "audio"
+}
 
 
 def get_file_type(url: str):
@@ -351,6 +365,7 @@ def get_file_type(url: str):
      0: nothing, cannot really embed
      1: image
      2: video
+     3: audio
     """
     for img_type in image_types:
         if url.lower().endswith(img_type):
@@ -358,4 +373,7 @@ def get_file_type(url: str):
     for vid_type in video_types:
         if url.lower().endswith(vid_type):
             return 2
+    for audio_type in audio_types:
+        if url.lower().endswith(audio_type):
+            return 3
     return 0
