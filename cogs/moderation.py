@@ -2,6 +2,7 @@ import asyncio
 import random
 
 import discord
+import drop.errors
 from discord.ext import commands, tasks
 from data.extdata import get_language_str, wait_for_user, get_file_type
 
@@ -417,6 +418,21 @@ class Moderation(commands.Cog):
                     if entry.user.id == int(user_id):
                         # We have found the correct user
                         await guild.unban(entry.user, reason="Their temp-ban period is over.")
+
+    @commands.Cog.listener()
+    async def on_member_unban(self, guild, user):
+        # try:
+        #     temp_ban = get_ban_status(guild.id, user.id)
+        # except NoTempBansForGuild:
+        #     pass
+        # else:
+        #     if temp_ban:
+        #         # user is also temp-banned
+        try:
+            unban_user(guild.id, user.id)
+        except drop.errors.NoTempBansForGuild:
+            # Whoops, user wasn't tempbanned.
+            pass
 
 
 def setup(bot):
