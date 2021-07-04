@@ -3,7 +3,7 @@ import random
 
 import discord
 from discord.ext import commands, tasks
-from data.extdata import get_language_str, wait_for_user
+from data.extdata import get_language_str, wait_for_user, get_file_type
 
 from drop.tempban import *
 from drop.errors import *
@@ -225,50 +225,49 @@ class Moderation(commands.Cog):
         aliases=['savepins', 'pincenter']
     )
     @commands.has_permissions(manage_messages=True)
-    async def storepins_command(self, ctx, channel):
-        pins = reversed(await ctx.channel.pins())
-        for pin in pins:
-            replace = {' ': '',
-                       '<': '',
-                       '#': '',
-                       '>': ''}
-            for key, value in replace.items():
-                channel = channel.replace(key, value)
-            if channel.isdigit():
-                channelsendin = ctx.guild.get_channel(int(channel))
-                if channelsendin is None:
-                    await ctx.reply(get_language_str(ctx.guild.id, 83))
-                    return
-            else:
-                channelsendin = discord.utils.get(self.bot.get_all_channels(), guild=ctx.guild, name=channel)
-                if channelsendin is None:
-                    await ctx.reply(get_language_str(ctx.guild.id, 36))
-                    return
+    async def storepins_command(self, ctx, channel: discord.TextChannel):
+        pins = await ctx.channel.pins()
+        if not pins:
+            await ctx.reply(get_language_str(ctx.guild.id, 135))
+            return
+        msg = await ctx.send(get_language_str(ctx.guild.id, 136))
+        delete_pins = await wait_for_user(ctx, self.bot, msg, False)
+        await msg.delete()
 
+        do_sleep = False
+        pins = reversed(pins)
+        for pin in pins:
+            if do_sleep:
+                await asyncio.sleep(5)
             embed = discord.Embed(
                 title=f"Pinned message in #{pin.channel.name}",
-                description=f"{pin.content}",
-                color=random.choice(color_list)
+                description=pin.content,
+                color=random.choice(color_list),
+                url=f'https://discord.com/channels/{pin.guild.id}/{pin.channel.id}/{pin.id}',
+                timestamp=pin.created_at
             )
             if pin.attachments:
-                attachments = ""
-                for attachment in pin.attachments:
-                    attachments = attachments + attachment.url + '\n'
-                embed.add_field(
-                    name='Attachments',
-                    value=attachments
-                )
+                file_type = get_file_type(pin.attachments[0].url)
+                if file_type == 1:
+                    embed.set_image(url=pin.attachments[0].url)
+                if len(pin.attachments) > 1 or file_type != 1:
+                    attachments = ""
+                    for attachment in pin.attachments:
+                        attachments = attachments + attachment.url + '\n'
+                    embed.add_field(
+                        name='Attachments',
+                        value=attachments
+                    )
             embed.set_author(
                 name=pin.author.name,
                 icon_url=pin.author.avatar_url,
                 url=f"https://discord.com/users/{pin.author.id}/"
             )
-            embed.add_field(
-                name='Message link',
-                value=f'https://discordapp.com/channels/{pin.guild.id}/{pin.channel.id}/{pin.id}'
-            )
-            await channelsendin.send(embed=embed)
-            await asyncio.sleep(5)
+            await channel.send(embed=embed)
+            if delete_pins:
+                await pin.delete()
+            do_sleep = True
+        await channel.send("`--- end of pins ---`")
         await ctx.reply('Done storing pins.')
 
     @storepins_command.error
