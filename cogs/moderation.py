@@ -4,7 +4,7 @@ import random
 import discord
 import drop.errors
 from discord.ext import commands, tasks
-from data.extdata import get_language_str, wait_for_user, get_file_type, attachment_types
+from data.extdata import get_language_str, wait_for_user, get_file_type
 
 from drop.tempban import *
 from drop.errors import *
@@ -249,7 +249,7 @@ class Moderation(commands.Cog):
             )
             msg_content = ""
             if pin.attachments:
-                file_type = get_file_type(pin.attachments[0].url)
+                file_type = get_file_type(pin.attachments[0])
                 if file_type == 1:
                     embed.set_image(url=pin.attachments[0].url)
                 elif file_type == 2:
@@ -258,10 +258,10 @@ class Moderation(commands.Cog):
                                        f'since Discord currently does not allow videos inside bot embeds)**')
                 if len(pin.attachments) > 1 or file_type != 1:
                     attachments = ""
-                    for idx, attachment in enumerate(pin.attachments):
+                    for attachment in pin.attachments:
                         # attachments += attachment.url + '\n'
-                        file_type = get_file_type(attachment.url)
-                        attachments += f"[{attachment.filename} ({attachment_types[file_type]} {idx + 1})]" \
+                        file_type = get_file_type(attachment)
+                        attachments += f"[{attachment.filename} ({attachment.content_type})]" \
                                        f"({attachment.url})\n"
                     if file_type == 2:
                         attachments += "**The attached video has been sent as a separate message!**"

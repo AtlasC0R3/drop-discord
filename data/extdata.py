@@ -360,20 +360,17 @@ attachment_types = {
 }
 
 
-def get_file_type(url: str):
+def get_file_type(attachment: discord.Attachment):
     """
      0: nothing, cannot really embed
      1: image
      2: video
      3: audio
     """
-    for img_type in image_types:
-        if url.lower().endswith(img_type):
-            return 1
-    for vid_type in video_types:
-        if url.lower().endswith(vid_type):
-            return 2
-    for audio_type in audio_types:
-        if url.lower().endswith(audio_type):
-            return 3
+    if attachment.content_type.startswith('image/'):
+        return 1
+    if attachment.content_type.startswith('video/'):
+        return 2
+    if attachment.content_type.startswith('audio/'):
+        return 3
     return 0
