@@ -332,7 +332,7 @@ def check_banword_filter(message: str, guild_id: list):
     return return_list
 
 
-async def wait_for_user(ctx, bot, msg: discord.Message, say_action_cancelled: True):
+async def wait_for_user(ctx, bot, msg: discord.Message, say_action_cancelled = True):
     def check(ms):
         return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
@@ -357,3 +357,31 @@ async def wait_for_user(ctx, bot, msg: discord.Message, say_action_cancelled: Tr
         return False
     else:
         return False
+
+image_types = (
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.gif',
+    '.gifv'
+)
+video_types = (
+    '.mp4',
+    '.mov'
+)
+# https://www.reddit.com/r/discordapp/comments/f2kt5r/guide_file_formats_discord_can_embed/
+
+
+def get_file_type(url: str):
+    """
+     0: nothing, cannot really embed
+     1: image
+     2: video
+    """
+    for img_type in image_types:
+        if url.lower().endswith(img_type):
+            return 1
+    for vid_type in video_types:
+        if url.lower().endswith(vid_type):
+            return 2
+    return 0
