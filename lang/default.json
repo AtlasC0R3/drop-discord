@@ -220,5 +220,8 @@
 
   "Couldn't find that game on Steam.",
   "That game doesn't seem to have any reports on ProtonDB.",
-  "**Linux seems to be natively supported**, according to Steam!"
+  "**Linux seems to be natively supported**, according to Steam!",
+
+  "Well, there are no pinned messages. I can't work with nothing.",
+  "Do you also want me to delete the pinned messages?"
 ]
