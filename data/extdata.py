@@ -332,7 +332,7 @@ def check_banword_filter(message: str, guild_id: list):
     return return_list
 
 
-async def wait_for_user(ctx, bot, msg: discord.Message):
+async def wait_for_user(ctx, bot, msg: discord.Message, say_action_cancelled: True):
     def check(ms):
         return ms.channel == ctx.message.channel and ms.author == ctx.message.author
 
@@ -352,7 +352,8 @@ async def wait_for_user(ctx, bot, msg: discord.Message):
     if reply == yes:
         return True
     elif reply == no:
-        await ctx.send(get_language_str(ctx.guild.id, 26))
+        if say_action_cancelled:
+            await ctx.send(get_language_str(ctx.guild.id, 26))
         return False
     else:
         return False
