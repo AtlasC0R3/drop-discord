@@ -433,6 +433,12 @@ async def on_guild_join(guild):
 
 if get_config_parameter('dev_token', bool):
     logging.info("Developer mode activated, passing through developer token.")
+    token_path = "data/devtoken.txt"
+else:
+    logging.info('dev_token not enabled; using regular token')
+    token_path = "data/token.txt"
+
+if get_config_parameter('jishaku', bool) or get_config_parameter('dev_token', bool):
     try:
         bot.load_extension('jishaku')
     except discord.ext.commands.errors.ExtensionNotFound:
@@ -440,10 +446,6 @@ if get_config_parameter('dev_token', bool):
                         "Jishaku may be helpful for debugging.")
     else:
         logging.info("Jishaku loaded: continuing...")
-    token_path = "data/devtoken.txt"
-else:
-    logging.info('dev_token not enabled; using regular token')
-    token_path = "data/token.txt"
 
 try:
     specified_token = open(token_path, "rt").read()
