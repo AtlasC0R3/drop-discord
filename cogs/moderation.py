@@ -243,7 +243,7 @@ class Moderation(commands.Cog):
                 title=f"Pinned message in #{pin.channel.name}",
                 description=pin.content,
                 color=random.choice(color_list),
-                url=f'https://discord.com/channels/{pin.guild.id}/{pin.channel.id}/{pin.id}',
+                url=pin.jump_url,
                 timestamp=pin.created_at
             )
             if pin.attachments:
