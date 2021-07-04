@@ -37,9 +37,10 @@ class Moderation(commands.Cog):
 
         do_purge = True
         if to_delete >= 10:
-            to_delete += 3
             msg = await ctx.send(get_language_str(ctx.guild.id, 63).format(ctx.author.name, str(to_delete)))
             do_purge = await wait_for_user(ctx, self.bot, msg)
+            await msg.delete()
+            await ctx.message.delete()
         if do_purge:
             try:
                 await ctx.channel.purge(limit=to_delete)
