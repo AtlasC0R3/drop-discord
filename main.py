@@ -319,7 +319,7 @@ async def activity_changer_command(ctx, *, activity=None):
     # await bot.change_presence(
     #     activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
     await ctx.reply(content=f'{activity_type.title()} {activity_name}')
-    activity_changer.restart([activity_type, activity_name])
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
 
 
 @bot.listen()
@@ -343,18 +343,13 @@ async def owner_refresh():
 
 
 @tasks.loop(minutes=10, count=None, reconnect=True)
-async def activity_changer(activity=None):
-    if not activity:
-        if ownerMember:
-            activity = await get_new_activity(ownerMember)
-        else:
-            activity = await get_new_activity()
-    if isinstance(activity, str):
-        activity_type = "playing"
-        activity_name = activity
+async def activity_changer():
+    if ownerMember:
+        activity = await get_new_activity(ownerMember)
     else:
-        activity_type = activity[0]
-        activity_name = activity[1]
+        activity = await get_new_activity()
+    activity_type = "playing"
+    activity_name = activity
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
 
 
