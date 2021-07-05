@@ -348,8 +348,8 @@ async def activity_changer():
         activity = await get_new_activity(ownerMember)
     else:
         activity = await get_new_activity()
-    activity_type = "playing"
-    activity_name = activity
+    activity_type = activity[0]
+    activity_name = activity[1]
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
 
 
