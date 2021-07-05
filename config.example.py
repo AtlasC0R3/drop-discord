@@ -31,6 +31,9 @@ verbose = False
 syncOwnerActivity = True
 # Controls whether the bot will imitate the owner's activity.
 
+useJishaku = True
+# Controls whether the bot will load Jishaku.
+
 useSteamRecentlyPlayed = 0
 # Change this integer if you'd like the bot to pass through Steam's API for activities.
 steamUserId = ""

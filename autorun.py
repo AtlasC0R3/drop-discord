@@ -33,7 +33,7 @@ try:
 except ImportError:
     raise ImportError("Uh, you may want to create a config file for this script?")
 
-pip_cmd = [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
+pip_cmd = [sys.executable, '-m', 'pip']
 
 
 def drop_clone(git_path):
@@ -80,7 +80,32 @@ def check_config(conf: str):
     newconf['verbose'] = verbose
     newconf['geniusApi'] = geniusApiKey
     newconf['syncActivityWithOwner'] = syncOwnerActivity
+    newconf['jishaku'] = useJishaku
     return newconf
+
+
+def _run_pip(args: list):
+    cmd_to_run = pip_cmd + args
+    print(f'Running {" ".join(cmd_to_run)}')
+    subprocess.check_call(cmd_to_run, shell=False)
+
+
+def pip_update():
+    if doPipInstallReqs:
+        reqs = requests.get(reqsTxtUrl).text
+        if not os.path.isfile('requirements.txt') or open('requirements.txt').read() != reqs:
+            open('requirements.txt', 'w').write(reqs)
+            try:
+                _run_pip(['install', '-r', 'requirements.txt'])
+            except subprocess.CalledProcessError:
+                exit("Uh oh, seems like something didn't go right while trying to install the bot's requirements. "
+                     "Troubleshooting or manual installation required. I'm aborting now.")
+    if useJishaku:
+        try:
+            _run_pip(['install', '--upgrade', 'jishaku'])
+        except subprocess.CalledProcessError:
+            exit("Uh oh, seems like something didn't go right while trying to install Jishaku. "
+                 "Troubleshooting or manual installation required. I'm aborting now.")
 
 
 def add_cogs():
@@ -130,17 +155,7 @@ if doSubdirectoryCleanup:
 print(f"Cloning repository to drop-discord{runs + 1}/")
 drop_clone(f'drop-discord{runs + 1}')
 add_cogs()
-
-if doPipInstallReqs:
-    reqs = requests.get(reqsTxtUrl).text
-    if not os.path.isfile('requirements.txt') or open('requirements.txt').read() != reqs:
-        print(f'Running {str(pip_cmd)}')
-        open('requirements.txt', 'w').write(reqs)
-        try:
-            subprocess.check_call(pip_cmd, shell=False)
-        except subprocess.CalledProcessError:
-            exit("Uh oh, seems like something didn't go right while trying to install the bot's requirements. "
-                 "Troubleshooting or manual installation required. I'm aborting now.")
+pip_update()
 
 while True:
     if os.path.exists(f'drop-discord{runs}'):
@@ -201,16 +216,7 @@ while True:
         if os.path.isfile(f'drop-discord{runs}/drop-discord/data/unmutes.json'):
             shutil.move(f'drop-discord{runs}/drop-discord/data/unmutes.json',
                         f'drop-discord{runs + 1}/drop-discord/data/unmutes.json')
-    if doPipInstallReqs:
-        reqs = requests.get(reqsTxtUrl).text
-        if not os.path.isfile('requirements.txt') or open('requirements.txt').read() != reqs:
-            print(f'Running {str(pip_cmd)}')
-            open('requirements.txt', 'w').write(reqs)
-            try:
-                subprocess.check_call(pip_cmd, shell=False)
-            except subprocess.CalledProcessError:
-                exit("Uh oh, seems like something didn't go right while trying to install the bot's requirements. "
-                     "Troubleshooting or manual installation required. I'm aborting now.")
+    pip_update()
 
     sp.terminate()
     sp.kill()
