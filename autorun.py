@@ -165,6 +165,9 @@ while True:
 
     if prevDropJson:
         json.dump(prevDropJson, open(f'drop-discord{runs}/drop-discord/data/config.json', 'w'))
+    else:
+        json.dump(check_config(f'drop-discord{runs}/drop-discord/data/config.json'),
+                  open(f'drop-discord{runs}/drop-discord/data/config.json', 'w'))
     if autoWriteTokens:
         open(f'drop-discord{runs}/drop-discord/data/token.txt', 'w').write(token)
         open(f'drop-discord{runs}/drop-discord/data/devtoken.txt', 'w').write(devToken)
@@ -197,9 +200,6 @@ while True:
     # Due for an update. Do stuff, I guess.
     drop_clone(f'drop-discord{runs + 1}')
     add_cogs()
-    newJson = json.load(open(f'drop-discord{runs + 1}/drop-discord/data/config.json'))
-    json.dump(check_config(f'drop-discord{runs}/drop-discord/data/config.json'),
-              open(f'drop-discord{runs + 1}/drop-discord/data/config.json', 'w'))
     if autoWriteTokens:
         open(f'drop-discord{runs + 1}/drop-discord/data/token.txt', 'w').write(token)
         open(f'drop-discord{runs + 1}/drop-discord/data/devtoken.txt', 'w').write(devToken)
@@ -216,6 +216,9 @@ while True:
         if os.path.isfile(f'drop-discord{runs}/drop-discord/data/unmutes.json'):
             shutil.move(f'drop-discord{runs}/drop-discord/data/unmutes.json',
                         f'drop-discord{runs + 1}/drop-discord/data/unmutes.json')
+    newJson = json.load(open(f'drop-discord{runs + 1}/drop-discord/data/config.json'))
+    json.dump(check_config(f'drop-discord{runs}/drop-discord/data/config.json'),
+              open(f'drop-discord{runs + 1}/drop-discord/data/config.json', 'w'))
     pip_update()
 
     sp.terminate()
