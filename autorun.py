@@ -108,6 +108,19 @@ def pip_update():
                  "Troubleshooting or manual installation required. I'm aborting now.")
 
 
+def transfer_server_data(drop_dir: str, dest_dir: str):
+    if os.path.isdir(f'{drop_dir}/drop-discord/data/servers/'):
+        shutil.move(f'{drop_dir}/drop-discord/data/servers/', f'{dest_dir}/data/')
+    if os.path.isfile(f'{drop_dir}/drop-discord/data/data_clear.json'):
+        shutil.move(f'{drop_dir}/drop-discord/data/data_clear.json', f'{dest_dir}/data/data_clear.json')
+    if os.path.isfile(f'{drop_dir}/drop-discord/data/unmutes.json'):
+        shutil.move(f'{drop_dir}/drop-discord/data/unmutes.json', f'{dest_dir}/data/unmutes.json')
+    if os.path.isdir(f'{drop_dir}/drop-discord/data/todo/'):
+        shutil.move(f'{drop_dir}/drop-discord/data/todo/', f'{dest_dir}/data/')
+    if os.path.isfile(f'{drop_dir}/drop-discord/data/config.json'):
+        shutil.copy(f'{drop_dir}/drop-discord/data/config.json', f'{dest_dir}/data/config.json')
+
+
 def add_cogs():
     path = 'cogs/'
     if os.path.exists(path):
@@ -139,14 +152,7 @@ if doSubdirectoryCleanup:
                         shutil.rmtree('.temp/')
                     os.mkdir('.temp/')
                     os.mkdir('.temp/data/')
-                    if os.path.isdir(f'{directory}/drop-discord/data/servers/'):
-                        shutil.move(f'{directory}/drop-discord/data/servers/', '.temp/data/')
-                    if os.path.isfile(f'{directory}/drop-discord/data/data_clear.json'):
-                        shutil.move(f'{directory}/drop-discord/data/data_clear.json', '.temp/data/data_clear.json')
-                    if os.path.isfile(f'{directory}/drop-discord/data/unmutes.json'):
-                        shutil.move(f'{directory}/drop-discord/data/unmutes.json', '.temp/data/unmutes.json')
-                    if os.path.isdir(f'{directory}/drop-discord/data/todo/'):
-                        shutil.move(f'{directory}/drop-discord/data/todo/', '.temp/data/')
+                    transfer_server_data(directory, '.temp/')
                 shutil.rmtree(directory)
                 break
             else:
@@ -204,18 +210,7 @@ while True:
         open(f'drop-discord{runs + 1}/drop-discord/data/token.txt', 'w').write(token)
         open(f'drop-discord{runs + 1}/drop-discord/data/devtoken.txt', 'w').write(devToken)
     if doTransferServerData:
-        if os.path.isdir('.temp/'):
-            shutil.rmtree('.temp/')
-        os.mkdir('.temp/')
-        os.mkdir('.temp/data/')
-        if os.path.isdir(f'drop-discord{runs}/drop-discord/data/servers/'):
-            shutil.move(f'drop-discord{runs}/drop-discord/data/servers/', f'drop-discord{runs + 1}/drop-discord/data/')
-        if os.path.isfile(f'drop-discord{runs}/drop-discord/data/data_clear.json'):
-            shutil.copy(f'drop-discord{runs}/drop-discord/data/data_clear.json',
-                        f'drop-discord{runs + 1}/drop-discord/data/data_clear.json')
-        if os.path.isfile(f'drop-discord{runs}/drop-discord/data/unmutes.json'):
-            shutil.move(f'drop-discord{runs}/drop-discord/data/unmutes.json',
-                        f'drop-discord{runs + 1}/drop-discord/data/unmutes.json')
+        transfer_server_data(f'drop-discord{runs}', f'drop-discord{runs + 1}/drop-discord')
     newJson = json.load(open(f'drop-discord{runs + 1}/drop-discord/data/config.json'))
     json.dump(check_config(f'drop-discord{runs}/drop-discord/data/config.json'),
               open(f'drop-discord{runs + 1}/drop-discord/data/config.json', 'w'))
