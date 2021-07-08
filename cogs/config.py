@@ -364,29 +364,19 @@ class Configuration(commands.Cog):
         name="togglecommand",
         description="Disables/enables commands. This can be used to disable commands you don't want in your server.\n"
                     "Additionally, this disables the ability to see them in the help command.",
-        aliases=["togglecmd"],
+        aliases=["togglecmd", "disablecmd", "enablecmd"],
         brief='Toggles a command'
     )
     @has_guild_permissions(manage_guild=True)
-    async def disablecmd_command(self, ctx):
-        def check(ms):
-            return ms.channel == ctx.message.channel and ms.author == ctx.message.author
+    async def disablecmd_command(self, ctx, command_to_toggle: str):
+        togglethingy = command_to_toggle.lower()
 
-        commandmsg = ctx.message.content
-        prefix_used = ctx.prefix
-        alias_used = ctx.invoked_with
-        commandargs = commandmsg[len(prefix_used) + len(alias_used):]
-        if commandargs == '':
-            await ctx.send(get_language_str(ctx.guild.id, 53))
-            msg = await self.bot.wait_for('message', check=check)
-            togglethingy = msg.content.lower()
-        else:
-            togglethingy = commandargs.replace(' ', '').lower()
         disabled_commands = get_server_config(ctx.guild.id, 'disabled_commands', list)
         cmdthingy = self.bot.get_command(togglethingy)
         if not cmdthingy:
             await ctx.reply(get_language_str(ctx.guild.id, 54))
             return
+        togglethingy = cmdthingy.name
         if togglethingy == 'help':
             msg = await ctx.send(get_language_str(ctx.guild.id, 55))
 
