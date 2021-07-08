@@ -105,12 +105,12 @@ class Mute(commands.Cog):
                 await ctx.reply(get_language_str(ctx.guild.id, 93).format(user.name))
                 return
             # user has been muted.
-            mute_time = user_mute.get("unmute_time")
-            muter_id = user_mute.get("mute_author_id")
+            mute_time = user_mute.unmute_time
+            muter_id = user_mute.mute_author_id
             muter = ctx.guild.get_member(muter_id)
-            # mute_index = user_mute.get("mute_index")
-            # mute_data = user_mute.get("mute_data")
-            # mute_role_id = user_mute.get("mute_role_id")
+            # mute_index = user_mute.index
+            # mute_data = user_mute.mute_data
+            # mute_role_id = user_mute.role_id
             # mute_role = discord.utils.get(ctx.guild.roles, id=mute_role_id)
 
             embed = discord.Embed(
@@ -173,11 +173,11 @@ class Mute(commands.Cog):
         unmutes = check_mutes()
         if unmutes:
             for toUnmute in unmutes:
-                guild_id = toUnmute["guild_id"]
+                guild_id = toUnmute.guild_id
                 guild = self.bot.get_guild(guild_id)
-                role_id = toUnmute["role_id"]
+                role_id = toUnmute.role_id
                 role = discord.utils.get(guild.roles, id=role_id)
-                user_id = toUnmute["user_id"]
+                user_id = toUnmute.user_id
                 user_member = guild.get_member(user_id)  # holy s*** i need to learn intents.
                 await user_member.remove_roles(role)
         # So now we have taken care of the current mutes. check_mutes() takes care of pretty much everything, too.

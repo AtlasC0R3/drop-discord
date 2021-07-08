@@ -3,7 +3,7 @@ import random
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions
-from data.extdata import get_language_str, wait_for_user
+from data.extdata import get_language_str, wait_for_user, format_warn
 
 from drop.moderation import *
 
@@ -42,7 +42,7 @@ class Warn(commands.Cog):
         if user.guild_permissions.manage_messages:
             await ctx.reply(get_language_str(ctx.guild.id, 75))
             return
-        warn(ctx.guild.id, user.id, user.name, ctx.author.id, ctx.author.name, ctx.message.channel.id, reason)
+        warn(ctx.guild.id, user.id, ctx.author.id, ctx.author.name, ctx.message.channel.id, reason)
         discreason = reason.replace('*', '\\*')
         embed = discord.Embed(
             title="User warned",
@@ -82,24 +82,19 @@ class Warn(commands.Cog):
     )
     @has_permissions(manage_messages=True)
     async def warns_command(self, ctx, *, user: discord.Member):
-        warndata = get_warns(ctx.guild.id, user.id)
-        if not warndata:
+        warn_data = get_warns(ctx.guild.id, user.id)
+        if not warn_data:
             await ctx.reply(get_language_str(ctx.guild.id, 114))
             return
 
         # If the script made it this far, then the user has warns.
-        warns = warndata.get("warns")
+        warns = warn_data
         warn_amount = len(warns)
-        if warn_amount == 1:
-            warns_word = "warn"
-        else:
-            warns_word = "warns"
-
         username = user.name
 
         embed = discord.Embed(
             title=f"{username}'s warns",
-            description=f"They have {warn_amount} {warns_word}.",
+            description=f"They have {warn_amount} {'warn' if warn_amount == 1 else 'warns'}.",
             color=random.choice(color_list)
         )
         embed.set_author(
@@ -109,24 +104,14 @@ class Warn(commands.Cog):
         )
 
         for index, warn_thing in enumerate(warns):
-            warner_id = warn_thing.get('warner')
-            warner_user = self.bot.get_user(id=warner_id)
-            if warner_user is None:
-                warner_name = warn_thing.get('warner_name')
-            else:
-                warner_name = self.bot.get_user(id=warner_id)
-                
-            warn_reason = warn_thing.get('reason')
-            warn_channel = warn_thing.get('channel')
-            warn_datetime = warn_thing.get('datetime')
-            
             embed.add_field(
                 name=f"Warn {index + 1}",
-                value=f"Warner: {warner_name} (<@{warner_id}>)\n"
-                      f"Reason: {warn_reason}\n"
-                      f"Channel: <#{warn_channel}>\n"
-                      f"Date and Time: {warn_datetime}",
-                inline=True
+                # value=f"Warner: {warner_display}\n"
+                #       f"Channel: <#{warn_channel}>\n"
+                #       f"Date and Time: {warn_datetime}\n"
+                #       f"Reason:```\n{warn_reason}\n```",
+                value=format_warn(warn_thing, self.bot),
+                inline=False
             )
         await ctx.reply(
             content=None,
@@ -156,18 +141,10 @@ class Warn(commands.Cog):
         warn_index = int(warn_index) - 1
 
         specified_warn = get_warn(ctx.guild.id, user.id, warn_index)
-        warn_warner = specified_warn.get('warner')
-        warn_reason = specified_warn.get('reason')
-        warn_channel = specified_warn.get('channel')
-        warn_datetime = specified_warn.get('datetime')
-        warn_warner_name = self.bot.get_user(id=warn_warner)
 
         confirmation_embed = discord.Embed(
-            title=f'{user.name}\'s warn number {warn_index}',
-            description=f'Warner: {warn_warner_name}\n'
-                        f'Reason: {warn_reason}\n'
-                        f'Channel: <#{warn_channel}>\n'
-                        f'Date and Time: {warn_datetime}',
+            title=f'{user.name}\'s warn number {warn_index + 1}',
+            description=format_warn(specified_warn, self.bot),
             color=random.choice(color_list),
         )
         confirmation_embed.set_author(
@@ -223,17 +200,15 @@ class Warn(commands.Cog):
         msg = await self.bot.wait_for('message', check=check)
         warn_new_reason = msg.content
 
-        warn_warner = specified_warn.get('warner')
-        warn_channel = specified_warn.get('channel')
-        warn_datetime = specified_warn.get('datetime')
-        warn_warner_name = self.bot.get_user(id=warn_warner)
+        specified_warn.reason = warn_new_reason
 
         confirmation_embed = discord.Embed(
             title=f'{user.name}\'s warn number {warn_index}',
-            description=f'Warner: {warn_warner_name}\n'
-                        f'Reason: {warn_new_reason}\n'
-                        f'Channel: <#{warn_channel}>\n'
-                        f'Date and Time: {warn_datetime}',
+            # description=f'Warner: {warn_warner_name}\n'
+            #             f'Reason: {warn_new_reason}\n'
+            #             f'Channel: <#{warn_channel}>\n'
+            #             f'Date and Time: {warn_datetime}',
+            description=format_warn(specified_warn, self.bot),
             color=random.choice(color_list),
         )
         confirmation_embed.set_author(

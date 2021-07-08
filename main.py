@@ -25,6 +25,7 @@ from data.extdata import get_config_parameter, get_server_config, write_server_c
     get_language_str, get_new_activity, check_banword_filter
 
 from drop.basic import init_genius
+from drop.tempban import check_bans
 
 try:
     import discord
@@ -148,7 +149,7 @@ async def check_message(message):
                     await message.author.add_roles(role)
                     mute.add_mutes(message.guild.id, role.id, message.author.id, bot.user.id, "1 hour")
                 if do_warn:  # warn
-                    moderation.warn(message.guild.id, message.author.id, message.author.name,
+                    moderation.warn(message.guild.id, message.author.id,
                                     bot.user.id, bot.user.name, message.channel.id,
                                     f'Warned for saying word {offensive_word}\n'
                                     f'Full message: {message.content}')
@@ -182,6 +183,7 @@ async def on_ready():
             owner_refresh.start()
         activity_changer.start()
         inactivity_func.start()
+        unban_task.start()
     except RuntimeError:
         # whoops, already started.
         pass
@@ -363,6 +365,21 @@ async def inactivity_func():
             channel = bot.get_channel(int(x))
             await channel.send(random.choice(inactivity_quotes))
     message_count = {}
+
+
+@tasks.loop(minutes=1)
+async def unban_task():
+    unbans = check_bans()
+    if unbans:
+        for toUnban in unbans:
+            guild_id = toUnban.guild_id
+            guild = bot.get_guild(guild_id)
+            user_id = toUnban.user_id
+            ban_list = await guild.bans()
+            for entry in ban_list:
+                if entry.user.id == int(user_id):
+                    # We have found the correct user
+                    await guild.unban(entry.user, reason="Their temp-ban period is over.")
 
 
 logging.info('Task loops has been configured')

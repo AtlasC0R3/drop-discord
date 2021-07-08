@@ -3,7 +3,7 @@ import random
 
 import discord
 import drop.errors
-from discord.ext import commands, tasks
+from discord.ext import commands
 from data.extdata import get_language_str, wait_for_user, get_file_type
 
 from drop.tempban import *
@@ -21,7 +21,6 @@ class Moderation(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.unban_task.start()
 
     @commands.command(
         name='purge',
@@ -381,8 +380,8 @@ class Moderation(commands.Cog):
         if not temp_ban_data:
             await ctx.reply(get_language_str(ctx.guild.id, 131))
             return
-        unban_time = temp_ban_data["unban_time"]
-        ban_author_id = temp_ban_data["ban_author_id"]
+        unban_time = temp_ban_data.unban_time
+        ban_author_id = temp_ban_data.ban_author_id
         if ban_author_id == ctx.author.id:
             ban_author_name = ctx.author.name
         else:
@@ -412,23 +411,9 @@ class Moderation(commands.Cog):
             return
         if isinstance(error, commands.errors.MissingRequiredArgument):
             if error.param.name == 'user':
-                await ctx.reply(f'[{ctx.author.name}], you did not specify a user. '
+                await ctx.reply(f'{ctx.author.name}, you did not specify a user. '
                                 f'*({error} Action cancelled)*')
                 return
-
-    @tasks.loop(minutes=1)
-    async def unban_task(self):
-        unbans = check_bans()
-        if unbans:
-            for toUnban in unbans:
-                guild_id = toUnban["guild_id"]
-                guild = self.bot.get_guild(guild_id)
-                user_id = toUnban["user_id"]
-                ban_list = await guild.bans()
-                for entry in ban_list:
-                    if entry.user.id == int(user_id):
-                        # We have found the correct user
-                        await guild.unban(entry.user, reason="Their temp-ban period is over.")
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):

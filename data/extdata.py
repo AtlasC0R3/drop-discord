@@ -3,10 +3,12 @@ import os
 import aiohttp
 import random
 import discord
+import drop.types
 import lyricsgenius
 import re
 import logging
 from drop import config, errors
+from discord.ext.commands.bot import Bot
 
 from discord_components import Button, ButtonStyle
 
@@ -374,3 +376,15 @@ def get_file_type(attachment: discord.Attachment):
     if attachment.content_type.startswith('audio/'):
         return 3
     return 0
+
+
+def format_warn(warn: drop.types.Warn, bot: Bot):
+    warner_id = warn.warner.id
+    warner_user = bot.get_user(id=warner_id)
+    if not warner_user:
+        warner_display = f"{warn.warner.name} (<@{warner_id}>)"
+    else:
+        warner_display = f"<@{warner_id}>"
+    return f"""
+            *by {warner_display}, in <#{warn.channel}>*\n*{warn.datetime}*```{warn.reason}```
+            """

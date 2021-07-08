@@ -49,8 +49,8 @@ class Todo(commands.Cog):
                 url=f"https://discord.com/users/{ctx.message.author.id}/"
             )
             for idx, todo in enumerate(todo_data):
-                desc = todo['desc']
-                time = todo['time']
+                desc = todo.description
+                time = todo.time
                 embed.add_field(
                     name=f'Item {idx + 1}',
                     value=f'{desc}\n'
@@ -155,9 +155,9 @@ class Todo(commands.Cog):
                     url=f"https://discord.com/users/{ctx.message.author.id}/"
                 )
                 for idx, todo in enumerate(todo_data):
-                    desc = todo['desc']
-                    time = todo['time']
-                    author = ctx.guild.get_member(todo['author'])
+                    desc = todo.desc
+                    time = todo.time
+                    author = ctx.guild.get_member(todo.author)
                     if not author:
                         rm_guild_todo(ctx.guild.id, idx)
                         break

@@ -11,6 +11,7 @@ from drop.basic import *
 from drop.steam import search_game, get_protondb_summary, get_steam_app_info
 from drop.errors import GameNotFound
 from drop.ext import format_html, format_names
+from drop.types import Lyrics
 
 with open("data/embed_colors.json") as f:
     colors = json.load(f)
@@ -164,122 +165,64 @@ class Basic(commands.Cog):
 
     @commands.command(
         name='lyrics',
-        description='Uses Genius (more precisely, the LyricsGenius package for Python) to get lyrics.\n'
-                    'Can be used in a multitude of ways: to find random songs by an artist, to find lyrics for a song '
-                    'by an artist or to find lyrics using what the user is currently playing on Spotify.\n',
+        description='Searches online using the specified query to get lyrics.\n'
+                    'You won\'t have to specify the artist either, just a search.\n'
+                    'If you\'re listening to something on Spotify and did not pass a query, the bot will '
+                    'use the data of the currently playing song. If you are listening to something using '
+                    'rich presence, the bot will attempt to use that data to search for lyrics.',
         aliases=['lyric', 'getsong', 'getartist'],
         brief='Gets lyrics',
-        usage='[In The End - Linkin Park|Already Over / Red|Imagine Dragons]'
+        usage='[(song title) | (song title) - (artist name)]'
     )
-    async def lyrics_command(self, ctx, *, args=None):
-        separator = [' / ', ' - ', ' \\ ']
-        if args:
-            for item in separator:
-                if item in args:
-                    args = args.split(item)
-                    break
-        else:
+    async def lyrics_command(self, ctx, *, query=None):
+        if not query:
             # check if user playing something on spotefiye
             # discord when will you add support for tidal /s
             if not ctx.guild:
                 await ctx.send("I can't retrieve your user activity inside private messages, "
                                "so you'll have to manually insert them.")
                 return
-            args = get_listening_to(ctx.author.activities)
-
-        if type(args) is list:
-            song = re.compile(r' \(.*?\)').sub('', args[0])
-            artist = args[-1]
-            msg = await ctx.send(f'Searching for "{song}" by {artist}')
-            lyrics = get_lyrics(artist=artist, title=song)
-            if type(lyrics) is lyricsgenius.genius.Song:
-                # that is Genius.
-                obtained_from = 'Genius'
-                thumbnail = lyrics.song_art_image_url
-                url = lyrics.url
-                title = lyrics.title
-                artist = lyrics.artist
+            user_listening = get_listening_to(ctx.author.activities)
+            if user_listening:
+                parenthesis_regex = re.compile(r' \(.*?\)')
+                query = f"{parenthesis_regex.sub('', user_listening[0]).split(' - ')[0]} - {user_listening[-1]}"
+                # string spaghetti
             else:
-                obtained_from = 'something'
-                thumbnail = None
-                url = None
-                title = "Silence"
-                artist = "Nature"
-            try:
-                if len(lyrics.lyrics) >= 2048:
-                    lyric_str = ''.join(list(lyrics.lyrics)[:2045]) + '...'
-                else:
-                    lyric_str = lyrics.lyrics
-            except AttributeError:
-                lyric_str = get_language_str(ctx.guild.id, 17)
-                obtained_from = 'common sense'
-            embed = discord.Embed(
-                title=get_language_str(ctx.guild.id, 20).format(title, artist),
-                description=lyric_str,
-                color=random.choice(color_list),
-                url=url
-            )
-            if thumbnail:
-                embed.set_thumbnail(url=thumbnail)
-            embed.set_author(
-                name=ctx.message.author.name,
-                icon_url=ctx.message.author.avatar_url,
-                url=f"https://discord.com/users/{ctx.message.author.id}/"
-            )
-            embed.set_footer(
-                text=f'obtained using {obtained_from}'
-            )
-            await ctx.reply(embed=embed)
-            await msg.delete()
-        elif type(args) is str:
-            # get artist
-            msg = await ctx.send(f'Searching for songs by {args}')
-            obtained = get_artist(args)
-            artist = obtained[1]
-            service = obtained[0]
-            if not artist:
-                await ctx.reply(get_language_str(ctx.guild.id, 18))
+                await ctx.reply(get_language_str(ctx.guild.id, 19))
                 return
-            if service == 'Genius':
-                artist_name = artist[0]
-                title = f'Popular songs by *{artist_name}*'
-            elif service == 'MetroLyrics':
-                title = f'Random songs by *{artist[0]}*'
-                artist = obtained[1]
-            else:
-                title = 'Some songs.'
-            embed = discord.Embed(
-                title=title,
-                color=random.choice(color_list)
-            )
-            embed.set_author(
-                name=ctx.message.author.name,
-                icon_url=ctx.message.author.avatar_url,
-                url=f"https://discord.com/users/{ctx.message.author.id}/"
-            )
-            embed.set_footer(
-                text=f'obtained using {service}'
-            )
-            for song in artist[1]:
-                song_name = song[0]
-                lyrics = '\n'.join(song[1])
-                url = song[2]
-                if not lyrics:
-                    lyrics = get_language_str(ctx.guild.id, 17)
-                else:
-                    if url:
-                        lyrics = lyrics + f'\n<{url}>'
-                    else:
-                        lyrics = lyrics + '\n...'
-                embed.add_field(
-                    name=f'*{song_name}*',
-                    value=lyrics,
-                    inline=False
-                )
-            await ctx.reply(embed=embed)
-            await msg.delete()
-        else:
-            await ctx.reply(get_language_str(ctx.guild.id, 19))
+
+        msg = await ctx.send(f'Searching for "{query}"')
+        song = await lyrics(query)
+        if not song:
+            song = Lyrics()
+        thumbnail = song.thumbnail
+        url = song.url
+        title = song.title
+        artist = song.artist
+        if len(song.lyrics) >= 4096:
+            lyric_str = ''.join(list(song.lyrics)[:4093]) + '...'  # Apparently Discord upgraded their character limit.
+        else:                                                      # Haven't had much issues yet.
+            lyric_str = song.lyrics
+        embed = discord.Embed(
+            title=get_language_str(ctx.guild.id, 20).format(title, artist),
+            description=lyric_str,
+            color=random.choice(color_list)
+        )
+        if url:
+            embed.url = url
+        if thumbnail:
+            embed.set_thumbnail(url=thumbnail)
+        embed.set_author(
+            name=ctx.message.author.name,
+            icon_url=ctx.message.author.avatar_url,
+            url=f"https://discord.com/users/{ctx.message.author.id}/"
+        )
+        embed.set_footer(
+            text=song.source,
+            icon_url=song.source_icon
+        )
+        await ctx.reply(embed=embed)
+        await msg.delete()
 
     @commands.command(
         name='license',
@@ -330,7 +273,7 @@ class Basic(commands.Cog):
         brief='Does a DuckDuckGo search'
     )
     async def search_command(self, ctx, *, to_search):
-        response = search(to_search)
+        response = await search(to_search)
         if response is not None:
             embed = discord.Embed(
                 title=response['title'],
@@ -351,8 +294,14 @@ class Basic(commands.Cog):
             for field in response['fields'][:limit]:
                 embed.add_field(
                     name=field['name'],
-                    value=field['value'],
+                    value=field['value'] + (('\n' + f"**[Link]({field['url']})**") if field['url'] else ""),
+                    # Behold: big fucking nonsense!
                     inline=True
+                )
+            if response['engine']:
+                embed.set_footer(
+                    text=response['engine'],
+                    icon_url=response['engine_icon']
                 )
             await ctx.send(embed=embed)
         else:
@@ -370,13 +319,13 @@ class Basic(commands.Cog):
             app_id = requested_app
         else:
             try:
-                app_id = search_game(requested_app)[0]
+                app_id = (await search_game(requested_app))[0]
             except IndexError:
                 await ctx.reply(get_language_str(ctx.guild.id, 132))
                 return
 
         try:
-            received = get_protondb_summary(app_id)
+            received = await get_protondb_summary(app_id)
         except GameNotFound:
             await ctx.reply(get_language_str(ctx.guild.id, 133))
             return
@@ -384,7 +333,7 @@ class Basic(commands.Cog):
         tier = received.get("tier").title()
         string_result = received.get("string_result")
 
-        game_data = get_steam_app_info(app_id)[str(app_id)]["data"]
+        game_data = (await get_steam_app_info(app_id))[str(app_id)]["data"]
         if check_if_steam_nsfw(ctx, game_data):  # fuck my server forcing me to do this to make them shut up
             game_name = "Unnamed NSFW game"
             game_image = \
@@ -426,12 +375,12 @@ class Basic(commands.Cog):
             app_id = requested_app
         else:
             try:
-                app_id = search_game(requested_app)[0]
+                app_id = (await search_game(requested_app))[0]
             except IndexError:
                 await ctx.reply(get_language_str(ctx.guild.id, 132))
                 return
 
-        game_data = get_steam_app_info(app_id)[str(app_id)]["data"]
+        game_data = (await get_steam_app_info(app_id))[str(app_id)]["data"]
         if check_if_steam_nsfw(ctx, game_data):
             await ctx.send(f"<@{ctx.author.id}>, what are you doing? :^)")
             return
@@ -440,7 +389,7 @@ class Basic(commands.Cog):
         descriptions = (game_data["about_the_game"], game_data["detailed_description"], game_data["short_description"])
         description = "Descriptions too long in length. Sorry!"
         for desc in descriptions:
-            if len(desc) <= 2048:
+            if len(desc) <= 4096:
                 description = format_html(desc)
         developers = format_names(game_data["developers"])
         publishers = format_names(game_data["publishers"])
@@ -511,6 +460,47 @@ class Basic(commands.Cog):
                 value=game_data['content_descriptors']['notes']
             )
         await ctx.reply(embed=embed)
+
+    @commands.command(
+        name='urban',
+        description='Fetches a definition from Urban Dictionary, either by using the user\'s input, or by '
+                    'getting a random word.',
+        aliases=['ud', 'dictionary', 'definition'],
+        brief='Searches for a definition on Urban Dictionary',
+        usage='Sempiternal (or use with no args to fetch a random word)'
+    )
+    async def urban_command(self, ctx, *, query=None):
+        if query:
+            results = await ud_definition(query)
+            word = results[0]
+        else:
+            word = await ud_random()
+        embed = discord.Embed(
+            title=f"Definition for *{word.word}*",
+            description=f"{word.definition}",
+            url=word.url
+        ).set_footer(
+            text=f"submitted by {word.author}, at {word.time.split('T')[0]}"
+        )
+        if word.example:
+            if len(word.example) >= 1024:
+                example = ''.join(
+                    list(word.example)[:1021]) + '...'  # Apparently Discord upgraded their character limit.
+            else:                                       # Haven't had much issues yet.
+                example = word.example
+            embed.add_field(
+                name="Example",
+                value=example
+            )
+        await ctx.reply(embed=embed)
+
+    @commands.command(
+        name='cat',
+        description='Posts a random cat image.',
+        brief='Posts a random cat image'
+    )
+    async def catto(self, ctx):
+        await ctx.reply(await cat_image())  # FUCKING KITY :)
 
 
 def setup(bot):
