@@ -502,6 +502,15 @@ class Basic(commands.Cog):
     async def catto(self, ctx):
         await ctx.reply(await cat_image())  # FUCKING KITY :)
 
+    @commands.command(
+        name='dog',
+        description='Posts a random dog image.',
+        alias=["doggy"],
+        brief='Posts a random dog image'
+    )
+    async def doggy(self, ctx):
+        await ctx.reply(await dog_image())  # dogy :(
+
 
 def setup(bot):
     bot.add_cog(Basic(bot))
