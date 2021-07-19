@@ -94,10 +94,7 @@ def get_prefix(client, message):
     # thanks EvieePy for this snippet of code.
 
 
-intents = discord.Intents.default()
-intents.members = True
-intents.guilds = True
-intents.presences = True
+intents = discord.Intents.all()
 # F**k intents.
 
 bot = commands.Bot(                                            # Create a new bot
@@ -231,6 +228,8 @@ async def on_message(message):
         await check_message(message)
     if message.author.id == bot.user.id:
         return  # To prevent the bot itself from triggering things.
+    if message.author.id in excluded_users:
+        return
     global message_count
     if message.guild and get_server_config(message.guild.id, 'inactivity_func', bool) and \
             message.channel.id in get_server_config(message.guild.id, 'inactivity_channels', list):
@@ -442,9 +441,11 @@ async def on_guild_join(guild):
                 json.dump(data_clear, d_clear, indent=2)
 
 
-# @bot.event
-# async def on_reaction_add(reaction, user):
-#     print(type(user))
+@bot.event
+async def on_reaction_add(reaction, user):
+    if isinstance(reaction.message.channel, discord.DMChannel):
+        print("wuh oh")
+        await reaction.message.delete()
 
 
 if get_config_parameter('dev_token', bool):
