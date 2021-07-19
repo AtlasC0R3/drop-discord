@@ -81,6 +81,7 @@ def check_config(conf: str):
     newconf['geniusApi'] = geniusApiKey
     newconf['syncActivityWithOwner'] = syncOwnerActivity
     newconf['jishaku'] = useJishaku
+    newconf['excluded_users'] = excludedUsers
     return newconf
 
 

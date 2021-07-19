@@ -31,6 +31,9 @@ verbose = False
 syncOwnerActivity = True
 # Controls whether the bot will imitate the owner's activity.
 
+excludedUsers = []
+# Controls who is blacklisted from using the bot. At all. Input the user ID in this list as an integer.
+
 useJishaku = True
 # Controls whether the bot will load Jishaku.
 
