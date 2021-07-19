@@ -202,9 +202,13 @@ logging.info('on_ready has been configured')
 
 message_count = {}
 
+excluded_users = get_config_parameter('excluded_users', list)
+
 
 @bot.check
 async def command_check(ctx):
+    if ctx.author.id in excluded_users:
+        return False
     if not ctx.guild:
         return True
     disabled_commands = get_server_config(ctx.guild.id, 'disabled_commands', list)
