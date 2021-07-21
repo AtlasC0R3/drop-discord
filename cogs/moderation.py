@@ -247,15 +247,15 @@ class Moderation(commands.Cog):
                 url=pin.jump_url,
                 timestamp=pin.created_at
             )
-            msg_content = ""
+            send_video = ""
             if pin.attachments:
                 file_type = get_file_type(pin.attachments[0])
                 if file_type == 1:
                     embed.set_image(url=pin.attachments[0].url)
                 elif file_type == 2:
-                    await channel.send(f'{pin.attachments[0].url} '
-                                       f'**(putting this attachment link here so that the video can load, '
-                                       f'since Discord currently does not allow videos inside bot embeds)**')
+                    send_video = f'{pin.attachments[0].url} ' \
+                                 f'**(putting this attachment link here so that the video can load, ' \
+                                 f'since Discord currently does not allow videos inside bot embeds)**'
                 if len(pin.attachments) > 1 or file_type != 1:
                     attachments = ""
                     for attachment in pin.attachments:
@@ -274,7 +274,9 @@ class Moderation(commands.Cog):
                 icon_url=pin.author.avatar_url,
                 url=f"https://discord.com/users/{pin.author.id}/"
             )
-            await channel.send(content=msg_content, embed=embed)
+            await channel.send(embed=embed)
+            if send_video:
+                await ctx.send(content=send_video)
             if delete_pins:
                 await pin.delete()
             do_sleep = True
