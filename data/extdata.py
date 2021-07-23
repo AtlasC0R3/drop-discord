@@ -202,7 +202,13 @@ def format_html(str_input: str):
     return p.sub('', str_input)
 
 
-def get_listening_to(activities: discord.Member.activities):
+def get_listening_to(activities: discord.Member.activities, guess_listening=True):
+    """
+    yeah
+    :param activities: the member's activities
+    :param guess_listening: whether the bot will guess the listening activity if it cant find it
+    :return: [title, artist]
+    """
     for activity in activities:
         if isinstance(activity, discord.activity.Spotify):
             return [activity.title, activity.artist.split(';')[0]]
@@ -222,7 +228,7 @@ def get_listening_to(activities: discord.Member.activities):
             elif activity.application_id == 435587535150907392:  # discordrp-mpris
                 things = activity.details.split('\n')
                 return [things[0], things[1].replace('by ', '', 1)]
-            else:
+            elif guess_listening:
                 # Try guessing.
                 title = None
                 artist = None
@@ -241,39 +247,41 @@ def get_listening_to(activities: discord.Member.activities):
                         return [title, artist]
 
 
-async def get_new_activity(user_member=None):
-    activitytype = None
-    activityname = None
+async def get_new_activity(user_member=discord.Member, listening_activities=None):
+    if listening_activities is None:
+        listening_activities = []
+    activity = []
+
     if user_member:
         if user_member.activity and get_config_parameter('syncActivityWithOwner', bool):
             music_activity = get_listening_to(user_member.activities)
             if music_activity:
-                activitytype = 'listening'
-                # activityname = f"{music_activity[0]} by {music_activity[1]}"
+                activity_type = 'listening'
+                # activity_name = f"{music_activity[0]} by {music_activity[1]}"
                 # Uncomment this if you want it to look like "Listening to In The End by Linkin Park"
-                activityname = music_activity[1]
+                activity_name = music_activity[1]
             else:
-                activitytype = 'playing'
-                activityname = user_member.activity.name
-    if not activitytype:
-        if get_config_parameter('useSteamRecentlyPlayed', int) == 1:
-            activitytype = 'playing'
-            activityname = await get_steam_played_game()
-        elif get_config_parameter('useSteamRecentlyPlayed', int) == 2:
-            with open("data/activities.json", encoding='utf-8', newline="\n") as file:
-                activities = json.load(file)
-            for game in await get_steam_recently_played():
-                activities.append(['playing', game])
-            activity = random.choice(activities)
-            activitytype = activity[0]
-            activityname = activity[1]
-        else:
-            with open("data/activities.json", encoding='utf-8', newline="\n") as file:
-                dictionary = json.load(file)
-            activity = random.choice(dictionary)
-            activitytype = activity[0]
-            activityname = activity[1]
-    return [activitytype, activityname]
+                activity_type = 'playing'
+                activity_name = user_member.activity.name
+            activity = [activity_type, activity_name]
+
+    with open("data/activities.json", encoding='utf-8', newline="\n") as file:
+        activity_list = json.load(file)
+
+    if get_config_parameter('useSteamRecentlyPlayed', int) == 1:
+        activity = ['playing', await get_steam_played_game()]
+    elif get_config_parameter('useSteamRecentlyPlayed', int) == 2:
+        for game in await get_steam_recently_played():
+            activity_list.append(['playing', game])
+
+    for artist in listening_activities:
+        activity_list.append(['listening', artist])
+
+    if not activity:
+        activity = random.choice(activity_list)
+    # I would write something here to check if the activity is the same as the old activity,
+    # but I'm too lazy to do that. I have a problem, I know.
+    return activity
 
 
 def check_banword_filter(message: str, guild_id: list):

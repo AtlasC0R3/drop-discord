@@ -21,7 +21,7 @@ if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confus
 
 # External libraries that need to be imported
 from data.extdata import get_config_parameter, get_server_config, write_server_config, get_github_config, \
-    get_language_str, get_new_activity, check_banword_filter
+    get_language_str, get_new_activity, check_banword_filter, get_listening_to
 
 from drop.basic import init_genius
 from drop.tempban import check_bans
@@ -102,10 +102,12 @@ bot = commands.Bot(                                            # Create a new bo
     owner_id=get_config_parameter('owner_id', int),            # Your unique User ID
     case_insensitive=True,                                     # Make the commands case insensitive
     intents=intents,                                           # I think I made intents
-    help_command=PrettyHelp()                                  # Sets custom help command to discord_pretty_help's
+    help_command=PrettyHelp()                                 # Sets custom help command to discord_pretty_help's
 )
 if get_config_parameter('slash_commands', bool):
     bot.slash = SlashCommand(bot, override_type=True, sync_commands=True, sync_on_cog_reload=True)
+
+bot.listening_activities = []  # Sets the list for listening activities
 
 ownerMember = None
 ownerUser = None
@@ -270,58 +272,18 @@ async def on_message(message):
 )
 @commands.is_owner()
 async def activity_changer_command(ctx, *, activity=None):
-    # with very janky argument parsing
-    with open("data/activities.json", encoding='utf-8', newline="\n") as f:
-        activities = json.load(f)
-    activity_type = None
-    activity_name = None
     if activity:
-        if activity.startswith('[') or activity.isdigit():
-            activity_entry = ast.literal_eval(activity)
-            if type(activity_entry) is int:
-                try:
-                    activity = activities[activity_entry]
-                except IndexError:
-                    await ctx.send("Wrong activity! **>:(**")
-                    return
-                activity_type = activity[0]
-                activity_name = activity[1]
-                await ctx.message.channel.send(content=f'{activity_type.title()} {activity_name}, is this correct?')
-
-                def check(ms):
-                    return ms.channel == ctx.channel and ms.author == ctx.author
-
-                reply_msg = await bot.wait_for('message', check=check)
-                reply_from_user = reply_msg.content.lower()
-                if reply_from_user in ('y', 'yes', 'confirm'):
-                    pass
-                else:
-                    return
-            elif type(activity_entry) is list:
-                try:
-                    activity_type = activity_entry[0]
-                    activity_name = activity_entry[1]
-                    await bot.change_presence(
-                        activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
-                except (KeyError, IndexError):
-                    await ctx.send("Invalid list! Here's an example of how an activity list should be:"
-                                   "\n"
-                                   f"```{random.choice(activities)}```")
-                    return
+        activity_list = activity.split(' ')
+        if activity_list[0] in [x.name for x in discord.ActivityType]:
+            activity_type = activity_list[0]
+            activity_name = " ".join(activity_list[1:])
         else:
-            activity_list = activity.split(' ')
-            if activity_list[0] in [x.name for x in discord.ActivityType]:
-                activity_type = activity_list[0]
-                activity_name = " ".join(activity_list[1:])
-            else:
-                activity_type = 'playing'
-                activity_name = activity
+            activity_type = 'playing'
+            activity_name = activity
     else:
-        activity = await get_new_activity(ctx.author)
+        activity = await get_new_activity(ctx.author, listening_activities=bot.listening_activities)
         activity_type = activity[0]
         activity_name = activity[1]
-    # await bot.change_presence(
-    #     activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
     await ctx.reply(content=f'{activity_type.title()} {activity_name}')
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
 
@@ -349,9 +311,9 @@ async def owner_refresh():
 @tasks.loop(minutes=10, count=None, reconnect=True)
 async def activity_changer():
     if ownerMember:
-        activity = await get_new_activity(ownerMember)
+        activity = await get_new_activity(ownerMember, listening_activities=bot.listening_activities)
     else:
-        activity = await get_new_activity()
+        activity = await get_new_activity(listening_activities=bot.listening_activities)
     activity_type = activity[0]
     activity_name = activity[1]
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType[activity_type], name=activity_name))
@@ -441,6 +403,17 @@ async def on_guild_join(guild):
                 data_clear.pop(guild_entry[0])
             with open("data/data_clear.json", "w", encoding="utf-8", newline="\n") as d_clear:
                 json.dump(data_clear, d_clear, indent=2)
+
+
+@bot.event
+async def on_member_update(_before, after):
+    if not (after.id == bot.owner_id):
+        return
+    listening_activity = get_listening_to(after.activities, guess_listening=False)
+    if listening_activity:
+        artist = listening_activity[1]
+        if artist not in bot.listening_activities:
+            bot.listening_activities.append(listening_activity[1])
 
 
 if get_config_parameter('dev_token', bool):
