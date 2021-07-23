@@ -441,13 +441,6 @@ async def on_guild_join(guild):
                 json.dump(data_clear, d_clear, indent=2)
 
 
-@bot.event
-async def on_reaction_add(reaction, user):
-    if isinstance(reaction.message.channel, discord.DMChannel):
-        print("wuh oh")
-        await reaction.message.delete()
-
-
 if get_config_parameter('dev_token', bool):
     logging.info("Developer mode activated, passing through developer token.")
     token_path = "data/devtoken.txt"
