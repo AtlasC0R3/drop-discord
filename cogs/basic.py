@@ -252,13 +252,13 @@ class Basic(commands.Cog):
                   "(https://github.com/stroupbslayen/discord-pretty-help/blob/master/LICENSE)\n"
                   "discord-py-slash-command, licensed under [MIT License]"
                   "(https://github.com/eunwoo1104/discord-py-slash-command/blob/master/LICENSE)\n"
-                  "aiohttp, [licensed under Apache 2.0 license]"
+                  "aiohttp, licensed under [Apache 2.0 license]"
                   "(https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt), no changes made ",
             inline=False
         )  # And of course, you should probably list any other open-source dependencies you used.
         embed.add_field(
             name='Drop licenses *(licenses related to the core software and not the actual Discord bot)*',
-            value=drop.licenses(),
+            value=drop.licenses(markdown_links=True),
             inline=False
         )
         await ctx.send(embed=embed)
