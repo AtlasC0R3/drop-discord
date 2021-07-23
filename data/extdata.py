@@ -247,6 +247,9 @@ def get_listening_to(activities: discord.Member.activities, guess_listening=True
                         return [title, artist]
 
 
+previous_activity = ""
+
+
 async def get_new_activity(user_member=discord.Member, listening_activities=None):
     if listening_activities is None:
         listening_activities = []
@@ -281,7 +284,14 @@ async def get_new_activity(user_member=discord.Member, listening_activities=None
         activity = random.choice(activity_list)
     # I would write something here to check if the activity is the same as the old activity,
     # but I'm too lazy to do that. I have a problem, I know.
-    return activity
+
+    global previous_activity
+    if activity[1].lower() == previous_activity.lower():
+        return await get_new_activity(user_member=user_member,
+                                      listening_activities=listening_activities)
+    else:
+        previous_activity = activity[1]
+        return activity
 
 
 def check_banword_filter(message: str, guild_id: list):
