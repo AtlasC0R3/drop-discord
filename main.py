@@ -308,7 +308,7 @@ async def owner_refresh():
             ownerMember = member
 
 
-@tasks.loop(minutes=10, count=None, reconnect=True)
+@tasks.loop(minutes=5, count=None, reconnect=True)
 async def activity_changer():
     if ownerMember:
         activity = await get_new_activity(ownerMember, listening_activities=bot.listening_activities)
