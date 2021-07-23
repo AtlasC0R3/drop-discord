@@ -415,6 +415,9 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_guild_join(guild):
+    if guild.owner.id in excluded_users:
+        await guild.leave()
+        return
     with open("data/data_clear.json", "r", encoding="utf-8", newline="\n") as f:
         data_clear = json.load(f)
         if str(guild.id) in data_clear:
