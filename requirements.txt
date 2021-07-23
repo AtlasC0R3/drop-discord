@@ -3,7 +3,4 @@ drop-mod==2.0.1
 discord.py==1.7.*
 discord-pretty-help
 discord-components==0.5.*
-parsedatetime
-lyricsgenius
-duckduckpy
 aiohttp

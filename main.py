@@ -7,7 +7,6 @@ import asyncio
 import sys
 from datetime import datetime
 import random
-import ast
 import logging
 
 if os.getcwd().lower().startswith('c:\\windows\\system32'):  # Windows is confusing to work with.

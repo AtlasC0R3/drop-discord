@@ -4,7 +4,6 @@ import aiohttp
 import random
 import discord
 import drop.types
-import lyricsgenius
 import re
 import logging
 from drop import config, errors

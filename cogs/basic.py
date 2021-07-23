@@ -233,9 +233,9 @@ class Basic(commands.Cog):
     async def license_command(self, ctx):
         embed = discord.Embed(
             title='drop-discord',
-            description="This software is licensed using the Apache 2.0 license "
+            description="This software is licensed using the [Apache 2.0 license]"
                         "(https://github.com/AtlasC0R3/drop-discord/blob/main/LICENSE) "
-                        "as free and open-source software based on drop-moderation which also uses Apache 2.0",
+                        "as free and open-source software.",
             color=0x29b6f6
         )
         # embed.add_field(
@@ -247,15 +247,13 @@ class Basic(commands.Cog):
         # And of course, if you want to use this method of doing so.
         embed.add_field(
             name='Open-source dependencies used',
-            value="Discord.py, licensed under MIT License (https://github.com/Rapptz/discord.py/blob/master/LICENSE)\n"
-                  "discord-pretty-help, licensed under MIT License "
+            value="Discord.py, licensed under [MIT License](https://github.com/Rapptz/discord.py/blob/master/LICENSE)\n"
+                  "discord-pretty-help, licensed under [MIT License]"
                   "(https://github.com/stroupbslayen/discord-pretty-help/blob/master/LICENSE)\n"
-                  "discord-py-slash-command, licensed under MIT License "
+                  "discord-py-slash-command, licensed under [MIT License]"
                   "(https://github.com/eunwoo1104/discord-py-slash-command/blob/master/LICENSE)\n"
-                  "parsedatetime, licensed under Apache 2.0 license, no changes made "  # hopefully no changes made >:(
-                  "(https://github.com/bear/parsedatetime/blob/master/LICENSE.txt)\n"
-                  "requests, licensed under Apache 2.0 license, no changes made "
-                  "(https://github.com/psf/requests/blob/master/LICENSE)",
+                  "aiohttp, [licensed under Apache 2.0 license]"
+                  "(https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt), no changes made ",
             inline=False
         )  # And of course, you should probably list any other open-source dependencies you used.
         embed.add_field(
