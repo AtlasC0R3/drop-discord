@@ -95,14 +95,6 @@ def get_config_parameter(param, paramtype):
     return paramtype(config_param)
 
 
-try:
-    genius = lyricsgenius.Genius(get_config_parameter('geniusApi', str), verbose=False, remove_section_headers=True,
-                                 skip_non_songs=True, excluded_terms=["(Remix)", "(Live)"])
-except TypeError:
-    # Invalid token
-    genius = None
-
-
 def get_server_config(serverid, param, paramtype):
     try:
         return config.get_server_config(serverid, param, paramtype)
