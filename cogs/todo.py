@@ -155,7 +155,7 @@ class Todo(commands.Cog):
                     url=f"https://discord.com/users/{ctx.message.author.id}/"
                 )
                 for idx, todo in enumerate(todo_data):
-                    desc = todo.desc
+                    desc = todo.description
                     time = todo.time
                     author = ctx.guild.get_member(todo.author)
                     if not author:
@@ -199,7 +199,7 @@ class Todo(commands.Cog):
         except IndexError:
             await ctx.reply(get_language_str(ctx.guild.id, 102))
             return
-        if to_remove.get('author') != ctx.author.id:
+        if to_remove.author != ctx.author.id:
             await ctx.reply(get_language_str(ctx.guild.id, 109))
             return
 
@@ -227,7 +227,7 @@ class Todo(commands.Cog):
             await ctx.reply(get_language_str(ctx.guild.id, 102))
             return
 
-        if to_edit.get('author') != ctx.author.id:
+        if to_edit.author != ctx.author.id:
             await ctx.reply(get_language_str(ctx.guild.id, 109))
             return
 
