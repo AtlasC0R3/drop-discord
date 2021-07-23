@@ -379,28 +379,39 @@ class Basic(commands.Cog):
                 return
 
         game_data = (await get_steam_app_info(app_id))[str(app_id)]["data"]
+        if game_data['type'] == 'hardware':
+            game_name = game_data["name"]
+            game_image = game_data["header_image"]
+            description = format_html(game_data["short_description"])
+            if game_data.get('website'):
+                description += f"\n[Website]({game_data['website']})"
+            developers = None
+            publishers = None
+        else:
+            game_name = game_data["name"]
+            game_image = game_data["header_image"]
+            descriptions = (game_data["about_the_game"],
+                            game_data["detailed_description"], game_data["short_description"])
+            description = "Descriptions too long in length. Sorry!"
+            for desc in descriptions:
+                if len(desc) <= 4096:
+                    description = format_html(desc)
+            developers = format_names(game_data["developers"])
+            publishers = format_names(game_data["publishers"])
         if check_if_steam_nsfw(ctx, game_data):
             await ctx.send(f"<@{ctx.author.id}>, what are you doing? :^)")
             return
-        game_name = game_data["name"]
-        game_image = game_data["header_image"]
-        descriptions = (game_data["about_the_game"], game_data["detailed_description"], game_data["short_description"])
-        description = "Descriptions too long in length. Sorry!"
-        for desc in descriptions:
-            if len(desc) <= 4096:
-                description = format_html(desc)
-        developers = format_names(game_data["developers"])
-        publishers = format_names(game_data["publishers"])
 
         embed = discord.Embed(
             title=game_name,
             description=description,
             url=f"http://store.steampowered.com/app/{app_id}"
         )
-        if (developers == publishers) or (not publishers):
-            embed.set_author(name=developers)
-        else:
-            embed.set_author(name=f"Developed by {developers}, published by {publishers}")
+        if developers:
+            if (developers == publishers) or (not publishers):
+                embed.set_author(name=developers)
+            else:
+                embed.set_author(name=f"Developed by {developers}, published by {publishers}")
         embed.set_footer(
             text="Steam Store",
             icon_url="https://upload.wikimedia.org/"
@@ -413,11 +424,13 @@ class Basic(commands.Cog):
         if game_data["release_date"]["coming_soon"]:
             price = f"Coming soon ({game_data['release_date']['date']})"
         else:
-            embed.add_field(
-                name="Release date",
-                value=game_data['release_date']['date'],
-                inline=True
-            )
+            release_date = game_data['release_date']['date']
+            if release_date:
+                embed.add_field(
+                    name="Release date",
+                    value=release_date,
+                    inline=True
+                )
         if not game_data["is_free"]:
             try:
                 price = game_data["price_overview"]["final_formatted"]
@@ -429,9 +442,12 @@ class Basic(commands.Cog):
             inline=True
         )
         if game_data.get("metacritic"):
+            metacritic = f"{game_data['metacritic']['score']}"
+            if game_data['metacritic'].get('url'):
+                metacritic += f" [(link)]({game_data['metacritic']['url']})"
             embed.add_field(
                 name="Metacritic",
-                value=f"[{game_data['metacritic']['score']} (link)]({game_data['metacritic']['url']})",
+                value=metacritic,
                 inline=True
             )
         misc = ""
