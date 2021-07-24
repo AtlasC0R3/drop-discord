@@ -378,7 +378,11 @@ class Basic(commands.Cog):
                 await ctx.reply(get_language_str(ctx.guild.id, 132))
                 return
 
-        game_data = (await get_steam_app_info(app_id))[str(app_id)]["data"]
+        game_data = (await get_steam_app_info(app_id))
+        if not game_data:
+            await ctx.reply(get_language_str(ctx.guild.id, 132))
+            return
+        game_data = game_data[str(app_id)]["data"]
         if game_data['type'] == 'hardware':
             game_name = game_data["name"]
             game_image = game_data["header_image"]
