@@ -1,4 +1,4 @@
-drop-mod==2.0.*
+drop-mod==2.1.*
 
 discord.py==1.7.*
 discord-pretty-help

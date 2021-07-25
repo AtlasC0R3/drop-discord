@@ -10,7 +10,7 @@ import drop
 from drop.basic import *
 from drop.steam import search_game, get_protondb_summary, get_steam_app_info
 from drop.errors import GameNotFound
-from drop.ext import format_html, format_names
+from drop.ext import format_html, format_names, random_tumblr_image
 from drop.types import Lyrics
 
 with open("data/embed_colors.json") as f:
@@ -515,6 +515,7 @@ class Basic(commands.Cog):
     @commands.command(
         name='cat',
         description='Posts a random cat image.',
+        aliases=["catto", "kitty", "fuckingkity"],
         brief='Posts a random cat image'
     )
     async def catto(self, ctx):
@@ -523,11 +524,48 @@ class Basic(commands.Cog):
     @commands.command(
         name='dog',
         description='Posts a random dog image.',
-        alias=["doggy"],
+        aliases=["doggy", "doggo"],
         brief='Posts a random dog image'
     )
     async def doggy(self, ctx):
         await ctx.reply(await dog_image())  # dogy :(
+
+    @commands.command(
+        name='never-obsolete',
+        description='Posts a random image from the tumblr blog, https://never-obsolete.tumblr.com/. '
+                    'Because technology is never obsolete.',
+        aliases=["neverobsolete"],
+        brief='images of old computers, operating systems, software and games'
+    )
+    async def never_obsolete_command(self, ctx):
+        post = await random_tumblr_image('never-obsolete')
+
+        embed = discord.Embed(url=post.url, timestamp=post.datetime).set_image(
+            url=post.image).set_author(
+            name="never obsolete",
+            url=post.blogger.url,
+            icon_url=post.blogger.avatar)
+
+        embed.title = ext.format_html(post.description)
+
+        await ctx.send(embed=embed)
+
+    @commands.command(
+        name='old-windows-icons',
+        description='Posts a random image from the tumblr blog, https://oldwindowsicons.tumblr.com/. '
+                    'They have a certain charm.',
+        aliases=["oldwindowsicons", "windowsicons"],
+        brief='images of old windows icons'
+    )
+    async def never_obsolete_command(self, ctx):
+        post = await random_tumblr_image('oldwindowsicons')
+        embed = discord.Embed(url=post.url, timestamp=post.datetime).set_image(
+            url=post.image).set_author(
+            name="old windows icons",
+            url=post.blogger.url,
+            icon_url=post.blogger.avatar)
+        embed.title = ext.format_html(post.description)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
