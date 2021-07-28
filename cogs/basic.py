@@ -557,7 +557,7 @@ class Basic(commands.Cog):
         aliases=["oldwindowsicons", "windowsicons"],
         brief='images of old windows icons'
     )
-    async def never_obsolete_command(self, ctx):
+    async def oldwindowsicons_command(self, ctx):
         post = await random_tumblr_image('oldwindowsicons')
         embed = discord.Embed(url=post.url, timestamp=post.datetime).set_image(
             url=post.image).set_author(
