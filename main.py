@@ -446,4 +446,4 @@ except FileNotFoundError:
         print("I didn't quite get that... I'll take that as a no.\n")
 
 logging.info('Connecting to Discord...')
-bot.run(specified_token, bot=True, reconnect=True)
+bot.run(specified_token, reconnect=True)
