@@ -227,7 +227,7 @@ def get_listening_to(activities: discord.Member.activities, guess_listening=True
                 return [activity.details, activity.state.replace('by ', '', 1)]
             elif activity.application_id == 435587535150907392:  # discordrp-mpris
                 things = activity.details.split('\n')
-                return [things[0], things[1].replace('by ', '', 1)]
+                return [things[0], things[1].replace('by ', '', 1).split(' & ')[0]]
             elif guess_listening:
                 # Try guessing.
                 title = None
