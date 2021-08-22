@@ -109,6 +109,8 @@ if get_config_parameter('slash_commands', bool):
 
 bot.listening_activities = []  # Sets the list for listening activities
 
+bot.guild_invites = {}  # anti raid thing
+
 ownerMember = None
 ownerUser = None
 ownerId = get_config_parameter('owner_id', int)
@@ -193,6 +195,14 @@ async def on_ready():
     global bot_mention_mobile
     bot_mention = f'<@!{bot.user.id}>'
     bot_mention_mobile = f'<@{bot.user.id}>'
+
+    for guild in bot.guilds:  # loop through every guild we're in
+        logging.info(f"found guild {guild.name}")
+        invites = await guild.invites()  # get a list of invites from the guild
+        logging.info(f"found invites: {invites}")
+        bot.guild_invites[guild.id] = invites  # store the guild's invites internally
+    # anti raid invites thing
+
     return
 
 
