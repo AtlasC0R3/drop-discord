@@ -490,7 +490,11 @@ class Basic(commands.Cog):
     async def urban_command(self, ctx, *, query=None):
         if query:
             results = await ud_definition(query)
-            word = results[0]
+            try:
+                word = results[0]
+            except IndexError:
+                await ctx.reply('Couldn\'t find the definition for that word.')
+                return
         else:
             word = await ud_random()
         embed = discord.Embed(
