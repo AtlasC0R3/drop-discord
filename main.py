@@ -102,7 +102,7 @@ bot = commands.Bot(                                            # Create a new bo
     owner_id=get_config_parameter('owner_id', int),            # Your unique User ID
     case_insensitive=True,                                     # Make the commands case insensitive
     intents=intents,                                           # I think I made intents
-    help_command=PrettyHelp()                                 # Sets custom help command to discord_pretty_help's
+    help_command=PrettyHelp()                                  # Sets custom help command to discord_pretty_help's
 )
 if get_config_parameter('slash_commands', bool):
     bot.slash = SlashCommand(bot, override_type=True, sync_commands=True, sync_on_cog_reload=True)
