@@ -216,7 +216,10 @@ def get_listening_to(activities: discord.Member.activities, guess_listening=True
         elif isinstance(activity, discord.activity.Activity):
             # Maybe the user is using PreMiD, or rich presence on some app plugin whatever?
             if activity.application_id == 463151177836658699:  # YouTube Music
-                return [activity.details, activity.state.split(' - ')[0]]
+                state = activity.state
+                if ' - ' in state:
+                    state = activity.state.split(' - ')[0]
+                return [activity.details, state]
                 # curse how yt music is so inconsistent
             elif activity.application_id == 589905203533185064:  # Rhythmbox (not in PreMiD, I just use it):
                 return [activity.details.split(' - ')[0], activity.details.split(' - ')[-1]]
