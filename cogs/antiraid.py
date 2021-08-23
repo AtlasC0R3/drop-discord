@@ -91,10 +91,12 @@ class Antiraid(commands.Cog, name="Antiraid"):
             # return status
             antiraid_config = get_antiraid_config(ctx.guild.id)
             invite = antiraid_config['invite']
+            channel = antiraid_config['channel']
             embed = discord.Embed(
                 title="Anti-raid status",
                 description=f"Enabled: **{'Yes' if antiraid_config['enabled'] else 'No'}**\n"
                             f"Raid invite: **{invite if invite else 'Not configured'}**\n"
+                            f"Announcement channel: **{f'<#{channel}>' if channel else 'Not specified'}**\n"
             )
             embed.set_author(
                 name=ctx.guild.name,
@@ -113,9 +115,10 @@ class Antiraid(commands.Cog, name="Antiraid"):
 
     @antiraid_group.command(
         name="toggle",
-        brief="Toggles whether anti-raid will be on or off. If on, it's strongly advised not to join the server. "
-              "If off, it should be safe to join."
+        description="Toggles whether anti-raid will be on or off. If on, it's strongly advised not to join the server. "
+                    "If off, it should be safe to join.",
         # Then again, if you're someone who constantly leaves and rejoins the server, why? Who does that?!
+        brief="Toggles whether anti-raid will be on or off"
     )
     @commands.has_guild_permissions(manage_guild=True)
     async def toggle_antiraid_command(self, ctx):
@@ -134,6 +137,8 @@ class Antiraid(commands.Cog, name="Antiraid"):
 
     @antiraid_group.command(
         name="invite",
+        description="In case raiders are using a specific invite, Drop can automatically adapt to "
+                    "only ban new members that used the invite.",
         brief="Sets the invite code that raiders use",
         usage="xY7dgUYfhgf (alternatively could be used without any arguments to ban to reset invite configurations)"
     )
@@ -151,6 +156,7 @@ class Antiraid(commands.Cog, name="Antiraid"):
 
     @antiraid_group.command(
         name="setmessage",
+        description="Sets a custom message (or messages) on the ban notice that is sent to raiders.",
         brief="Sets the messages used in the ban notice",
         usage="\"don't do that again please\" \"just let it die\" \"haha skill issue lmao\"\n(you could also "
               "specify only one message by just doing \"antiraid setmessage dont do that again please i beg you\")",
@@ -186,6 +192,7 @@ class Antiraid(commands.Cog, name="Antiraid"):
 
     @antiraid_group.command(
         name="channel",
+        description="If set, all ban notices are going to be sent there.",
         brief="Sends antiraid notice in the specified channel",
         usage="#hall-of-dumbasses",
         aliases=['setchannel']
