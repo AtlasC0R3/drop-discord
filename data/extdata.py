@@ -22,7 +22,8 @@ exampleServerConfig = {
     "disabled_cogs": [],
     "no_no_words": {},
     "tableflip": True,
-    "language": "default"
+    "language": "default",
+    "antiraid": {}
 }
 
 exampleConfig = {}
