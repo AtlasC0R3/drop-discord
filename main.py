@@ -198,9 +198,13 @@ async def on_ready():
 
     for guild in bot.guilds:  # loop through every guild we're in
         logging.info(f"found guild {guild.name}")
-        invites = await guild.invites()  # get a list of invites from the guild
-        logging.info(f"found invites: {invites}")
-        bot.guild_invites[guild.id] = invites  # store the guild's invites internally
+        try:
+            invites = await guild.invites()  # get a list of invites from the guild
+        except discord.Forbidden:
+            logging.info('not enough permissions, cancelling')
+        else:
+            logging.info(f"found invites: {invites}")
+            bot.guild_invites[guild.id] = invites  # store the guild's invites internally
     # anti raid invites thing
 
     return

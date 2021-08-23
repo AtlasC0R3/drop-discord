@@ -146,6 +146,11 @@ class Antiraid(commands.Cog, name="Antiraid"):
     async def invite_antiraid_command(self, ctx, invite: Optional[discord.Invite] = None):
         antiraid_config = get_antiraid_config(ctx.guild.id)
         if invite:
+            try:
+                await ctx.guild.invites()
+            except discord.Forbidden:
+                await ctx.reply("I don't have the Manage Servers permission, sorry.")
+                return
             antiraid_config['invite'] = invite.id
             write_server_config(ctx.guild.id, 'antiraid', antiraid_config)
             await ctx.reply('Successfully set the invite configuration.')
