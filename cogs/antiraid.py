@@ -11,7 +11,7 @@ from data.extdata import wait_for_user
 from typing import Optional
 
 
-default_antiraid_config = {'enabled': False, 'invite': False, 'messages': []}
+default_antiraid_config = {'enabled': False, 'invite': False, 'messages': [], 'channel': 0}
 
 
 def get_antiraid_config(guild_id=int):
@@ -46,7 +46,7 @@ def parse_arg_lists(argument=None):
         return []
 
 
-def get_raid_embed(guild: discord.Guild, custom_messages: []):
+def get_raid_embed(guild: discord.Guild, custom_message: str):
     description = "It's against the [Community Guidelines](https://discord.com/guidelines/) " \
                   "to raid servers, thus against the " \
                   "[Terms of Service](https://discord.com/guidelines/). It's okay to not agree with a " \
@@ -59,11 +59,7 @@ def get_raid_embed(guild: discord.Guild, custom_messages: []):
     # The only thing I really agree with is their privacy policy and their community guidelines.
     # The rest is just a big "NO." Anyway, anti-discord-pro-matrix.org asides, that's done.
 
-    if custom_messages:
-        if len(custom_messages) > 1:
-            custom_message = random.choice(custom_messages)
-        else:
-            custom_message = custom_messages[0]
+    if custom_message:
         description = f"```{custom_message}```\n{description}"
 
     return discord.Embed(
@@ -174,12 +170,37 @@ class Antiraid(commands.Cog, name="Antiraid"):
                 return
         else:
             messages = parse_arg_lists(messages)
-        embed = get_raid_embed(ctx.guild, messages)
+        if messages:
+            if len(messages) > 1:
+                custom_message = random.choice(messages)
+            else:
+                custom_message = messages[0]
+        else:
+            custom_message = ""
+        embed = get_raid_embed(ctx.guild, custom_message)
         msg = await ctx.send("This is what the ban notice will look like. Are you sure?", embed=embed)
         if await wait_for_user(ctx, self.bot, msg):
             antiraid_config['messages'] = messages
             write_server_config(ctx.guild.id, 'antiraid', antiraid_config)
             await ctx.reply("Alright, custom messages have been set.")
+
+    @antiraid_group.command(
+        name="channel",
+        brief="Sends antiraid notice in the specified channel",
+        usage="#hall-of-dumbasses",
+        aliases=['setchannel']
+    )
+    @commands.has_guild_permissions(manage_guild=True)
+    async def antiraid_setchannel_command(self, ctx, *, channel: Optional[discord.TextChannel] = None):
+        antiraid_config = get_antiraid_config(ctx.guild.id)
+        if channel:
+            antiraid_config['channel'] = channel.id
+            write_server_config(ctx.guild.id, 'antiraid', antiraid_config)
+            await ctx.reply('Alright, all ban notices will be sent in that channel.')
+        else:
+            antiraid_config['channel'] = 0
+            write_server_config(ctx.guild.id, 'antiraid', antiraid_config)
+            await ctx.reply('Sure, no public messages will be sent about anyone getting banned.')
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -187,6 +208,7 @@ class Antiraid(commands.Cog, name="Antiraid"):
         if antiraid_config['enabled']:
             reason = None
             invite_nonsense = antiraid_config['invite']
+            announcement_channel = antiraid_config['channel']
             if invite_nonsense:
                 invites_before_join = self.bot.guild_invites[member.guild.id]
                 invites_after_join = await member.guild.invites()
@@ -207,10 +229,30 @@ class Antiraid(commands.Cog, name="Antiraid"):
                          "to disable antiraid mode, or specify an invite to block using " \
                          f"\"{self.bot.user.mention} antiraid invite (insert invite)\"."
             if reason:
-                await member.send(embed=get_raid_embed(member.guild, antiraid_config['messages']))
+                custom_messages = antiraid_config['messages']
+                custom_message = ""
+                if custom_messages:
+                    if len(custom_messages) > 1:
+                        custom_message = random.choice(custom_messages)
+                    else:
+                        custom_message = custom_messages[0]
+                await member.send(embed=get_raid_embed(member.guild, custom_message))
                 await member.ban(reason=reason)
 
-    # TODO: add public humiliation messages
+                description = f"**{member}**, *most likely* a server raider, has been banned."
+                if custom_message:
+                    description = f"```{custom_message}```\n{description}"
+
+                if announcement_channel:
+                    channel = member.guild.get_channel(announcement_channel)
+                    await channel.send(embed=discord.Embed(
+                        description=description
+                    ).set_author(
+                        name=member.guild.name,
+                        icon_url=member.guild.icon_url
+                    ).set_thumbnail(
+                        url=member.avatar_url
+                    ))
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite):
