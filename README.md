@@ -1,6 +1,18 @@
 # Drop
 A drop-mod frontend built with Discord.py, and also my main programming project.
 
+# Notice regarding the bot's future
+I know no one really cares or knows about this bot, but it was my own project since September 2020. Sometimes I'd just open up VSCodium and work on it a bit more.
+Then that project evolved into an actual Discord bot. And then I kept working on it. And I had fun. Until recently where I've looked at Matrix.org, an open source Discord alternative
+that is more consumer-friendly. So the project fell back a bit, plus new ideas weren't popping up anymore.
+
+Until today. Rapptz was announcing that [Discord.py was going to be discontinued](https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1).
+And so, I don't see much motivation to keep working on a creation that I know will just stop working no matter what I do.
+
+**It's been fun**, but seriously fuck Discord. They've proven, in my eyes, to be anti-consumer more than anything. I'm really sad that this is the only conclusion I can reach.
+If I can, I'll try working on other projects, but for now, I'll keep Drop up as much as I can.
+I'm so sorry.
+
 ## What the hell is this? 
 ~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as free as possible, while still retaining utility in mind. 
 ## How do I use it?
