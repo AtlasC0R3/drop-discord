@@ -86,6 +86,7 @@ class Antiraid(commands.Cog, name="Antiraid"):
                     "one specific invite.",
         brief="Configure Drop's anti-raid functions"
     )
+    @commands.has_guild_permissions(manage_guild=True)
     async def antiraid_group(self, ctx):
         if not ctx.invoked_subcommand:
             # return status
