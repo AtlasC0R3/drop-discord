@@ -13,6 +13,9 @@ And so, I don't see much motivation to keep working on a creation that I know wi
 If I can, I'll try working on other projects, but for now, I'll keep Drop up as much as I can.
 I'm so sorry.
 
+Update, as of September 18th 2021: **drop-discord will no longer be receiving updates**, this whole situation has been pretty demoralizing and I find no purpose to work on something that'll just die anyway, on a shitty platform.
+I will attempt to recreate this bot in [Matrix](https://matrix.org), but for now, please don't use this bot. I might also stop hosting the bot.
+
 ## What the hell is this? 
 ~~Didn't you read the text above?~~ This is a Python bot that was built from scratch that was meant to be as free as possible, while still retaining utility in mind. 
 ## How do I use it?
